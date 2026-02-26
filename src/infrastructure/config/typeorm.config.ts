@@ -41,7 +41,7 @@ export const dataSourceOptions: DataSourceOptions = {
   username: process.env.DB_USERNAME || 'postgres',
   password: process.env.DB_PASSWORD || 'postgres',
   database: process.env.DB_DATABASE || 'checkout_commerce',
-  entities: [__dirname + '/../adapters/database/typeorm/entities/*{.ts,.js}'],
+  entities: [__dirname + '/../adapters/database/typeorm/entities/*.entity{.ts,.js}'],
   migrations: [__dirname + '/../adapters/database/typeorm/migrations/*{.ts,.js}'],
   synchronize: false,
   logging: process.env.NODE_ENV === 'development',
