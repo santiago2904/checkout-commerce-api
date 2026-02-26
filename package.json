@@ -17,10 +17,17 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js",
+    "migration:generate": "npm run typeorm -- migration:generate -d src/infrastructure/config/typeorm.config.ts",
+    "migration:create": "npm run typeorm -- migration:create",
+    "migration:run": "npm run typeorm -- migration:run -d src/infrastructure/config/typeorm.config.ts",
+    "migration:revert": "npm run typeorm -- migration:revert -d src/infrastructure/config/typeorm.config.ts",
+    "migration:show": "npm run typeorm -- migration:show -d src/infrastructure/config/typeorm.config.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
+    "@nestjs/config": "^4.0.3",
     "@nestjs/core": "^11.0.1",
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/typeorm": "^11.0.0",
@@ -74,7 +81,8 @@
       "!**/index.ts",
       "!**/*.interface.ts",
       "!**/*.entity.ts",
-      "!**/seeds/**"
+      "!**/seeds/**",
+      "!**/migrations/**"
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node",
