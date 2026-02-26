@@ -124,15 +124,33 @@ export class InitialSchema1740600000000 implements MigrationInterface {
     `);
 
     // Create indexes
-    await queryRunner.query(`CREATE INDEX "IDX_roles_name" ON "roles" ("name")`);
-    await queryRunner.query(`CREATE INDEX "IDX_users_email" ON "users" ("email")`);
-    await queryRunner.query(`CREATE INDEX "IDX_users_roleId" ON "users" ("roleId")`);
-    await queryRunner.query(`CREATE INDEX "IDX_customers_userId" ON "customers" ("userId")`);
-    await queryRunner.query(`CREATE INDEX "IDX_deliveries_customerId" ON "deliveries" ("customerId")`);
-    await queryRunner.query(`CREATE INDEX "IDX_transactions_customerId" ON "transactions" ("customerId")`);
-    await queryRunner.query(`CREATE INDEX "IDX_transactions_status" ON "transactions" ("status")`);
-    await queryRunner.query(`CREATE INDEX "IDX_audit_logs_userId" ON "audit_logs" ("userId")`);
-    await queryRunner.query(`CREATE INDEX "IDX_audit_logs_timestamp" ON "audit_logs" ("timestamp")`);
+    await queryRunner.query(
+      `CREATE INDEX "IDX_roles_name" ON "roles" ("name")`,
+    );
+    await queryRunner.query(
+      `CREATE INDEX "IDX_users_email" ON "users" ("email")`,
+    );
+    await queryRunner.query(
+      `CREATE INDEX "IDX_users_roleId" ON "users" ("roleId")`,
+    );
+    await queryRunner.query(
+      `CREATE INDEX "IDX_customers_userId" ON "customers" ("userId")`,
+    );
+    await queryRunner.query(
+      `CREATE INDEX "IDX_deliveries_customerId" ON "deliveries" ("customerId")`,
+    );
+    await queryRunner.query(
+      `CREATE INDEX "IDX_transactions_customerId" ON "transactions" ("customerId")`,
+    );
+    await queryRunner.query(
+      `CREATE INDEX "IDX_transactions_status" ON "transactions" ("status")`,
+    );
+    await queryRunner.query(
+      `CREATE INDEX "IDX_audit_logs_userId" ON "audit_logs" ("userId")`,
+    );
+    await queryRunner.query(
+      `CREATE INDEX "IDX_audit_logs_timestamp" ON "audit_logs" ("timestamp")`,
+    );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
@@ -156,7 +174,7 @@ export class InitialSchema1740600000000 implements MigrationInterface {
     await queryRunner.query(`DROP TABLE "products"`);
     await queryRunner.query(`DROP TABLE "users"`);
     await queryRunner.query(`DROP TABLE "roles"`);
-    
+
     // Drop UUID extension
     await queryRunner.query(`DROP EXTENSION IF EXISTS "uuid-ossp"`);
   }

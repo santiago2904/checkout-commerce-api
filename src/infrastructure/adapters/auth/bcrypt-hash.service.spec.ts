@@ -39,7 +39,10 @@ describe('BcryptHashService', () => {
     it('should return true for matching passwords', async () => {
       const password = 'MySecurePassword123!';
       const hashedPassword = await hashService.hashPassword(password);
-      const result = await hashService.comparePasswords(password, hashedPassword);
+      const result = await hashService.comparePasswords(
+        password,
+        hashedPassword,
+      );
 
       expect(result).toBe(true);
     });
@@ -48,7 +51,10 @@ describe('BcryptHashService', () => {
       const password = 'MySecurePassword123!';
       const wrongPassword = 'WrongPassword456!';
       const hashedPassword = await hashService.hashPassword(password);
-      const result = await hashService.comparePasswords(wrongPassword, hashedPassword);
+      const result = await hashService.comparePasswords(
+        wrongPassword,
+        hashedPassword,
+      );
 
       expect(result).toBe(false);
     });
@@ -64,7 +70,10 @@ describe('BcryptHashService', () => {
     it('should be case sensitive', async () => {
       const password = 'MySecurePassword123!';
       const hashedPassword = await hashService.hashPassword(password);
-      const result = await hashService.comparePasswords('mysecurepassword123!', hashedPassword);
+      const result = await hashService.comparePasswords(
+        'mysecurepassword123!',
+        hashedPassword,
+      );
 
       expect(result).toBe(false);
     });

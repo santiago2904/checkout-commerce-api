@@ -22,7 +22,8 @@ export class ProductSeeder {
     const products = [
       {
         name: 'Laptop Dell XPS 13',
-        description: 'High-performance laptop with Intel Core i7, 16GB RAM, 512GB SSD',
+        description:
+          'High-performance laptop with Intel Core i7, 16GB RAM, 512GB SSD',
         price: 1299.99,
         stock: 10,
       },
@@ -34,7 +35,8 @@ export class ProductSeeder {
       },
       {
         name: 'Samsung Galaxy S24',
-        description: 'Flagship Android phone with 128GB storage and 5G connectivity',
+        description:
+          'Flagship Android phone with 128GB storage and 5G connectivity',
         price: 799.99,
         stock: 15,
       },
@@ -52,13 +54,15 @@ export class ProductSeeder {
       },
       {
         name: 'MacBook Pro 14"',
-        description: 'Professional laptop with M3 Pro chip, 18GB RAM, 512GB SSD',
+        description:
+          'Professional laptop with M3 Pro chip, 18GB RAM, 512GB SSD',
         price: 1999.99,
         stock: 8,
       },
       {
         name: 'Apple Watch Series 9',
-        description: 'Smartwatch with GPS, health monitoring, and fitness tracking',
+        description:
+          'Smartwatch with GPS, health monitoring, and fitness tracking',
         price: 399.99,
         stock: 40,
       },

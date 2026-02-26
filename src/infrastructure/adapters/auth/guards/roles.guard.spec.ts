@@ -13,7 +13,10 @@ describe('RolesGuard', () => {
     guard = new RolesGuard(reflector);
   });
 
-  const createMockExecutionContext = (user: any, roles?: RoleName[]): ExecutionContext => {
+  const createMockExecutionContext = (
+    user: { roleName?: RoleName; userId?: string; email?: string },
+    roles?: RoleName[],
+  ): ExecutionContext => {
     const mockContext = {
       switchToHttp: () => ({
         getRequest: () => ({ user }),
@@ -31,7 +34,9 @@ describe('RolesGuard', () => {
 
   describe('canActivate', () => {
     it('should allow access when no roles are required', () => {
-      const context = createMockExecutionContext({ roleName: RoleName.CUSTOMER });
+      const context = createMockExecutionContext({
+        roleName: RoleName.CUSTOMER,
+      });
       jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(undefined);
 
       const result = guard.canActivate(context);
@@ -40,10 +45,10 @@ describe('RolesGuard', () => {
     });
 
     it('should allow access when user has required role', () => {
-      const user = { 
-        userId: '123', 
-        email: 'admin@test.com', 
-        roleName: RoleName.ADMIN 
+      const user = {
+        userId: '123',
+        email: 'admin@test.com',
+        roleName: RoleName.ADMIN,
       };
       const context = createMockExecutionContext(user, [RoleName.ADMIN]);
 
@@ -53,12 +58,15 @@ describe('RolesGuard', () => {
     });
 
     it('should allow access when user has one of multiple required roles', () => {
-      const user = { 
-        userId: '123', 
-        email: 'customer@test.com', 
-        roleName: RoleName.CUSTOMER 
+      const user = {
+        userId: '123',
+        email: 'customer@test.com',
+        roleName: RoleName.CUSTOMER,
       };
-      const context = createMockExecutionContext(user, [RoleName.ADMIN, RoleName.CUSTOMER]);
+      const context = createMockExecutionContext(user, [
+        RoleName.ADMIN,
+        RoleName.CUSTOMER,
+      ]);
 
       const result = guard.canActivate(context);
 
@@ -66,10 +74,10 @@ describe('RolesGuard', () => {
     });
 
     it('should deny access when user does not have required role', () => {
-      const user = { 
-        userId: '123', 
-        email: 'customer@test.com', 
-        roleName: RoleName.CUSTOMER 
+      const user = {
+        userId: '123',
+        email: 'customer@test.com',
+        roleName: RoleName.CUSTOMER,
       };
       const context = createMockExecutionContext(user, [RoleName.ADMIN]);
 
@@ -90,10 +98,10 @@ describe('RolesGuard', () => {
     });
 
     it('should throw ForbiddenException with descriptive message', () => {
-      const user = { 
-        userId: '123', 
-        email: 'customer@test.com', 
-        roleName: RoleName.CUSTOMER 
+      const user = {
+        userId: '123',
+        email: 'customer@test.com',
+        roleName: RoleName.CUSTOMER,
       };
       const context = createMockExecutionContext(user, [RoleName.ADMIN]);
 
@@ -105,10 +113,10 @@ describe('RolesGuard', () => {
 
   describe('metadata reflection', () => {
     it('should check both handler and class for roles metadata', () => {
-      const user = { 
-        userId: '123', 
-        email: 'admin@test.com', 
-        roleName: RoleName.ADMIN 
+      const user = {
+        userId: '123',
+        email: 'admin@test.com',
+        roleName: RoleName.ADMIN,
       };
       const context = createMockExecutionContext(user, [RoleName.ADMIN]);
       const spy = jest.spyOn(reflector, 'getAllAndOverride');

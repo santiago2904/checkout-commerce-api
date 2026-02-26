@@ -70,7 +70,7 @@ describe('AuditLog Entity', () => {
       auditLog.roleName = 'ADMIN';
       auditLog.action = 'DELETE_PRODUCT';
       auditLog.timestamp = new Date();
-      
+
       expect(auditLog.userId).toBe('user-123');
       expect(auditLog.roleName).toBe('ADMIN');
       expect(auditLog.action).toBe('DELETE_PRODUCT');
@@ -81,7 +81,7 @@ describe('AuditLog Entity', () => {
       const auditLog = new AuditLog();
       const metadata = { productId: 'prod-123', reason: 'Out of stock' };
       auditLog.metadata = metadata;
-      
+
       expect(auditLog.metadata).toEqual(metadata);
     });
   });

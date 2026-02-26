@@ -1,13 +1,9 @@
-import {
-  CreateDateColumn,
-  UpdateDateColumn,
-  DeleteDateColumn,
-} from 'typeorm';
+import { CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
 
 /**
  * Base Entity with automatic timestamps and soft delete support
  * All domain entities should extend from this class
- * 
+ *
  * Features:
  * - createdAt: Automatically set when entity is created
  * - updatedAt: Automatically updated when entity is modified

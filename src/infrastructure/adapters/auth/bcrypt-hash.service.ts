@@ -25,10 +25,13 @@ export class BcryptHashService implements IHashService {
    * @param hashedPassword Hashed password to compare against
    * @returns True if passwords match, false otherwise
    */
-  async comparePasswords(password: string, hashedPassword: string): Promise<boolean> {
+  async comparePasswords(
+    password: string,
+    hashedPassword: string,
+  ): Promise<boolean> {
     try {
       return await bcrypt.compare(password, hashedPassword);
-    } catch (error) {
+    } catch {
       // Invalid hash format
       return false;
     }
