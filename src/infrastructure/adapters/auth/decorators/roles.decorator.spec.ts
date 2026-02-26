@@ -15,7 +15,11 @@ describe('Roles Decorator', () => {
       testMethod() {}
     }
 
-    const roles = reflector.get<RoleName[]>(ROLES_KEY, TestController.prototype.testMethod);
+    const roles = reflector.get<RoleName[]>(
+      ROLES_KEY,
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      TestController.prototype.testMethod,
+    );
     expect(roles).toEqual([RoleName.ADMIN]);
   });
 
@@ -25,7 +29,11 @@ describe('Roles Decorator', () => {
       testMethod() {}
     }
 
-    const roles = reflector.get<RoleName[]>(ROLES_KEY, TestController.prototype.testMethod);
+    const roles = reflector.get<RoleName[]>(
+      ROLES_KEY,
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      TestController.prototype.testMethod,
+    );
     expect(roles).toEqual([RoleName.ADMIN, RoleName.CUSTOMER]);
   });
 

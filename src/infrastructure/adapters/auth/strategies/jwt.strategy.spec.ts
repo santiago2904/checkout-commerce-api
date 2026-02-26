@@ -29,7 +29,7 @@ describe('JwtStrategy', () => {
   });
 
   describe('validate', () => {
-    it('should return user information for valid payload', async () => {
+    it('should return user information for valid payload', () => {
       const payload: JwtPayload = {
         sub: '123e4567-e89b-12d3-a456-426614174000',
         email: 'test@example.com',
@@ -37,7 +37,7 @@ describe('JwtStrategy', () => {
         roleName: 'CUSTOMER',
       };
 
-      const result = await strategy.validate(payload);
+      const result = strategy.validate(payload);
 
       expect(result).toEqual({
         userId: payload.sub,
@@ -47,44 +47,44 @@ describe('JwtStrategy', () => {
       });
     });
 
-    it('should throw UnauthorizedException if sub is missing', async () => {
+    it('should throw UnauthorizedException if sub is missing', () => {
       const payload = {
         email: 'test@example.com',
         roleId: '123e4567-e89b-12d3-a456-426614174001',
         roleName: 'CUSTOMER',
       } as JwtPayload;
 
-      await expect(strategy.validate(payload)).rejects.toThrow(UnauthorizedException);
+      expect(() => strategy.validate(payload)).toThrow(UnauthorizedException);
     });
 
-    it('should throw UnauthorizedException if email is missing', async () => {
+    it('should throw UnauthorizedException if email is missing', () => {
       const payload = {
         sub: '123e4567-e89b-12d3-a456-426614174000',
         roleId: '123e4567-e89b-12d3-a456-426614174001',
         roleName: 'CUSTOMER',
       } as JwtPayload;
 
-      await expect(strategy.validate(payload)).rejects.toThrow(UnauthorizedException);
+      expect(() => strategy.validate(payload)).toThrow(UnauthorizedException);
     });
 
-    it('should throw UnauthorizedException if roleId is missing', async () => {
+    it('should throw UnauthorizedException if roleId is missing', () => {
       const payload = {
         sub: '123e4567-e89b-12d3-a456-426614174000',
         email: 'test@example.com',
         roleName: 'CUSTOMER',
       } as JwtPayload;
 
-      await expect(strategy.validate(payload)).rejects.toThrow(UnauthorizedException);
+      expect(() => strategy.validate(payload)).toThrow(UnauthorizedException);
     });
 
-    it('should throw UnauthorizedException if roleName is missing', async () => {
+    it('should throw UnauthorizedException if roleName is missing', () => {
       const payload = {
         sub: '123e4567-e89b-12d3-a456-426614174000',
         email: 'test@example.com',
         roleId: '123e4567-e89b-12d3-a456-426614174001',
       } as JwtPayload;
 
-      await expect(strategy.validate(payload)).rejects.toThrow(UnauthorizedException);
+      expect(() => strategy.validate(payload)).toThrow(UnauthorizedException);
     });
   });
 });

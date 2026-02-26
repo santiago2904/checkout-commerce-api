@@ -20,10 +20,7 @@ async function runSeeders() {
     console.log('✓ Database connection established\n');
 
     // Run seeders in order
-    const seeders = [
-      new RoleSeeder(),
-      new ProductSeeder(),
-    ];
+    const seeders = [new RoleSeeder(), new ProductSeeder()];
 
     for (const seeder of seeders) {
       await seeder.run(connection);
@@ -44,4 +41,4 @@ async function runSeeders() {
 }
 
 // Execute seeders
-runSeeders();
+void runSeeders();

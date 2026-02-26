@@ -87,7 +87,7 @@ describe('Customer Entity', () => {
       const user = new User();
       user.email = 'test@example.com';
       customer.user = user;
-      
+
       expect(customer.user).toBe(user);
       expect(customer.user.email).toBe('test@example.com');
     });
@@ -96,7 +96,7 @@ describe('Customer Entity', () => {
       const customer = new Customer();
       const userId = 'test-user-id';
       customer.userId = userId;
-      
+
       expect(customer.userId).toBe(userId);
     });
   });

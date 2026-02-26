@@ -58,7 +58,7 @@ describe('Product Entity', () => {
   describe('validation', () => {
     it('should accept positive price', () => {
       const product = new Product();
-      product.price = 10.50;
+      product.price = 10.5;
       expect(product.price).toBeGreaterThan(0);
     });
 

@@ -96,7 +96,7 @@ describe('Transaction Entity', () => {
       const customer = new Customer();
       customer.firstName = 'John';
       transaction.customer = customer;
-      
+
       expect(transaction.customer).toBe(customer);
       expect(transaction.customer.firstName).toBe('John');
     });
@@ -105,7 +105,7 @@ describe('Transaction Entity', () => {
       const transaction = new Transaction();
       const customerId = 'test-customer-id';
       transaction.customerId = customerId;
-      
+
       expect(transaction.customerId).toBe(customerId);
     });
   });

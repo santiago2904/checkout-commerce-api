@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { JwtModule } from '@nestjs/jwt';
+import { JwtModule, JwtModuleOptions } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
+import { StringValue } from 'ms';
 import {
   BcryptHashService,
   JwtTokenService,
@@ -15,12 +16,21 @@ import {
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET'),
-        signOptions: {
-          expiresIn: configService.get<string>('JWT_EXPIRES_IN', '1d'),
-        },
-      }),
+      useFactory: (configService: ConfigService): JwtModuleOptions => {
+        const secret = configService.get<string>('JWT_SECRET');
+        if (!secret) {
+          throw new Error('JWT_SECRET is not defined in environment variables');
+        }
+
+        const expiresIn = configService.get<string>('JWT_EXPIRES_IN') || '1d';
+
+        return {
+          secret,
+          signOptions: {
+            expiresIn: expiresIn as StringValue,
+          },
+        };
+      },
       inject: [ConfigService],
     }),
   ],

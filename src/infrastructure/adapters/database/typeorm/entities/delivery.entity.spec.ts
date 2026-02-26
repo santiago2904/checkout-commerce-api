@@ -89,7 +89,7 @@ describe('Delivery Entity', () => {
       const customer = new Customer();
       customer.firstName = 'John';
       delivery.customer = customer;
-      
+
       expect(delivery.customer).toBe(customer);
       expect(delivery.customer.firstName).toBe('John');
     });
@@ -98,7 +98,7 @@ describe('Delivery Entity', () => {
       const delivery = new Delivery();
       const customerId = 'test-customer-id';
       delivery.customerId = customerId;
-      
+
       expect(delivery.customerId).toBe(customerId);
     });
   });

@@ -64,7 +64,7 @@ describe('User Entity', () => {
       const role = new Role();
       role.name = RoleName.ADMIN;
       user.role = role;
-      
+
       expect(user.role).toBe(role);
       expect(user.role.name).toBe(RoleName.ADMIN);
     });
@@ -73,7 +73,7 @@ describe('User Entity', () => {
       const user = new User();
       const roleId = 'test-role-id';
       user.roleId = roleId;
-      
+
       expect(user.roleId).toBe(roleId);
     });
   });
