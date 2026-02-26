@@ -88,6 +88,62 @@ If you used the Docker command above, the database is already created.
    npm run migration:show
    ```
 
+## Running Seeders
+
+After migrations are complete, populate the database with initial data.
+
+1. **Run All Seeders**:
+   ```bash
+   npm run seed:run
+   ```
+
+   This will seed:
+   - **Roles**: ADMIN and CUSTOMER roles
+   - **Products**: 10 sample products for testing
+
+2. **Verify Seeded Data**:
+   ```bash
+   # Connect to database
+   psql -U postgres -d checkout_commerce
+   
+   # Check roles
+   SELECT * FROM roles;
+   
+   # Check products
+   SELECT id, name, price, stock FROM products;
+   
+   # Exit
+   \q
+   ```
+
+### Seeder Details
+
+**Role Seeder**:
+- Creates ADMIN role (full system access)
+- Creates CUSTOMER role (checkout and purchase history access)
+- Idempotent: skips if roles already exist
+
+**Product Seeder**:
+- Creates 10 sample products with realistic data
+- Products include: electronics, phones, accessories, etc.
+- Idempotent: skips if products already exist
+
+### Manual Database Verification
+
+```sql
+-- Check role count
+SELECT COUNT(*) FROM roles;  -- Should return 2
+
+-- Check product count
+SELECT COUNT(*) FROM products;  -- Should return 10
+
+-- View all roles
+SELECT name, description FROM roles ORDER BY name;
+
+-- View all products with stock
+SELECT name, price, stock FROM products ORDER BY name;
+```
+
 ## Migration Commands Reference
 
 ```bash
@@ -217,8 +273,50 @@ After successful database setup:
 1. ✅ Install PostgreSQL
 2. ✅ Create database
 3. ✅ Run initial migration
-4. 🔜 Create role seeders (ADMIN, CUSTOMER)
+4. ✅ Run seeders (ADMIN, CUSTOMER roles and sample products)
 5. 🔜 Test application with database
+6. 🔜 Create first admin user
+
+## Complete Setup Flow
+
+Here's the complete workflow from scratch:
+
+```bash
+# 1. Clone repository
+git clone <repository-url>
+cd checkout-commerce-api
+
+# 2. Install dependencies
+npm install
+
+# 3. Configure environment
+cp .env.example .env
+# Edit .env with your database credentials
+
+# 4. Ensure PostgreSQL is running
+brew services start postgresql@15
+# or
+docker start checkout-postgres
+
+# 5. Create database
+psql -U postgres -c "CREATE DATABASE checkout_commerce;"
+
+# 6. Run migrations
+npm run migration:run
+
+# 7. Run seeders
+npm run seed:run
+
+# 8. Verify setup
+npm run migration:show
+psql -U postgres -d checkout_commerce -c "SELECT COUNT(*) FROM roles;"
+
+# 9. Run tests
+npm test
+
+# 10. Start development server
+npm run start:dev
+```
 
 ## Production Considerations
 
