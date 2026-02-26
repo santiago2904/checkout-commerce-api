@@ -39,11 +39,9 @@ describe('TypeORM Configuration', () => {
 
       expect(config.host).toBe('localhost');
       expect([5432, '5432']).toContain(config.port); // Can be number or string from .env
-      // When ConfigService is empty, it will use .env values (loaded by dotenv)
-      // or the hardcoded defaults if .env is not present
-      expect(config.username).toBeDefined();
-      expect(config.password).toBeDefined();
-      expect(config.database).toBeDefined();
+      expect(config.username).toBe('zarco'); // Now reads from .env
+      expect(config.password).toBe('admin123'); // Now reads from .env
+      expect(config.database).toBe('checkout'); // Now reads from .env
     });
 
     it('should have synchronize true in development', () => {
