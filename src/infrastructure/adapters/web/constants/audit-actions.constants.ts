@@ -77,38 +77,49 @@ export const AUDIT_ACTIONS = {
 export type AuditAction = (typeof AUDIT_ACTIONS)[keyof typeof AUDIT_ACTIONS];
 
 /**
+ * Category configuration type
+ */
+interface CategoryConfig {
+  actions: readonly string[];
+  includeEmail?: boolean;
+  includeUserId?: boolean;
+  includeTransactionData?: boolean;
+  includeTargetUserId?: boolean;
+}
+
+/**
  * Audit action categories configuration
  * Maps categories to their actions and metadata extraction rules
  */
-export const AUDIT_CATEGORIES = {
+export const AUDIT_CATEGORIES: Record<string, CategoryConfig> = {
   AUTH: {
-    actions: Object.values(AUTH_AUDIT_ACTIONS),
+    actions: Object.values(AUTH_AUDIT_ACTIONS) as AuditAction[],
     includeEmail: true, // Include email in metadata for auth actions
     includeUserId: true,
   },
   USER: {
-    actions: Object.values(USER_AUDIT_ACTIONS),
+    actions: Object.values(USER_AUDIT_ACTIONS) as AuditAction[],
     includeEmail: false,
     includeUserId: true,
   },
   PRODUCT: {
-    actions: Object.values(PRODUCT_AUDIT_ACTIONS),
+    actions: Object.values(PRODUCT_AUDIT_ACTIONS) as AuditAction[],
     includeEmail: false,
     includeUserId: false,
   },
   CHECKOUT: {
-    actions: Object.values(CHECKOUT_AUDIT_ACTIONS),
+    actions: Object.values(CHECKOUT_AUDIT_ACTIONS) as AuditAction[],
     includeEmail: false,
     includeUserId: true,
     includeTransactionData: true, // Include transaction details
   },
   ADMIN: {
-    actions: Object.values(ADMIN_AUDIT_ACTIONS),
+    actions: Object.values(ADMIN_AUDIT_ACTIONS) as AuditAction[],
     includeEmail: false,
     includeUserId: true,
     includeTargetUserId: true, // Include target user for admin actions
   },
-} as const;
+};
 
 /**
  * Helper function to get category for an action
@@ -117,8 +128,8 @@ export function getActionCategory(
   action: string,
 ): keyof typeof AUDIT_CATEGORIES | null {
   for (const [category, config] of Object.entries(AUDIT_CATEGORIES)) {
-    if (config.actions.includes(action as AuditAction)) {
-      return category as keyof typeof AUDIT_CATEGORIES;
+    if (config.actions.includes(action)) {
+      return category;
     }
   }
   return null;
@@ -131,5 +142,5 @@ export function isActionInCategory(
   action: string,
   categoryKey: keyof typeof AUDIT_CATEGORIES,
 ): boolean {
-  return AUDIT_CATEGORIES[categoryKey].actions.includes(action as AuditAction);
+  return AUDIT_CATEGORIES[categoryKey].actions.includes(action);
 }
