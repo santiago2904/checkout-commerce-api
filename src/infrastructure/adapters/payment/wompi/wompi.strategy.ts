@@ -10,7 +10,6 @@ import {
   PaymentError,
   PaymentGatewayError,
   InvalidPaymentDataError,
-  TransactionDeclinedError,
 } from '@application/ports/out';
 import { Result, ok, err } from '@application/utils';
 import {
@@ -257,6 +256,11 @@ export class WompiStrategy implements IPaymentGateway {
 
   /**
    * Map Wompi response to PaymentResult
+   *
+   * IMPORTANT: All transaction states (PENDING, APPROVED, DECLINED, ERROR) are valid states
+   * that should return ok() with the status. This allows proper async polling by the client.
+   *
+   * Only return err() for communication/validation errors with Wompi API itself.
    */
   private mapWompiResponse(
     response: WompiTransactionResponse,
@@ -268,32 +272,17 @@ export class WompiStrategy implements IPaymentGateway {
       reference: data.reference,
       status: this.mapWompiStatus(data.status),
       paymentMethod: data.payment_method_type,
-      errorCode: data.error?.type,
-      errorMessage: data.error?.reason,
+      errorCode:
+        data.error?.type ||
+        (data.status === WompiTransactionStatus.DECLINED ||
+        data.status === WompiTransactionStatus.ERROR
+          ? data.status
+          : undefined),
+      errorMessage: data.error?.reason || data.status_message,
     };
 
-    // Check if transaction has errors
-    if (data.error) {
-      return err(
-        new TransactionDeclinedError(
-          data.error.reason || 'Transaction declined',
-          data.error.type,
-          data.error.messages,
-        ),
-      );
-    }
-
-    // If transaction is DECLINED or ERROR, return as error
-    if (result.status === 'DECLINED' || result.status === 'ERROR') {
-      return err(
-        new TransactionDeclinedError(
-          data.status_message || 'Transaction declined',
-          data.status,
-          result,
-        ),
-      );
-    }
-
+    // All states (PENDING, APPROVED, DECLINED, ERROR) are valid and should return ok()
+    // The client will check the status field to determine the outcome
     return ok(result);
   }
 

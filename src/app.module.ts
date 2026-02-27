@@ -4,6 +4,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DatabaseModule } from '@infrastructure/modules/database.module';
 import { AuthModule } from '@infrastructure/modules/auth.module';
+import { CheckoutModule } from '@infrastructure/modules/checkout.module';
 import { ProductModule } from './product/product.module';
 
 @Module({
@@ -14,6 +15,7 @@ import { ProductModule } from './product/product.module';
     }),
     DatabaseModule,
     AuthModule,
+    CheckoutModule,
     ProductModule,
   ],
   controllers: [AppController],

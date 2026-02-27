@@ -18,5 +18,17 @@
         "failed": "Login failed"
       }
     }
+  },
+  "checkout": {
+    "success": "Checkout initiated successfully",
+    "statusChecked": "Transaction status checked",
+    "errors": {
+      "customerNotFound": "Customer not found",
+      "insufficientStock": "Insufficient stock",
+      "productNotFound": "Product not found",
+      "transactionNotFound": "Transaction not found",
+      "failed": "Checkout failed",
+      "failedStatusCheck": "Failed to check status"
+    }
   }
 }

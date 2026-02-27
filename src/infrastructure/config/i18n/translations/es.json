@@ -18,5 +18,17 @@
         "failed": "Inicio de sesión fallido"
       }
     }
+  },
+  "checkout": {
+    "success": "Checkout iniciado exitosamente",
+    "statusChecked": "Estado de transacción consultado",
+    "errors": {
+      "customerNotFound": "Cliente no encontrado",
+      "insufficientStock": "Stock insuficiente",
+      "productNotFound": "Producto no encontrado",
+      "transactionNotFound": "Transacción no encontrada",
+      "failed": "Error al procesar checkout",
+      "failedStatusCheck": "Error al consultar estado"
+    }
   }
 }

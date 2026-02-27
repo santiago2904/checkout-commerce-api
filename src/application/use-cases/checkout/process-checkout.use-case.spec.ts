@@ -139,25 +139,19 @@ describe('ProcessCheckoutUseCase', () => {
   });
 
   describe('execute - Happy Path', () => {
-    it('should successfully process checkout with approved payment', async () => {
+    it('should successfully initiate checkout with pending payment (async Wompi)', async () => {
       // Arrange
       productRepository.findById.mockResolvedValue(mockProduct);
       productRepository.hasStock.mockResolvedValue(true);
       transactionRepository.create.mockResolvedValue(mockTransaction);
       transactionRepository.updateStatus.mockResolvedValue(undefined);
-      productRepository.updateStock.mockResolvedValue(undefined);
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      deliveryRepository.create.mockResolvedValue({
-        id: 'delivery-id',
-      } as any);
 
+      // Wompi ALWAYS returns PENDING initially (async payments)
       paymentGateway.processPayment.mockResolvedValue(
         ok({
-          status: 'APPROVED',
+          status: 'PENDING',
           transactionId: 'wompi-txn-123',
           reference: 'REF-001',
-          amount: 20000,
-          currency: 'COP',
           paymentMethod: 'CARD',
         }),
       );
@@ -170,17 +164,22 @@ describe('ProcessCheckoutUseCase', () => {
         '192.168.1.1',
       );
 
-      // Assert
+      // Assert - Wompi is async, so we get PENDING status
       expect(result.isOk()).toBe(true);
       expect(result.value).toMatchObject({
         transactionId: 'transaction-id',
         transactionNumber: 'TXN-001',
-        status: 'APPROVED',
+        status: 'PENDING', // NOT 'APPROVED' - Wompi is async!
         amount: 20000,
         currency: 'COP',
-        deliveryId: 'delivery-id',
+        wompiTransactionId: 'wompi-txn-123',
       });
 
+      // Stock reduction and delivery creation DON'T happen until APPROVED
+      // (happens via polling endpoint when status becomes APPROVED)
+      expect(result.value.deliveryId).toBeUndefined();
+
+      // Verify correct repository calls
       expect(productRepository.findById).toHaveBeenCalledWith('product-id-1');
       expect(productRepository.hasStock).toHaveBeenCalledWith(
         'product-id-1',
@@ -188,11 +187,10 @@ describe('ProcessCheckoutUseCase', () => {
       );
       expect(transactionRepository.create).toHaveBeenCalled();
       expect(paymentGateway.processPayment).toHaveBeenCalled();
-      expect(productRepository.updateStock).toHaveBeenCalledWith(
-        'product-id-1',
-        2,
-      );
-      expect(deliveryRepository.create).toHaveBeenCalled();
+
+      // Stock and delivery are NOT updated immediately (async flow)
+      expect(productRepository.updateStock).not.toHaveBeenCalled();
+      expect(deliveryRepository.create).not.toHaveBeenCalled();
     });
   });
 
@@ -370,7 +368,7 @@ describe('ProcessCheckoutUseCase', () => {
 
       paymentGateway.processPayment.mockResolvedValue(
         ok({
-          status: 'APPROVED',
+          status: 'PENDING',
           transactionId: 'wompi-txn-123',
           reference: 'REF-001',
           amount: 35000,
@@ -389,16 +387,12 @@ describe('ProcessCheckoutUseCase', () => {
 
       // Assert
       expect(result.isOk()).toBe(true);
+      expect(result.value.status).toBe('PENDING');
       expect(result.value.amount).toBe(35000);
-      expect(productRepository.updateStock).toHaveBeenCalledTimes(2);
-      expect(productRepository.updateStock).toHaveBeenCalledWith(
-        'product-id-1',
-        2,
-      );
-      expect(productRepository.updateStock).toHaveBeenCalledWith(
-        'product-id-2',
-        1,
-      );
+      expect(result.value.wompiTransactionId).toBe('wompi-txn-123');
+      expect(result.value.deliveryId).toBeUndefined();
+      expect(productRepository.updateStock).not.toHaveBeenCalled();
+      expect(deliveryRepository.create).not.toHaveBeenCalled();
     });
 
     it('should fail if any product in multi-item checkout has insufficient stock', async () => {

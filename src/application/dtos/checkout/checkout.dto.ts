@@ -132,17 +132,20 @@ export class CheckoutRequestDto {
 
 /**
  * Checkout Response DTO
+ * IMPORTANT: Wompi payments are async - status will be PENDING initially
+ * Client should poll GET /checkout/status/:transactionId to get final status
  */
 export class CheckoutResponseDto {
-  transactionId: string;
-  transactionNumber: string;
+  transactionId: string; // Internal transaction ID
+  transactionNumber: string; // Human-readable transaction number
+  wompiTransactionId?: string; // Wompi's transaction ID (for reference)
   status: 'PENDING' | 'APPROVED' | 'DECLINED' | 'ERROR';
   amount: number;
   currency: string;
   reference: string;
   paymentMethod: string;
-  deliveryId?: string;
+  deliveryId?: string; // Only present when status is APPROVED
   errorCode?: string;
   errorMessage?: string;
-  redirectUrl?: string;
+  redirectUrl?: string; // For async payment methods (PSE, BANCOLOMBIA_TRANSFER)
 }

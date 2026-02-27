@@ -10,7 +10,6 @@ import {
   PaymentMethodData,
   InvalidPaymentDataError,
   PaymentGatewayError,
-  TransactionDeclinedError,
 } from '@application/ports/out';
 import {
   WompiTransactionResponse,
@@ -216,10 +215,12 @@ describe('WompiStrategy', () => {
 
       const result = await strategy.processPayment(validTransactionData);
 
-      expect(result.isErr()).toBe(true);
-      if (result.isErr()) {
-        expect(result.error).toBeInstanceOf(TransactionDeclinedError);
-        expect(result.error.message).toContain('Insufficient funds');
+      // DECLINED is a valid final state that returns ok(), not err()
+      // This allows client polling to see the DECLINED status
+      expect(result.isOk()).toBe(true);
+      if (result.isOk()) {
+        expect(result.value.status).toBe('DECLINED');
+        expect(result.value.errorMessage).toContain('Insufficient funds');
       }
     });
 
