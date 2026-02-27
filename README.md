@@ -23,7 +23,27 @@
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Backend API for a checkout and payment flow integrated with Wompi payment gateway in Sandbox mode. Built with NestJS, TypeScript, TypeORM (PostgreSQL), implementing Hexagonal Architecture, Railway Oriented Programming, and RBAC authentication.
+
+## 📚 Documentation
+
+- **[Quick Start Guide](./QUICK_START.md)** - Get up and running in 5 minutes
+- **[✨ Checkout Testing Guide](./CHECKOUT_TESTING_GUIDE.md)** - Complete guide to test the async checkout flow
+- **[Authentication Usage](./AUTHENTICATION_USAGE.md)** - JWT authentication and RBAC implementation
+- **[Database Setup](./DATABASE_SETUP.md)** - PostgreSQL configuration and migrations
+- **[Architecture Instructions](./arquitecture.instruction.md)** - Project architecture and design patterns
+- **[Migrations Guide](./MIGRATIONS_GUIDE.md)** - Database migrations management
+
+## Key Features
+
+- ✅ **Asynchronous Payment Processing** - Wompi integration with client-side polling
+- ✅ **JWT Authentication** - Secure user authentication with Passport.js
+- ✅ **Role-Based Access Control (RBAC)** - Dynamic roles from database
+- ✅ **Railway Oriented Programming** - Elegant error handling with Result monads
+- ✅ **Hexagonal Architecture** - Clean separation of concerns
+- ✅ **Strategy Pattern** - Extensible payment gateway integration
+- ✅ **Audit Logging** - Automatic tracking of critical operations
+- ✅ **203+ Unit Tests** - Comprehensive test coverage with Jest
 
 ## Project setup
 
