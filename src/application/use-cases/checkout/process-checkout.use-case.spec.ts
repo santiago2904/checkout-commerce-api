@@ -281,7 +281,6 @@ describe('ProcessCheckoutUseCase', () => {
         'transaction-id',
         TransactionStatus.ERROR,
         undefined,
-        undefined,
         'PAYMENT_DECLINED',
         'Card was declined',
       );

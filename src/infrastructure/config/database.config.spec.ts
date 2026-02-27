@@ -68,7 +68,7 @@ describe('TypeORM Configuration', () => {
       const config = getTypeOrmConfig(configService);
 
       expect(config.entities).toBeDefined();
-      expect(config.entities).toHaveLength(7);
+      expect(config.entities).toHaveLength(8); // Role, User, Product, Customer, Delivery, Transaction, TransactionItem, AuditLog
     });
 
     it('should have migrations configuration', () => {

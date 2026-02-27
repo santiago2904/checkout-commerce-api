@@ -71,7 +71,7 @@ describe('WompiStrategy', () => {
 
   describe('processPayment', () => {
     const validTransactionData: TransactionData = {
-      amount: 10000, // 100 COP in cents
+      amount: 100, // 100 COP (pesos) = 10000 centavos
       currency: 'COP',
       reference: 'TEST-001',
       customerEmail: 'test@example.com',
@@ -328,7 +328,7 @@ describe('WompiStrategy', () => {
       expect(result.isErr()).toBe(true);
       if (result.isErr()) {
         expect(result.error).toBeInstanceOf(InvalidPaymentDataError);
-        expect(result.error.message).toContain('Invalid payment method');
+        expect(result.error.message).toContain('is required');
       }
     });
 
