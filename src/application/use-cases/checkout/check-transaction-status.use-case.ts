@@ -8,6 +8,7 @@ import type {
 } from '@application/ports/out';
 import { TransactionStatus } from '@domain/enums';
 import { Transaction } from '@infrastructure/adapters/database/typeorm/entities';
+import { FulfillmentService } from './fulfillment.service';
 
 /**
  * Transaction Status Response
@@ -65,6 +66,7 @@ export class CheckTransactionStatusUseCase {
     private readonly transactionRepository: ITransactionRepository,
     @Inject('IPaymentGateway')
     private readonly paymentGateway: IPaymentGateway,
+    private readonly fulfillmentService: FulfillmentService,
   ) {}
 
   async execute(
@@ -131,18 +133,81 @@ export class CheckTransactionStatusUseCase {
         paymentData.errorMessage,
       );
 
-      // TODO: When status becomes APPROVED, trigger fulfillment:
-      // - Reduce product stock
-      // - Create delivery record
-      // - Send confirmation email
-      // This should be handled by webhooks or background jobs
-      if (
-        newStatus === TransactionStatus.APPROVED &&
-        currentStatus !== TransactionStatus.APPROVED
-      ) {
-        this.logger.warn(
-          `Transaction ${transactionId} approved. Fulfillment not yet implemented. TODO: Reduce stock and create delivery.`,
+      // Process fulfillment based on new status
+      // Only process fulfillment on state transitions (not on every poll)
+      if (currentStatus !== newStatus) {
+        // Get updated transaction with relations for fulfillment
+        const updatedTransaction = await this.transactionRepository.findById(
+          transaction.id,
         );
+
+        if (!updatedTransaction) {
+          this.logger.error(
+            `Transaction ${transactionId} not found after update`,
+          );
+        } else {
+          // Process APPROVED transactions: reduce stock + create delivery
+          if (
+            newStatus === TransactionStatus.APPROVED &&
+            currentStatus !== TransactionStatus.APPROVED
+          ) {
+            this.logger.log(
+              `Processing fulfillment for APPROVED transaction ${transactionId}`,
+            );
+            const fulfillmentResult =
+              await this.fulfillmentService.processApprovedTransaction(
+                updatedTransaction,
+              );
+
+            if (fulfillmentResult.isErr()) {
+              this.logger.error(
+                `Fulfillment failed for transaction ${transactionId}: ${fulfillmentResult.error.message}`,
+              );
+              // Note: Transaction status remains APPROVED even if fulfillment fails
+              // This allows for manual intervention or retry mechanisms
+            } else {
+              this.logger.log(
+                `Fulfillment completed for transaction ${transactionId}. Delivery ID: ${fulfillmentResult.value.deliveryId}`,
+              );
+            }
+          }
+
+          // Process DECLINED transactions: log reason
+          if (
+            newStatus === TransactionStatus.DECLINED &&
+            currentStatus !== TransactionStatus.DECLINED
+          ) {
+            this.logger.log(`Processing DECLINED transaction ${transactionId}`);
+            const declinedResult =
+              await this.fulfillmentService.processDeclinedTransaction(
+                updatedTransaction,
+              );
+
+            if (declinedResult.isErr()) {
+              this.logger.error(
+                `Failed to process DECLINED transaction ${transactionId}: ${declinedResult.error.message}`,
+              );
+            }
+          }
+
+          // Process ERROR transactions: log error and alert
+          if (
+            newStatus === TransactionStatus.ERROR &&
+            currentStatus !== TransactionStatus.ERROR
+          ) {
+            this.logger.error(`Processing ERROR transaction ${transactionId}`);
+            const errorResult =
+              await this.fulfillmentService.processErrorTransaction(
+                updatedTransaction,
+              );
+
+            if (errorResult.isErr()) {
+              this.logger.error(
+                `Failed to process ERROR transaction ${transactionId}: ${errorResult.error.message}`,
+              );
+            }
+          }
+        }
       }
     }
 

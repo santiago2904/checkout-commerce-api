@@ -50,6 +50,19 @@ export const CHECKOUT_AUDIT_ACTIONS = {
 } as const;
 
 /**
+ * Fulfillment actions
+ */
+export const FULFILLMENT_AUDIT_ACTIONS = {
+  FULFILLMENT_APPROVED_START: 'FULFILLMENT_APPROVED_START',
+  FULFILLMENT_APPROVED_SUCCESS: 'FULFILLMENT_APPROVED_SUCCESS',
+  FULFILLMENT_APPROVED_FAILED: 'FULFILLMENT_APPROVED_FAILED',
+  FULFILLMENT_DECLINED_PROCESSED: 'FULFILLMENT_DECLINED_PROCESSED',
+  FULFILLMENT_ERROR_LOGGED: 'FULFILLMENT_ERROR_LOGGED',
+  FULFILLMENT_STOCK_REDUCED: 'FULFILLMENT_STOCK_REDUCED',
+  FULFILLMENT_DELIVERY_CREATED: 'FULFILLMENT_DELIVERY_CREATED',
+} as const;
+
+/**
  * Admin actions
  */
 export const ADMIN_AUDIT_ACTIONS = {
@@ -69,6 +82,7 @@ export const AUDIT_ACTIONS = {
   ...USER_AUDIT_ACTIONS,
   ...PRODUCT_AUDIT_ACTIONS,
   ...CHECKOUT_AUDIT_ACTIONS,
+  ...FULFILLMENT_AUDIT_ACTIONS,
   ...ADMIN_AUDIT_ACTIONS,
 } as const;
 
@@ -113,6 +127,12 @@ export const AUDIT_CATEGORIES: Record<string, CategoryConfig> = {
     includeEmail: false,
     includeUserId: true,
     includeTransactionData: true, // Include transaction details
+  },
+  FULFILLMENT: {
+    actions: Object.values(FULFILLMENT_AUDIT_ACTIONS) as AuditAction[],
+    includeEmail: false,
+    includeUserId: true,
+    includeTransactionData: true, // Include fulfillment details
   },
   ADMIN: {
     actions: Object.values(ADMIN_AUDIT_ACTIONS) as AuditAction[],

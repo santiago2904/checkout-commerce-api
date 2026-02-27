@@ -3,6 +3,7 @@ import {
   PrimaryGeneratedColumn,
   Column,
   ManyToOne,
+  OneToMany,
   JoinColumn,
 } from 'typeorm';
 import { BaseEntity } from './base.entity';
@@ -65,4 +66,8 @@ export class Transaction extends BaseEntity {
 
   @Column({ type: 'uuid' })
   customerId: string;
+
+  // Transaction items (products purchased in this transaction)
+  @OneToMany('TransactionItem', 'transaction', { cascade: true })
+  items: any[]; // Using any to avoid circular dependency, will be TransactionItem[]
 }

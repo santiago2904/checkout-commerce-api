@@ -10,6 +10,7 @@ import {
 import {
   IProductRepository,
   ITransactionRepository,
+  ITransactionItemRepository,
   IDeliveryRepository,
   IPaymentGateway,
 } from '@application/ports/out';
@@ -26,6 +27,7 @@ describe('ProcessCheckoutUseCase', () => {
   let useCase: ProcessCheckoutUseCase;
   let productRepository: jest.Mocked<IProductRepository>;
   let transactionRepository: jest.Mocked<ITransactionRepository>;
+  let transactionItemRepository: jest.Mocked<ITransactionItemRepository>;
   let deliveryRepository: jest.Mocked<IDeliveryRepository>;
   let paymentGateway: jest.Mocked<IPaymentGateway>;
 
@@ -88,6 +90,12 @@ describe('ProcessCheckoutUseCase', () => {
       findPending: jest.fn(),
     };
 
+    const mockTransactionItemRepo = {
+      createMany: jest.fn(),
+      findByTransactionId: jest.fn(),
+      findById: jest.fn(),
+    };
+
     const mockDeliveryRepo = {
       create: jest.fn(),
       findById: jest.fn(),
@@ -113,6 +121,10 @@ describe('ProcessCheckoutUseCase', () => {
           useValue: mockTransactionRepo,
         },
         {
+          provide: 'ITransactionItemRepository',
+          useValue: mockTransactionItemRepo,
+        },
+        {
           provide: 'IDeliveryRepository',
           useValue: mockDeliveryRepo,
         },
@@ -126,6 +138,7 @@ describe('ProcessCheckoutUseCase', () => {
     useCase = module.get<ProcessCheckoutUseCase>(ProcessCheckoutUseCase);
     productRepository = module.get('IProductRepository');
     transactionRepository = module.get('ITransactionRepository');
+    transactionItemRepository = module.get('ITransactionItemRepository');
     deliveryRepository = module.get('IDeliveryRepository');
     paymentGateway = module.get('IPaymentGateway');
 

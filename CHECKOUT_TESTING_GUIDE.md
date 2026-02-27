@@ -1,8 +1,8 @@
-# Guía de Pruebas del Checkout (Flujo Asíncrono)
+# Guía de Pruebas del Checkout (Flujo Completo)
 
 ## 📋 Resumen
 
-Esta guía te ayudará a probar el flujo completo de checkout con la integración de Wompi en modo **asíncrono**. Las transacciones ahora retornan estado `PENDING` y requieren **polling** para obtener el estado final.
+Esta guía te ayudará a probar el flujo completo de checkout con la integración de Wompi en modo **asíncrono**, incluyendo el proceso de fulfillment (reducción de stock, creación de delivery, y logging de auditoría).
 
 ---
 
@@ -42,47 +42,59 @@ El servidor estará disponible en: `http://localhost:3000`
 curl -X POST http://localhost:3000/api/auth/register \
   -H "Content-Type: application/json" \
   -d '{
-    "email": "customer@test.com",
-    "password": "Test123!",
-    "name": "Test Customer",
-    "phone": "3001234567",
-    "address": "Calle 123 #45-67, Bogotá"
+    "email": "johndoe@test.com",
+    "password": "Test123!pass",
+    "firstName": "John",
+    "lastName": "Doe"
   }'
 ```
 
 **Respuesta esperada:**
 ```json
 {
+  "statusCode": 201,
   "message": "User registered successfully",
-  "user": {
-    "id": "uuid-here",
-    "email": "customer@test.com",
-    "roleName": "CUSTOMER"
+  "data": {
+    "user": {
+      "id": "uuid-here",
+      "email": "johndoe@test.com",
+      "firstName": "John",
+      "lastName": "Doe"
+    },
+    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
   }
 }
 ```
 
-### Opción B: Login con Usuario Seeded
+> ⚠️ **Importante:** 
+> - La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número
+> - Guarda el `accessToken` para los siguientes pasos
 
-Los seeders ya crearon usuarios de prueba:
+### Opción B: Login con Usuario Existente
+
+Si ya tienes una cuenta:
 
 ```bash
 curl -X POST http://localhost:3000/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{
-    "email": "customer@example.com",
-    "password": "Customer123!"
+    "email": "johndoe@test.com",
+    "password": "Test123!pass"
   }'
 ```
 
 **Respuesta esperada:**
 ```json
 {
-  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "user": {
-    "id": "uuid-here",
-    "email": "customer@example.com",
-    "roleName": "CUSTOMER"
+  "statusCode": 200,
+  "message": "Login successful",
+  "data": {
+    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "user": {
+      "id": "uuid-here",
+      "email": "johndoe@test.com",
+      "roles": ["CUSTOMER"]
+    }
   }
 }
 ```
@@ -101,34 +113,75 @@ curl -X GET http://localhost:3000/api/products \
 **Respuesta esperada:**
 ```json
 {
-  "products": [
+  "statusCode": 200,
+  "message": "Products retrieved successfully",
+  "data": [
     {
       "id": "product-uuid-1",
       "name": "Laptop Dell XPS 13",
-      "description": "Intel i7, 16GB RAM, 512GB SSD",
-      "price": 3500000,
+      "description": "High-performance laptop with Intel Core i7, 16GB RAM, 512GB SSD",
+      "price": 1299.99,
       "stock": 10,
-      "isActive": true
+      "isActive": true,
+      "createdAt": "2024-01-15T10:00:00.000Z",
+      "updatedAt": "2024-01-15T10:00:00.000Z"
     },
     {
       "id": "product-uuid-2",
-      "name": "iPhone 14 Pro",
-      "description": "128GB, Midnight Blue",
-      "price": 4200000,
-      "stock": 5,
-      "isActive": true
+      "name": "iPhone 15 Pro",
+      "description": "Latest Apple iPhone with A17 Pro chip, 256GB storage",
+      "price": 999.99,
+      "stock": 25,
+      "isActive": true,
+      "createdAt": "2024-01-15T10:00:00.000Z",
+      "updatedAt": "2024-01-15T10:00:00.000Z"
+    },
+    {
+      "id": "product-uuid-3",
+      "name": "Samsung Galaxy S24",
+      "description": "Flagship Android phone with 128GB storage and 5G connectivity",
+      "price": 799.99,
+      "stock": 15,
+      "isActive": true,
+      "createdAt": "2024-01-15T10:00:00.000Z",
+      "updatedAt": "2024-01-15T10:00:00.000Z"
     }
   ]
 }
 ```
 
-> 📝 Copia el `id` del producto que quieras comprar.
+> 📝 **Nota:** El seeder crea 10 productos diferentes. Copia el `id` del producto que quieras comprar.
+
+### Productos Disponibles (Seeder)
+
+Los siguientes productos están disponibles después de ejecutar `npm run seed:run`:
+
+| Producto | Precio (USD) | Stock | Descripción |
+|----------|--------------|-------|-------------|
+| Laptop Dell XPS 13 | $1,299.99 | 10 | Intel i7, 16GB RAM, 512GB SSD |
+| iPhone 15 Pro | $999.99 | 25 | A17 Pro chip, 256GB |
+| Samsung Galaxy S24 | $799.99 | 15 | 128GB, 5G |
+| Sony WH-1000XM5 Headphones | $399.99 | 30 | Noise-canceling wireless |
+| iPad Pro 12.9" | $1,099.99 | 20 | M2 chip, 256GB |
+| MacBook Pro 14" | $1,999.99 | 8 | M3 Pro chip, 18GB RAM |
+| Apple Watch Series 9 | $399.99 | 40 | GPS, health monitoring |
+| Samsung 55" 4K Smart TV | $549.99 | 12 | Crystal UHD 4K |
+| Nintendo Switch OLED | $349.99 | 18 | OLED screen, 64GB |
+| Logitech MX Master 3S | $99.99 | 50 | Ergonomic wireless mouse |
 
 ---
 
 ## 💳 Paso 3: Procesar Checkout (Retorna PENDING)
 
-### Request
+### Estructura del Payload
+
+El endpoint `/api/checkout` requiere:
+- **items**: Array de productos con `productId` y `quantity`
+- **paymentMethod**: Objeto con tipo y datos específicos del método de pago
+- **shippingAddress**: Dirección completa de entrega
+- **customerEmail**: Email del cliente (para notificaciones)
+
+### Ejemplo 1: Pago con Tarjeta (CARD)
 
 ```bash
 curl -X POST http://localhost:3000/api/checkout \
@@ -137,17 +190,87 @@ curl -X POST http://localhost:3000/api/checkout \
   -d '{
     "items": [
       {
-        "productId": "product-uuid-1",
+        "productId": "REEMPLAZA_CON_ID_REAL",
+        "quantity": 2
+      }
+    ],
+    "paymentMethod": {
+      "type": "CARD",
+      "token": "tok_sandbox_card_visa_4242",
+      "installments": 1
+    },
+    "shippingAddress": {
+      "addressLine1": "Calle 123 #45-67",
+      "addressLine2": "Apartamento 302",
+      "city": "Bogotá",
+      "region": "Cundinamarca",
+      "country": "Colombia",
+      "postalCode": "110111",
+      "recipientName": "John Doe",
+      "recipientPhone": "+57 300 123 4567"
+    },
+    "customerEmail": "johndoe@test.com"
+  }'
+```
+
+### Ejemplo 2: Pago con Nequi
+
+```bash
+curl -X POST http://localhost:3000/api/checkout \
+  -H "Authorization: Bearer TU_TOKEN_AQUI" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "items": [
+      {
+        "productId": "REEMPLAZA_CON_ID_REAL",
         "quantity": 1
       }
     ],
-    "paymentMethod": "CARD",
-    "cardNumber": "4242424242424242",
-    "cardHolderName": "Test User",
-    "cardExpiryMonth": "12",
-    "cardExpiryYear": "2025",
-    "cardCvv": "123",
-    "installments": 1
+    "paymentMethod": {
+      "type": "NEQUI",
+      "phoneNumber": "3001234567"
+    },
+    "shippingAddress": {
+      "addressLine1": "Carrera 7 #123-45",
+      "city": "Medellín",
+      "region": "Antioquia",
+      "country": "Colombia",
+      "postalCode": "050001",
+      "recipientName": "Jane Smith",
+      "recipientPhone": "+57 310 987 6543"
+    },
+    "customerEmail": "janesmith@test.com"
+  }'
+```
+
+### Ejemplo 3: Pago con PSE
+
+```bash
+curl -X POST http://localhost:3000/api/checkout \
+  -H "Authorization: Bearer TU_TOKEN_AQUI" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "items": [
+      {
+        "productId": "REEMPLAZA_CON_ID_REAL",
+        "quantity": 1
+      }
+    ],
+    "paymentMethod": {
+      "type": "PSE",
+      "userType": "NATURAL",
+      "financialInstitutionCode": "1001"
+    },
+    "shippingAddress": {
+      "addressLine1": "Avenida 68 #123-45",
+      "city": "Cali",
+      "region": "Valle del Cauca",
+      "country": "Colombia",
+      "postalCode": "760001",
+      "recipientName": "Carlos López",
+      "recipientPhone": "+57 320 456 7890"
+    },
+    "customerEmail": "carlos@test.com"
   }'
 ```
 
@@ -155,20 +278,31 @@ curl -X POST http://localhost:3000/api/checkout \
 
 ```json
 {
-  "transactionId": "uuid-transaction-id",
-  "status": "PENDING",
-  "amount": 3500000,
-  "currency": "COP",
-  "reference": "REF-1234567890",
-  "wompiTransactionId": "wompi-txn-abc123",
-  "message": "Transaction created successfully. Use the transactionId to check status."
+  "statusCode": 201,
+  "message": "Checkout processed successfully",
+  "data": {
+    "transactionId": "uuid-transaction-id",
+    "transactionNumber": "TXN-2026-001",
+    "wompiTransactionId": "wompi-txn-abc123",
+    "status": "PENDING",
+    "amount": 2599.98,
+    "currency": "USD",
+    "reference": "REF-1234567890",
+    "paymentMethod": "CARD",
+    "redirectUrl": null
+  }
 }
 ```
 
 > ⚠️ **IMPORTANTE:** 
 > - La respuesta retorna `status: "PENDING"` porque Wompi procesa pagos de forma **asíncrona**
-> - Debes guardar el `transactionId` y el `wompiTransactionId`
-> - En este punto, el stock **NO ha sido reducido** y **NO se ha creado delivery**
+> - Debes guardar el `transactionId` para hacer polling
+> - En este punto:
+>   - ✅ Transaction creada en base de datos
+>   - ✅ TransactionItems guardados (snapshot de productos y precios)
+>   - ❌ Stock **NO** se ha reducido aún
+>   - ❌ Delivery **NO** se ha creado aún
+> - El fulfillment ocurre cuando el status cambia a APPROVED
 
 ---
 
@@ -191,65 +325,165 @@ Reemplaza `TU_TRANSACTION_ID` con el `transactionId` que recibiste en el paso 3.
 
 ```json
 {
-  "transactionId": "uuid-transaction-id",
-  "status": "PENDING",
-  "amount": 3500000,
-  "currency": "COP",
-  "reference": "REF-1234567890",
-  "wompiTransactionId": "wompi-txn-abc123",
-  "message": "Transaction is still pending"
+  "statusCode": 200,
+  "message": "Transaction status retrieved",
+  "data": {
+    "transactionId": "uuid-transaction-id",
+    "transactionNumber": "TXN-2026-001",
+    "status": "PENDING",
+    "amount": 2599.98,
+    "currency": "USD",
+    "reference": "REF-1234567890",
+    "wompiTransactionId": "wompi-txn-abc123",
+    "statusChanged": false
+  }
 }
 ```
 
 > 🔁 **Acción:** Espera 5 segundos y vuelve a consultar.
 
-#### Caso 2: APPROVED (Exitosa)
+#### Caso 2: APPROVED (Exitosa - Con Fulfillment)
 
 ```json
 {
-  "transactionId": "uuid-transaction-id",
-  "status": "APPROVED",
-  "amount": 3500000,
-  "currency": "COP",
-  "reference": "REF-1234567890",
-  "wompiTransactionId": "wompi-txn-abc123",
-  "message": "Transaction approved successfully"
+  "statusCode": 200,
+  "message": "Transaction status retrieved",
+  "data": {
+    "transactionId": "uuid-transaction-id",
+    "transactionNumber": "TXN-2026-001",
+    "status": "APPROVED",
+    "amount": 2599.98,
+    "currency": "USD",
+    "reference": "REF-1234567890",
+    "wompiTransactionId": "wompi-txn-abc123",
+    "statusChanged": true,
+    "deliveryId": "delivery-uuid-123"
+  }
 }
 ```
 
-> ✅ **¡Éxito!** El pago fue aprobado.
+> ✅ **¡Éxito!** El pago fue aprobado y el fulfillment se ejecutó automáticamente:
+> - ✅ **Stock reducido**: Los productos comprados se restaron del inventario
+> - ✅ **Delivery creado**: Se creó un registro de entrega con ID `deliveryId`
+> - ✅ **Audit logs**: Se registraron 4 acciones en audit_logs:
+>   - `FULFILLMENT_APPROVED_START`: Inicio del proceso
+>   - `FULFILLMENT_STOCK_REDUCED`: Stock actualizado
+>   - `FULFILLMENT_DELIVERY_CREATED`: Delivery creado
+>   - `FULFILLMENT_APPROVED_SUCCESS`: Proceso completado
+> - 📧 **Email**: TODO - Se enviará confirmación al cliente
 
 #### Caso 3: DECLINED (Rechazada)
 
 ```json
 {
-  "transactionId": "uuid-transaction-id",
-  "status": "DECLINED",
-  "amount": 3500000,
-  "currency": "COP",
-  "reference": "REF-1234567890",
-  "wompiTransactionId": "wompi-txn-abc123",
-  "message": "Transaction was declined"
+  "statusCode": 200,
+  "message": "Transaction status retrieved",
+  "data": {
+    "transactionId": "uuid-transaction-id",
+    "transactionNumber": "TXN-2026-001",
+    "status": "DECLINED",
+    "amount": 2599.98,
+    "currency": "USD",
+    "reference": "REF-1234567890",
+    "wompiTransactionId": "wompi-txn-abc123",
+    "statusChanged": true,
+    "errorCode": "INSUFFICIENT_FUNDS",
+    "errorMessage": "The payment was declined by the bank"
+  }
 }
 ```
 
-> ❌ El pago fue rechazado por el banco/pasarela.
+> ❌ El pago fue rechazado por el banco/pasarela:
+> - ❌ **Stock NO reducido**: El inventario permanece intacto
+> - ❌ **Delivery NO creado**: No se crea registro de entrega
+> - ✅ **Audit log**: Se registró `FULFILLMENT_DECLINED_PROCESSED` con el motivo
+> - 📧 **Email**: TODO - Se notificará al cliente del rechazo
 
 #### Caso 4: ERROR (Error en procesamiento)
 
 ```json
 {
-  "transactionId": "uuid-transaction-id",
-  "status": "ERROR",
-  "amount": 3500000,
-  "currency": "COP",
-  "reference": "REF-1234567890",
-  "wompiTransactionId": "wompi-txn-abc123",
-  "message": "Transaction failed with error"
+  "statusCode": 200,
+  "message": "Transaction status retrieved",
+  "data": {
+    "transactionId": "uuid-transaction-id",
+    "transactionNumber": "TXN-2026-001",
+    "status": "ERROR",
+    "amount": 2599.98,
+    "currency": "USD",
+    "reference": "REF-1234567890",
+    "wompiTransactionId": "wompi-txn-abc123",
+    "statusChanged": true,
+    "errorCode": "GATEWAY_ERROR",
+    "errorMessage": "An error occurred while processing the payment"
+  }
 }
 ```
 
-> ⚠️ Hubo un error al procesar el pago.
+> ⚠️ Hubo un error al procesar el pago:
+> - ❌ **Stock NO reducido**: El inventario permanece intacto
+> - ❌ **Delivery NO creado**: No se crea registro de entrega
+> - ✅ **Audit log**: Se registró `FULFILLMENT_ERROR_LOGGED` con detalles del error
+> - 🚨 **Admin alert**: TODO - Se alertará a los administradores
+
+---
+
+## 🔍 Verificar Fulfillment en Base de Datos
+
+Después de que una transacción sea APPROVED, puedes verificar que el fulfillment se ejecutó correctamente:
+
+### 1. Verificar Reducción de Stock
+
+```bash
+# Conectarse a PostgreSQL
+docker exec -it checkout-postgres psql -U zarco -d checkout
+
+# Ver stock actual del producto
+SELECT id, name, stock 
+FROM product 
+WHERE id = 'PRODUCT_ID_AQUI';
+```
+
+El stock debe haber disminuido según la cantidad comprada.
+
+### 2. Verificar Delivery Creado
+
+```sql
+SELECT d.id, d.status, d."customerId", 
+       d."shippingAddress", d."trackingNumber",
+       d."createdAt"
+FROM delivery d
+WHERE d."transactionId" = 'TRANSACTION_ID_AQUI';
+```
+
+Debe existir un delivery con status `PENDING`.
+
+### 3. Verificar Transaction Items
+
+```sql
+SELECT ti.id, ti."productName", ti.quantity, 
+       ti."unitPrice", ti.subtotal
+FROM transaction_item ti
+WHERE ti."transactionId" = 'TRANSACTION_ID_AQUI';
+```
+
+Los items deben mostrar el **snapshot** de productos con precios al momento de la compra.
+
+### 4. Verificar Audit Logs del Fulfillment
+
+```sql
+SELECT action, metadata, "createdAt"
+FROM audit_log
+WHERE metadata->>'transactionId' = 'TRANSACTION_ID_AQUI'
+AND action LIKE 'FULFILLMENT_%'
+ORDER BY "createdAt";
+```
+
+Deberías ver los siguientes logs en orden:
+1. `FULFILLMENT_APPROVED_START`
+2. `FULFILLMENT_STOCK_REDUCED`
+3. `FULFILLMENT_DELIVERY_CREATED`
+4. `FULFILLMENT_APPROVED_SUCCESS`
 
 ---
 
@@ -508,14 +742,58 @@ npm install
 
 4. **Timeout recomendado**: 5 minutos (60 intentos * 5 segundos)
 
-### 🔮 Fulfillment (TODO)
+### ⚠️ Comportamiento Asíncrono de Wompi
 
-Actualmente, cuando una transacción cambia a `APPROVED`:
-- ⚠️ El stock NO se reduce automáticamente
-- ⚠️ NO se crea registro de delivery
-- ⚠️ NO se envía email de confirmación
+1. **Todas las transacciones inician en PENDING**: Según la documentación de Wompi, ningún método de pago otorga resultado síncrono.
 
-> **TODO**: Implementar lógica de fulfillment cuando el status sea APPROVED. Ver comentario en [check-transaction-status.use-case.ts](./src/application/use-cases/checkout/check-transaction-status.use-case.ts)
+2. **Polling es necesario**: El cliente debe hacer polling al endpoint `/api/checkout/status/:id` cada 5 segundos hasta obtener un estado final.
+
+3. **Estados finales**: `APPROVED`, `DECLINED`, `ERROR`
+
+4. **Timeout recomendado**: 5 minutos (60 intentos * 5 segundos)
+
+### ✅ Fulfillment Automático (Implementado)
+
+Cuando una transacción cambia a `APPROVED`, el sistema ejecuta automáticamente el proceso de fulfillment:
+
+#### Proceso de Fulfillment APPROVED:
+1. **Obtener Transaction Items**: Se recuperan los items guardados (snapshot de productos)
+2. **Reducir Stock**: Para cada item, se reduce el stock del producto correspondiente
+3. **Crear Delivery**: Se crea un registro de entrega con:
+   - Customer information (nombre, dirección)
+   - Shipping address (proporcionada o por defecto del cliente)
+   - Status: PENDING
+   - Tracking number (auto-generado)
+4. **Audit Logging**: Se registran 4 eventos en `audit_logs`:
+   - `FULFILLMENT_APPROVED_START`: Inicio del proceso
+   - `FULFILLMENT_STOCK_REDUCED`: Stock actualizado para cada producto
+   - `FULFILLMENT_DELIVERY_CREATED`: Delivery creado con ID
+   - `FULFILLMENT_APPROVED_SUCCESS`: Proceso completado exitosamente
+5. **TODO - Email**: Enviar confirmación de orden al cliente
+
+#### Proceso de Fulfillment DECLINED:
+1. **Audit Logging**: Se registra `FULFILLMENT_DECLINED_PROCESSED` con:
+   - Motivo del rechazo
+   - Código de error
+   - Detalles de la transacción
+2. **TODO - Email**: Notificar al cliente del rechazo
+
+#### Proceso de Fulfillment ERROR:
+1. **Audit Logging**: Se registra `FULFILLMENT_ERROR_LOGGED` con:
+   - Mensaje y código de error
+   - Wompi transaction ID (para debugging)
+   - Detalles de la transacción
+2. **TODO - Admin Alert**: Enviar alerta a administradores para intervención manual
+
+#### Garantías del Sistema:
+- ✅ **Idempotencia**: El fulfillment solo se ejecuta en **transición de estado**, no en cada polling
+- ✅ **Atomicidad**: Si falla algún paso, se registra `FULFILLMENT_APPROVED_FAILED` en audit_logs
+- ✅ **Trazabilidad**: Todos los eventos se registran en `audit_logs` con metadata completa
+- ✅ **Historical Data**: Los `transaction_items` guardan snapshots de productos (precio, nombre al momento de compra)
+- ✅ **Resiliencia**: Si el fulfillment falla, el status de la transacción permanece APPROVED para permitir reintentos manuales
+
+#### Ver Documentación Completa:
+Para más detalles sobre el proceso de fulfillment, ver [FULFILLMENT.md](./FULFILLMENT.md)
 
 ---
 

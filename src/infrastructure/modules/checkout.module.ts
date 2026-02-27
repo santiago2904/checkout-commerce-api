@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import {
   Product,
   Transaction,
+  TransactionItem,
   Delivery,
   AuditLog,
   Customer,
@@ -10,16 +11,19 @@ import {
 import {
   TypeOrmProductRepository,
   TypeOrmTransactionRepository,
+  TypeOrmTransactionItemRepository,
   TypeOrmDeliveryRepository,
   TypeOrmAuditLogRepository,
 } from '@infrastructure/adapters/database/typeorm/repositories';
 import {
   ProcessCheckoutUseCase,
   CheckTransactionStatusUseCase,
+  FulfillmentService,
 } from '@application/use-cases/checkout';
 import {
   PRODUCT_REPOSITORY,
   TRANSACTION_REPOSITORY,
+  TRANSACTION_ITEM_REPOSITORY,
   DELIVERY_REPOSITORY,
   PAYMENT_GATEWAY,
   AUDIT_LOG_REPOSITORY,
@@ -47,6 +51,7 @@ import { ConfigModule } from '@nestjs/config';
     TypeOrmModule.forFeature([
       Product,
       Transaction,
+      TransactionItem,
       Delivery,
       AuditLog,
       Customer,
@@ -68,6 +73,10 @@ import { ConfigModule } from '@nestjs/config';
       useClass: TypeOrmTransactionRepository,
     },
     {
+      provide: TRANSACTION_ITEM_REPOSITORY,
+      useClass: TypeOrmTransactionItemRepository,
+    },
+    {
       provide: DELIVERY_REPOSITORY,
       useClass: TypeOrmDeliveryRepository,
     },
@@ -80,9 +89,10 @@ import { ConfigModule } from '@nestjs/config';
       provide: PAYMENT_GATEWAY,
       useClass: WompiStrategy,
     },
-    // Use Cases
+    // Use Cases & Services
     ProcessCheckoutUseCase,
     CheckTransactionStatusUseCase,
+    FulfillmentService,
     // Interceptors
     AuditInterceptor,
   ],

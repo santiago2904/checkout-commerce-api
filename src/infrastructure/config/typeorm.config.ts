@@ -9,6 +9,7 @@ import {
   Customer,
   Delivery,
   Transaction,
+  TransactionItem,
   AuditLog,
 } from '@infrastructure/adapters/database/typeorm/entities';
 
@@ -25,7 +26,16 @@ export const getTypeOrmConfig = (
   username: configService.get<string>('DB_USERNAME', 'postgres'),
   password: configService.get<string>('DB_PASSWORD', 'postgres'),
   database: configService.get<string>('DB_DATABASE', 'checkout_commerce'),
-  entities: [Role, User, Product, Customer, Delivery, Transaction, AuditLog],
+  entities: [
+    Role,
+    User,
+    Product,
+    Customer,
+    Delivery,
+    Transaction,
+    TransactionItem,
+    AuditLog,
+  ],
   synchronize: false,
   logging: configService.get<string>('NODE_ENV') === 'development',
   migrations: [

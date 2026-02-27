@@ -2,6 +2,7 @@ import { Injectable, Logger, Inject } from '@nestjs/common';
 import type {
   IProductRepository,
   ITransactionRepository,
+  ITransactionItemRepository,
   IDeliveryRepository,
   IPaymentGateway,
 } from '@application/ports/out';
@@ -73,6 +74,8 @@ export class ProcessCheckoutUseCase {
     private readonly productRepository: IProductRepository,
     @Inject('ITransactionRepository')
     private readonly transactionRepository: ITransactionRepository,
+    @Inject('ITransactionItemRepository')
+    private readonly transactionItemRepository: ITransactionItemRepository,
     @Inject('IDeliveryRepository')
     private readonly deliveryRepository: IDeliveryRepository,
     @Inject('IPaymentGateway')
@@ -92,7 +95,7 @@ export class ProcessCheckoutUseCase {
     if (validationResult.isErr()) {
       return err(validationResult.error);
     }
-    const { totalAmount } = validationResult.value;
+    const { products, totalAmount } = validationResult.value;
 
     // Step 2: Create transaction in PENDING state
     const transactionResult = await this.createPendingTransaction(
@@ -106,6 +109,24 @@ export class ProcessCheckoutUseCase {
       return err(transactionResult.error);
     }
     const transaction = transactionResult.value;
+
+    // Step 2.5: Save transaction items (product snapshots)
+    const itemsSaveResult = await this.saveTransactionItems(
+      transaction.id,
+      products,
+    );
+    if (itemsSaveResult.isErr()) {
+      // Rollback transaction if items can't be saved
+      await this.transactionRepository.updateStatus(
+        transaction.id,
+        TransactionStatus.ERROR,
+        undefined,
+        undefined,
+        'ITEMS_SAVE_ERROR',
+        'Failed to save transaction items',
+      );
+      return err(itemsSaveResult.error);
+    }
 
     // Step 3: Process payment with Wompi Strategy (ROP)
     // Wompi is ASYNC: Always returns PENDING + wompiTransactionId
@@ -242,6 +263,41 @@ export class ProcessCheckoutUseCase {
         new CheckoutError(
           'Failed to create transaction',
           'TRANSACTION_CREATION_ERROR',
+        ),
+      );
+    }
+  }
+
+  /**
+   * Step 2.5: Save transaction items (product snapshots)
+   */
+  private async saveTransactionItems(
+    transactionId: string,
+    products: Array<{ product: Product; quantity: number }>,
+  ): Promise<Result<void, CheckoutError>> {
+    try {
+      const items = products.map(({ product, quantity }) => ({
+        transactionId,
+        productId: product.id,
+        productName: product.name,
+        quantity,
+        unitPrice: product.price,
+        subtotal: product.price * quantity,
+      }));
+
+      await this.transactionItemRepository.createMany(items);
+      this.logger.log(
+        `Saved ${items.length} transaction items for transaction ${transactionId}`,
+      );
+      return ok(undefined);
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      this.logger.error(`Failed to save transaction items: ${errorMessage}`);
+      return err(
+        new CheckoutError(
+          'Failed to save transaction items',
+          'ITEMS_SAVE_ERROR',
         ),
       );
     }
