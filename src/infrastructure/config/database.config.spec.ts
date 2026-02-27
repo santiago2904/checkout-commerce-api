@@ -24,7 +24,7 @@ describe('TypeORM Configuration', () => {
     });
 
     it('should use values from ConfigService', () => {
-      const config = getTypeOrmConfig(configService) as any;
+      const config = getTypeOrmConfig(configService) as Record<string, unknown>;
 
       expect(config.host).toBe('localhost');
       expect(config.port).toBe(5432);
@@ -35,7 +35,10 @@ describe('TypeORM Configuration', () => {
 
     it('should use default values when env vars are not set', () => {
       const emptyConfigService = new ConfigService({});
-      const config = getTypeOrmConfig(emptyConfigService) as any;
+      const config = getTypeOrmConfig(emptyConfigService) as Record<
+        string,
+        unknown
+      >;
 
       // Values come from .env file, so we just verify they are defined
       expect(config.host).toBeDefined();

@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule, JwtModuleOptions } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { StringValue } from 'ms';
 import {
   BcryptHashService,
@@ -10,9 +11,27 @@ import {
   JwtAuthGuard,
   RolesGuard,
 } from '@infrastructure/adapters/auth';
+import {
+  User,
+  Customer,
+  Role,
+} from '@infrastructure/adapters/database/typeorm/entities';
+import {
+  TypeOrmAuthRepository,
+  TypeOrmCustomerRepository,
+} from '@infrastructure/adapters/database/typeorm/repositories';
+import { LoginUseCase, RegisterUserUseCase } from '@application/use-cases/auth';
+import {
+  AUTH_REPOSITORY,
+  CUSTOMER_REPOSITORY,
+  HASH_SERVICE,
+  TOKEN_SERVICE,
+} from '@application/tokens';
+import { AuthController } from '@infrastructure/adapters/http/controllers';
 
 @Module({
   imports: [
+    TypeOrmModule.forFeature([User, Customer, Role]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -34,12 +53,35 @@ import {
       inject: [ConfigService],
     }),
   ],
+  controllers: [AuthController],
   providers: [
+    // Auth Services
     BcryptHashService,
     JwtTokenService,
     JwtStrategy,
     JwtAuthGuard,
     RolesGuard,
+    // Repository Implementations
+    {
+      provide: AUTH_REPOSITORY,
+      useClass: TypeOrmAuthRepository,
+    },
+    {
+      provide: CUSTOMER_REPOSITORY,
+      useClass: TypeOrmCustomerRepository,
+    },
+    // Service Ports
+    {
+      provide: HASH_SERVICE,
+      useExisting: BcryptHashService,
+    },
+    {
+      provide: TOKEN_SERVICE,
+      useExisting: JwtTokenService,
+    },
+    // Use Cases
+    LoginUseCase,
+    RegisterUserUseCase,
   ],
   exports: [
     BcryptHashService,
@@ -48,6 +90,8 @@ import {
     RolesGuard,
     PassportModule,
     JwtModule,
+    LoginUseCase,
+    RegisterUserUseCase,
   ],
 })
 export class AuthModule {}
