@@ -6,6 +6,7 @@
 // Repository Tokens
 export const AUTH_REPOSITORY = 'IAuthRepository';
 export const CUSTOMER_REPOSITORY = 'ICustomerRepository';
+export const PRODUCT_REPOSITORY = 'IProductRepository';
 
 // Service Tokens
 export const HASH_SERVICE = 'IHashService';
