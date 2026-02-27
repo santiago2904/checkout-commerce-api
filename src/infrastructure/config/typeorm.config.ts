@@ -26,12 +26,12 @@ export const getTypeOrmConfig = (
   password: configService.get<string>('DB_PASSWORD', 'postgres'),
   database: configService.get<string>('DB_DATABASE', 'checkout_commerce'),
   entities: [Role, User, Product, Customer, Delivery, Transaction, AuditLog],
-  synchronize: configService.get<string>('NODE_ENV') === 'development',
+  synchronize: false,
   logging: configService.get<string>('NODE_ENV') === 'development',
   migrations: [
     __dirname + '/../adapters/database/typeorm/migrations/*{.ts,.js}',
   ],
-  migrationsRun: false,
+  migrationsRun: configService.get<boolean>('AUTO_RUN_MIGRATIONS', false),
 });
 
 /**
