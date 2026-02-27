@@ -1,0 +1,22 @@
+{
+  "auth": {
+    "register": {
+      "success": "Usuario registrado exitosamente",
+      "errors": {
+        "emailExists": "El correo electrónico ya existe",
+        "roleNotFound": "Rol no encontrado",
+        "userCreation": "Error al crear el usuario",
+        "customerCreation": "Error al crear el cliente",
+        "failed": "Registro fallido"
+      }
+    },
+    "login": {
+      "success": "Inicio de sesión exitoso",
+      "errors": {
+        "invalidCredentials": "Credenciales inválidas",
+        "userNotFound": "Usuario no encontrado",
+        "failed": "Inicio de sesión fallido"
+      }
+    }
+  }
+}
