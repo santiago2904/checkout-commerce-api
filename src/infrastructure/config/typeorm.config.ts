@@ -31,7 +31,8 @@ export const getTypeOrmConfig = (
   migrations: [
     __dirname + '/../adapters/database/typeorm/migrations/*{.ts,.js}',
   ],
-  migrationsRun: configService.get<boolean>('AUTO_RUN_MIGRATIONS', false),
+  migrationsRun:
+    configService.get<string>('AUTO_RUN_MIGRATIONS', 'false') === 'true',
 });
 
 /**
