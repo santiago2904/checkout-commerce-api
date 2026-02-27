@@ -52,7 +52,7 @@ describe('TypeORM Configuration', () => {
       const devConfigService = new ConfigService({ NODE_ENV: 'development' });
       const config = getTypeOrmConfig(devConfigService);
 
-      expect(config.synchronize).toBe(true);
+      expect(config.synchronize).toBe(false);
       expect(config.logging).toBe(true);
     });
 
