@@ -40,7 +40,6 @@ describe('ProcessCheckoutUseCase', () => {
 
   const mockTransaction = {
     id: 'transaction-id',
-    transactionNumber: 'TXN-001',
     reference: 'REF-001',
     amount: 20000,
     status: TransactionStatus.PENDING,
@@ -83,7 +82,6 @@ describe('ProcessCheckoutUseCase', () => {
     const mockTransactionRepo = {
       create: jest.fn(),
       findById: jest.fn(),
-      findByNumber: jest.fn(),
       findByReference: jest.fn(),
       updateStatus: jest.fn(),
       findByCustomerId: jest.fn(),
@@ -145,6 +143,9 @@ describe('ProcessCheckoutUseCase', () => {
     // Suppress logger
     jest.spyOn(Logger.prototype, 'log').mockImplementation();
     jest.spyOn(Logger.prototype, 'error').mockImplementation();
+
+    // Set up default mock behavior for transactionItemRepository
+    transactionItemRepository.createMany.mockResolvedValue(undefined);
   });
 
   afterEach(() => {
@@ -181,7 +182,6 @@ describe('ProcessCheckoutUseCase', () => {
       expect(result.isOk()).toBe(true);
       expect(result.value).toMatchObject({
         transactionId: 'transaction-id',
-        transactionNumber: 'TXN-001',
         status: 'PENDING', // NOT 'APPROVED' - Wompi is async!
         amount: 20000,
         currency: 'COP',

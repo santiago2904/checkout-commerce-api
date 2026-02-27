@@ -15,11 +15,10 @@ import { FulfillmentService } from './fulfillment.service';
  */
 export interface TransactionStatusResponse {
   transactionId: string;
-  transactionNumber: string;
   wompiTransactionId: string;
   status: 'PENDING' | 'APPROVED' | 'DECLINED' | 'ERROR';
   amount: number;
-  reference: string;
+  reference: string; // Unique reference for this transaction (REF-...)
   paymentMethod: string;
   errorCode?: string;
   errorMessage?: string;
@@ -128,7 +127,6 @@ export class CheckTransactionStatusUseCase {
         transaction.id,
         newStatus,
         paymentData.transactionId,
-        paymentData.reference,
         paymentData.errorCode,
         paymentData.errorMessage,
       );
@@ -214,7 +212,6 @@ export class CheckTransactionStatusUseCase {
     // Step 5: Return current transaction status
     const response: TransactionStatusResponse = {
       transactionId: transaction.id,
-      transactionNumber: transaction.transactionNumber,
       wompiTransactionId: transaction.wompiTransactionId,
       status: paymentData.status,
       amount: parseFloat(transaction.amount.toString()),

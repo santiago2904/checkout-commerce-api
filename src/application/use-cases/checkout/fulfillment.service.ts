@@ -6,7 +6,10 @@ import type {
   ITransactionItemRepository,
   IAuditLogRepository,
 } from '@application/ports/out';
-import { Transaction } from '@infrastructure/adapters/database/typeorm/entities';
+import {
+  Transaction,
+  TransactionItem,
+} from '@infrastructure/adapters/database/typeorm/entities';
 import { AUDIT_ACTIONS } from '@infrastructure/adapters/web/constants';
 
 /**
@@ -93,16 +96,16 @@ export class FulfillmentService {
       action: AUDIT_ACTIONS.FULFILLMENT_APPROVED_START,
       metadata: {
         transactionId: transaction.id,
-        transactionNumber: transaction.transactionNumber,
         amount: transaction.amount,
       },
     });
 
     try {
       // Step 1: Get transaction items
-      const items = await this.transactionItemRepository.findByTransactionId(
-        transaction.id,
-      );
+      const items: TransactionItem[] =
+        await this.transactionItemRepository.findByTransactionId(
+          transaction.id,
+        );
 
       if (!items || items.length === 0) {
         throw new Error('No transaction items found');
@@ -173,7 +176,6 @@ export class FulfillmentService {
         action: AUDIT_ACTIONS.FULFILLMENT_APPROVED_SUCCESS,
         metadata: {
           transactionId: transaction.id,
-          transactionNumber: transaction.transactionNumber,
           deliveryId: delivery.id,
           itemsCount: items.length,
           totalAmount: transaction.amount,
@@ -213,7 +215,6 @@ export class FulfillmentService {
         action: AUDIT_ACTIONS.FULFILLMENT_APPROVED_FAILED,
         metadata: {
           transactionId: transaction.id,
-          transactionNumber: transaction.transactionNumber,
           error: errorMessage,
         },
       });
@@ -250,7 +251,6 @@ export class FulfillmentService {
         action: AUDIT_ACTIONS.FULFILLMENT_DECLINED_PROCESSED,
         metadata: {
           transactionId: transaction.id,
-          transactionNumber: transaction.transactionNumber,
           amount: transaction.amount,
           declineReason: transaction.errorMessage || 'Unknown reason',
           errorCode: transaction.errorCode,
@@ -311,7 +311,6 @@ export class FulfillmentService {
         action: AUDIT_ACTIONS.FULFILLMENT_ERROR_LOGGED,
         metadata: {
           transactionId: transaction.id,
-          transactionNumber: transaction.transactionNumber,
           amount: transaction.amount,
           errorMessage: transaction.errorMessage || 'Unknown error',
           errorCode: transaction.errorCode,
@@ -322,7 +321,7 @@ export class FulfillmentService {
       // TODO: Send alert email to administrators
       // await this.emailService.sendAdminAlert({
       //   to: 'admin@yourcompany.com',
-      //   subject: `Transaction Error: ${transaction.transactionNumber}`,
+      //   subject: `Transaction Error: ${transaction.transactionNumber},
       //   transactionId: transaction.id,
       //   transactionNumber: transaction.transactionNumber,
       //   customerId: transaction.customerId,

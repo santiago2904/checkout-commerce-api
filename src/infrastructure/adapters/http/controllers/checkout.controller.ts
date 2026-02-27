@@ -144,8 +144,13 @@ export class CheckoutController {
 
         // Fallback for unknown checkout errors
         if (error instanceof CheckoutError) {
+          // Include error code if available for better debugging
+          const errorDetails = error.code
+            ? `[${error.code}] ${error.message}`
+            : error.message;
+
           throw new BadRequestException(
-            `${this.i18n.t('checkout.errors.failed', lang)}: ${error.message}`,
+            `${this.i18n.t('checkout.errors.failed', lang)}: ${errorDetails}`,
           );
         }
 

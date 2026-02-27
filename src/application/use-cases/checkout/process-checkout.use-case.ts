@@ -6,6 +6,7 @@ import type {
   IDeliveryRepository,
   IPaymentGateway,
 } from '@application/ports/out';
+import { PaymentMethodType } from '@application/dtos/checkout/checkout.dto';
 import {
   TransactionData,
   PaymentMethodData,
@@ -121,7 +122,6 @@ export class ProcessCheckoutUseCase {
         transaction.id,
         TransactionStatus.ERROR,
         undefined,
-        undefined,
         'ITEMS_SAVE_ERROR',
         'Failed to save transaction items',
       );
@@ -158,7 +158,6 @@ export class ProcessCheckoutUseCase {
       transaction.id,
       this.mapStatusToEnum(paymentData.status),
       paymentData.transactionId,
-      paymentData.reference,
       paymentData.errorCode,
       paymentData.errorMessage,
     );
@@ -168,7 +167,6 @@ export class ProcessCheckoutUseCase {
     // Stock reduction and delivery creation happen when status becomes APPROVED
     const response: CheckoutResponseDto = {
       transactionId: transaction.id,
-      transactionNumber: transaction.transactionNumber,
       status: paymentData.status, // Will be PENDING for Wompi
       amount: totalAmount,
       currency: 'COP',
@@ -227,6 +225,9 @@ export class ProcessCheckoutUseCase {
       totalAmount += product.price * item.quantity;
     }
 
+    // Round to integer (amounts should be in cents, no decimals)
+    totalAmount = Math.round(totalAmount);
+
     return ok({ products, totalAmount });
   }
 
@@ -241,11 +242,9 @@ export class ProcessCheckoutUseCase {
     ipAddress: string,
   ): Promise<Result<Transaction, CheckoutError>> {
     try {
-      const transactionNumber = `TXN-${Date.now()}-${uuidv4().slice(0, 8)}`;
       const reference = `REF-${Date.now()}-${uuidv4().slice(0, 8)}`;
 
       const transaction = await this.transactionRepository.create({
-        transactionNumber,
         amount: totalAmount,
         reference,
         status: TransactionStatus.PENDING,
@@ -305,6 +304,7 @@ export class ProcessCheckoutUseCase {
 
   /**
    * Step 3: Process payment with Wompi Strategy
+   * If cardData is provided, tokenize it first
    */
   private async processPayment(
     transaction: Transaction,
@@ -312,10 +312,39 @@ export class ProcessCheckoutUseCase {
     customerEmail: string,
     ipAddress: string,
   ): Promise<Result<PaymentResult, PaymentError>> {
+    let token = request.paymentMethod.token;
+
+    // If card data is provided instead of token, tokenize it first
+    if (
+      request.paymentMethod.type === PaymentMethodType.CARD &&
+      request.paymentMethod.cardData &&
+      !token
+    ) {
+      this.logger.log('Tokenizing card data...');
+
+      const tokenizeResult = await this.paymentGateway.tokenizeCard({
+        number: request.paymentMethod.cardData.number,
+        cvc: request.paymentMethod.cardData.cvc,
+        exp_month: request.paymentMethod.cardData.exp_month,
+        exp_year: request.paymentMethod.cardData.exp_year,
+        card_holder: request.paymentMethod.cardData.card_holder,
+      });
+
+      if (tokenizeResult.isErr()) {
+        this.logger.error(
+          `Failed to tokenize card: ${tokenizeResult.error.message}`,
+        );
+        return err(tokenizeResult.error); // Return the tokenization error
+      }
+
+      token = tokenizeResult.value;
+      this.logger.log('Card tokenized successfully');
+    }
+
     const paymentMethod: PaymentMethodData = {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       type: request.paymentMethod.type as any,
-      token: request.paymentMethod.token,
+      token,
       installments: request.paymentMethod.installments,
       phoneNumber: request.paymentMethod.phoneNumber,
       userType: request.paymentMethod.userType,
@@ -329,6 +358,7 @@ export class ProcessCheckoutUseCase {
       customerEmail,
       paymentMethod,
       ipAddress,
+      acceptanceToken: request.acceptanceToken,
     };
 
     return await this.paymentGateway.processPayment(transactionData);
@@ -345,7 +375,6 @@ export class ProcessCheckoutUseCase {
     await this.transactionRepository.updateStatus(
       transactionId,
       TransactionStatus.ERROR,
-      undefined,
       undefined,
       errorCode,
       errorMessage,

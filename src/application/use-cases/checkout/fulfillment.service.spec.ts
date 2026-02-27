@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/unbound-method */
 import { Test, TestingModule } from '@nestjs/testing';
 import { Logger } from '@nestjs/common';
 import { FulfillmentService, FulfillmentError } from './fulfillment.service';
@@ -20,7 +23,6 @@ describe('FulfillmentService', () => {
 
   const mockTransaction: Partial<Transaction> = {
     id: 'trans-123',
-    transactionNumber: 'TXN-2024-001',
     customerId: 'customer-123',
     amount: 100.0,
     status: TransactionStatus.APPROVED,
@@ -272,7 +274,6 @@ describe('FulfillmentService', () => {
           action: AUDIT_ACTIONS.FULFILLMENT_DECLINED_PROCESSED,
           metadata: expect.objectContaining({
             transactionId: 'trans-123',
-            transactionNumber: 'TXN-2024-001',
             amount: 100.0,
             declineReason: 'Insufficient funds',
             errorCode: 'DECLINED_BY_BANK',
@@ -340,7 +341,6 @@ describe('FulfillmentService', () => {
           action: AUDIT_ACTIONS.FULFILLMENT_ERROR_LOGGED,
           metadata: expect.objectContaining({
             transactionId: 'trans-123',
-            transactionNumber: 'TXN-2024-001',
             amount: 100.0,
             errorMessage: 'Gateway timeout',
             errorCode: 'GATEWAY_ERROR',

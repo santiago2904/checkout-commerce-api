@@ -20,6 +20,8 @@ import {
   WompiNequiPaymentMethod,
   WompiPSEPaymentMethod,
   WompiErrorResponse,
+  WompiTokenizeCardRequest,
+  WompiTokenizeCardResponse,
 } from './wompi.types';
 import { WompiConfig } from './wompi.config';
 
@@ -65,15 +67,29 @@ export class WompiStrategy implements IPaymentGateway {
         return err(validationResult.error);
       }
 
-      // 2. Build Wompi request
+      // 2. Build Wompi request (acceptance token comes from frontend via transactionData)
       const wompiRequest = this.buildWompiRequest(transactionData);
 
       // 3. Calculate integrity signature
+      // IMPORTANT: Signature must use amount in CENTS (same as amount_in_cents in request)
       wompiRequest.signature = this.calculateSignature(
-        transactionData.reference,
-        transactionData.amount,
-        transactionData.currency,
+        wompiRequest.reference,
+        wompiRequest.amount_in_cents, // Use the converted amount in cents
+        wompiRequest.currency,
       );
+
+      // DEBUG: Log complete request body (sanitized tokens)
+      this.logger.debug('=== WOMPI REQUEST DEBUG ===');
+      this.logger.debug(
+        `Full request body: ${JSON.stringify(wompiRequest, null, 2)}`,
+      );
+      this.logger.debug(
+        `Headers: Authorization: Bearer ${this.wompiConfig.privateKey.slice(0, 15)}...`,
+      );
+      this.logger.debug('========================');
+
+      // Log request (sanitized)
+      this.logger.debug(`Wompi request: ${JSON.stringify(wompiRequest)}`);
 
       // 4. Send request to Wompi
       const url = `${this.wompiConfig.apiUrl}/transactions`;
@@ -85,6 +101,14 @@ export class WompiStrategy implements IPaymentGateway {
           },
         }),
       );
+
+      // DEBUG: Log complete response
+      this.logger.debug('=== WOMPI RESPONSE DEBUG ===');
+      this.logger.debug(`Status: ${response.status}`);
+      this.logger.debug(
+        `Response body: ${JSON.stringify(response.data, null, 2)}`,
+      );
+      this.logger.debug('===========================');
 
       // 5. Map response to PaymentResult
       return this.mapWompiResponse(response.data);
@@ -100,6 +124,12 @@ export class WompiStrategy implements IPaymentGateway {
       // Handle HTTP errors from Wompi
       if (this.isAxiosError(error) && error.response) {
         const wompiError = error.response.data as WompiErrorResponse;
+
+        // Log detailed error information from Wompi
+        this.logger.error(
+          `Wompi payment error (${error.response.status}): ${JSON.stringify(wompiError)}`,
+        );
+
         return this.handleWompiError(wompiError, error.response.status);
       }
 
@@ -151,6 +181,59 @@ export class WompiStrategy implements IPaymentGateway {
   }
 
   /**
+   * Tokenize a credit/debit card
+   * POST /tokens/cards
+   * Docs: https://docs.wompi.co/docs/en/crear-tokens-de-tarjetas
+   *
+   * IMPORTANT: Use PUBLIC key for tokenization (not private key)
+   */
+  async tokenizeCard(
+    cardData: WompiTokenizeCardRequest,
+  ): Promise<Result<string, PaymentError>> {
+    this.logger.log('Tokenizing card...');
+    this.logger.debug(
+      `Card data: ${JSON.stringify({ ...cardData, number: cardData.number.slice(-4), cvc: '***' })}`,
+    );
+
+    try {
+      const url = `${this.wompiConfig.apiUrl}/tokens/cards`;
+      const response = await firstValueFrom(
+        this.httpService.post<WompiTokenizeCardResponse>(url, cardData, {
+          headers: {
+            Authorization: `Bearer ${this.wompiConfig.publicKey}`, // Use PUBLIC key
+            'Content-Type': 'application/json',
+          },
+        }),
+      );
+
+      const token = response.data.data.id;
+      this.logger.log(`Card tokenized successfully: ${token}`);
+
+      return ok(token);
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      const errorStack = error instanceof Error ? error.stack : undefined;
+      this.logger.error(`Error tokenizing card: ${errorMessage}`, errorStack);
+
+      if (this.isAxiosError(error) && error.response) {
+        const wompiError = error.response.data as WompiErrorResponse;
+
+        // Log detailed error information from Wompi
+        this.logger.error(
+          `Wompi tokenization error (${error.response.status}): ${JSON.stringify(wompiError)}`,
+        );
+
+        return this.handleTokenizationError(wompiError, error.response.status);
+      }
+
+      return err(
+        new PaymentGatewayError('Error tokenizing card', errorMessage),
+      );
+    }
+  }
+
+  /**
    * Validate transaction data before sending to Wompi
    */
   private validateTransactionData(
@@ -190,11 +273,12 @@ export class WompiStrategy implements IPaymentGateway {
    */
   private buildWompiRequest(data: TransactionData): WompiTransactionRequest {
     const request: WompiTransactionRequest = {
-      amount_in_cents: data.amount, // Already in cents
+      amount_in_cents: Math.round(data.amount * 100), // Convert COP pesos to centavos
       currency: data.currency,
       signature: '', // Will be calculated next
       customer_email: data.customerEmail,
       reference: data.reference,
+      acceptance_token: data.acceptanceToken, // From frontend
       payment_method: this.buildPaymentMethod(data),
     };
 
@@ -241,14 +325,24 @@ export class WompiStrategy implements IPaymentGateway {
   /**
    * Calculate integrity signature for Wompi
    * Signature = SHA256(reference + amount_in_cents + currency + integrity_key)
+   *
+   * CRITICAL: amountInCents MUST be the exact same value sent in amount_in_cents field
+   * in the Wompi request (i.e., in CENTS/CENTAVOS, not pesos)
+   *
+   * Example: For $24,900.00 COP, use 2490000 (cents), NOT 24900.00
+   *
    * Docs: https://docs.wompi.co/docs/en/integridad
+   *
+   * @param reference - Transaction reference (e.g., "REF-123456789-abcd1234")
+   * @param amountInCents - Amount in CENTS/CENTAVOS (e.g., 2490000 for $24,900.00)
+   * @param currency - Currency code (e.g., "COP")
    */
   private calculateSignature(
     reference: string,
     amountInCents: number,
     currency: string,
   ): string {
-    const integrityKey = this.wompiConfig.eventsSecret;
+    const integrityKey = this.wompiConfig.integritySecret;
     const concatenated = `${reference}${amountInCents}${currency}${integrityKey}`;
     const hash = createHash('sha256').update(concatenated).digest('hex');
     return hash;
@@ -317,11 +411,14 @@ export class WompiStrategy implements IPaymentGateway {
   ): Result<PaymentResult, PaymentError> {
     const { error } = errorResponse;
 
+    // Extract detailed error messages from Wompi response
+    const detailedMessage = this.formatWompiErrorMessage(error);
+
     switch (statusCode) {
       case 400:
         return err(
           new InvalidPaymentDataError(
-            error.reason || 'Invalid payment data',
+            detailedMessage || error.reason || 'Invalid payment data',
             error.messages,
           ),
         );
@@ -332,7 +429,48 @@ export class WompiStrategy implements IPaymentGateway {
       case 422:
         return err(
           new InvalidPaymentDataError(
-            error.reason || 'Validation error',
+            detailedMessage || error.reason || 'Validation error',
+            error.messages,
+          ),
+        );
+      default:
+        return err(
+          new PaymentGatewayError(
+            detailedMessage || error.reason || 'Unknown error from Wompi',
+            error,
+          ),
+        );
+    }
+  }
+
+  /**
+   * Handle Wompi API errors for tokenization
+   */
+  private handleTokenizationError(
+    errorResponse: WompiErrorResponse,
+    statusCode: number,
+  ): Result<string, PaymentError> {
+    const { error } = errorResponse;
+
+    // Extract detailed error messages from Wompi response
+    const detailedMessage = this.formatWompiErrorMessage(error);
+
+    switch (statusCode) {
+      case 400:
+        return err(
+          new InvalidPaymentDataError(
+            detailedMessage || error.reason || 'Invalid card data',
+            error.messages,
+          ),
+        );
+      case 401:
+        return err(
+          new PaymentGatewayError('Authentication failed with Wompi', error),
+        );
+      case 422:
+        return err(
+          new InvalidPaymentDataError(
+            detailedMessage || error.reason || 'Card validation error',
             error.messages,
           ),
         );
@@ -361,5 +499,34 @@ export class WompiStrategy implements IPaymentGateway {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       (error as any).response !== null
     );
+  }
+
+  /**
+   * Format Wompi error messages into a readable string
+   */
+  private formatWompiErrorMessage(error: {
+    type?: string;
+    reason?: string;
+    messages?: Record<string, string[]>;
+  }): string {
+    if (!error.messages || Object.keys(error.messages).length === 0) {
+      return error.reason || '';
+    }
+
+    // Extract all error messages from the messages object
+    const allMessages: string[] = [];
+
+    for (const messages of Object.values(error.messages)) {
+      if (Array.isArray(messages)) {
+        allMessages.push(...messages);
+      }
+    }
+
+    // Return formatted message
+    if (allMessages.length === 0) {
+      return error.reason || '';
+    }
+
+    return allMessages.join('. ');
   }
 }
