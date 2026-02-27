@@ -15,10 +15,12 @@ import {
   User,
   Customer,
   Role,
+  AuditLog,
 } from '@infrastructure/adapters/database/typeorm/entities';
 import {
   TypeOrmAuthRepository,
   TypeOrmCustomerRepository,
+  TypeOrmAuditLogRepository,
 } from '@infrastructure/adapters/database/typeorm/repositories';
 import { LoginUseCase, RegisterUserUseCase } from '@application/use-cases/auth';
 import {
@@ -27,12 +29,14 @@ import {
   HASH_SERVICE,
   TOKEN_SERVICE,
 } from '@application/tokens';
+import { AUDIT_LOG_REPOSITORY } from '@application/tokens';
 import { AuthController } from '@infrastructure/adapters/http/controllers';
 import { I18nService } from '@infrastructure/config/i18n';
+import { AuditInterceptor } from '@infrastructure/adapters/web/interceptors/audit.interceptor';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Customer, Role]),
+    TypeOrmModule.forFeature([User, Customer, Role, AuditLog]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -73,6 +77,10 @@ import { I18nService } from '@infrastructure/config/i18n';
       provide: CUSTOMER_REPOSITORY,
       useClass: TypeOrmCustomerRepository,
     },
+    {
+      provide: AUDIT_LOG_REPOSITORY,
+      useClass: TypeOrmAuditLogRepository,
+    },
     // Service Ports
     {
       provide: HASH_SERVICE,
@@ -85,6 +93,8 @@ import { I18nService } from '@infrastructure/config/i18n';
     // Use Cases
     LoginUseCase,
     RegisterUserUseCase,
+    // Interceptors
+    AuditInterceptor,
   ],
   exports: [
     BcryptHashService,

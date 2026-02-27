@@ -7,6 +7,7 @@ import {
   BadRequestException,
   UnauthorizedException,
   ConflictException,
+  UseInterceptors,
 } from '@nestjs/common';
 import { LoginUseCase, RegisterUserUseCase } from '@application/use-cases/auth';
 import { LoginDto, RegisterDto } from '@application/dtos';
@@ -21,12 +22,16 @@ import {
 import { I18nService } from '@infrastructure/config/i18n';
 import type { SupportedLanguage } from '@infrastructure/config/i18n';
 import { Lang } from '@infrastructure/adapters/web/decorators/lang.decorator';
+import { Audit } from '@infrastructure/adapters/web/decorators/audit.decorator';
+import { AuditInterceptor } from '@infrastructure/adapters/web/interceptors/audit.interceptor';
+import { AUDIT_ACTIONS } from '@infrastructure/adapters/web/constants';
 
 /**
  * Authentication Controller
  * Handles user authentication endpoints
  */
 @Controller('auth')
+@UseInterceptors(AuditInterceptor)
 export class AuthController {
   constructor(
     private readonly loginUseCase: LoginUseCase,
@@ -40,6 +45,7 @@ export class AuthController {
    */
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
+  @Audit(AUDIT_ACTIONS.USER_REGISTER)
   async register(
     @Body() registerDto: RegisterDto,
     @Lang() lang: SupportedLanguage,
@@ -88,6 +94,7 @@ export class AuthController {
    * POST /auth/login
    */
   @Post('login')
+  @Audit(AUDIT_ACTIONS.USER_LOGIN)
   @HttpCode(HttpStatus.OK)
   async login(@Body() loginDto: LoginDto, @Lang() lang: SupportedLanguage) {
     const result = await this.loginUseCase.execute(loginDto);
