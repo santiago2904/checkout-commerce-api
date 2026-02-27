@@ -20,10 +20,7 @@ import {
   TypeOrmAuthRepository,
   TypeOrmCustomerRepository,
 } from '@infrastructure/adapters/database/typeorm/repositories';
-import {
-  LoginUseCase,
-  RegisterUserUseCase,
-} from '@application/use-cases/auth';
+import { LoginUseCase, RegisterUserUseCase } from '@application/use-cases/auth';
 import {
   AUTH_REPOSITORY,
   CUSTOMER_REPOSITORY,

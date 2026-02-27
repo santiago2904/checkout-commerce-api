@@ -24,8 +24,10 @@ describe('AuthModule', () => {
         JwtModule.registerAsync({
           imports: [ConfigModule],
           useFactory: (configService: ConfigService) => {
-            const secret = configService.get<string>('JWT_SECRET') || 'test-secret';
-            const expiresIn = configService.get<string>('JWT_EXPIRES_IN') || '1d';
+            const secret =
+              configService.get<string>('JWT_SECRET') || 'test-secret';
+            const expiresIn =
+              configService.get<string>('JWT_EXPIRES_IN') || '1d';
             return {
               secret,
               signOptions: {
@@ -36,12 +38,7 @@ describe('AuthModule', () => {
           inject: [ConfigService],
         }),
       ],
-      providers: [
-        BcryptHashService,
-        JwtTokenService,
-        JwtAuthGuard,
-        RolesGuard,
-      ],
+      providers: [BcryptHashService, JwtTokenService, JwtAuthGuard, RolesGuard],
     }).compile();
   });
 

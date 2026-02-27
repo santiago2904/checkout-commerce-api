@@ -1,6 +1,9 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { DataSource } from 'typeorm';
-import type { IAuthRepository, ICustomerRepository } from '@application/ports/out';
+import type {
+  IAuthRepository,
+  ICustomerRepository,
+} from '@application/ports/out';
 import type { IHashService, ITokenService } from '@application/ports/auth';
 import {
   AUTH_REPOSITORY,

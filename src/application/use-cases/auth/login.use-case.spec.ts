@@ -102,8 +102,11 @@ describe('LoginUseCase', () => {
         },
         accessToken: 'jwt-token-123',
       });
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       const findByEmailSpy = authRepository.findByEmail;
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       const comparePasswordsSpy = hashService.comparePasswords;
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       const generateTokenSpy = tokenService.generateToken;
       expect(findByEmailSpy).toHaveBeenCalledWith(loginDto.email);
       expect(comparePasswordsSpy).toHaveBeenCalledWith(
@@ -128,7 +131,9 @@ describe('LoginUseCase', () => {
       // Assert
       expect(result.isFailure).toBe(true);
       expect(result.error).toBeInstanceOf(UserNotFoundError);
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       const comparePasswordsSpy = hashService.comparePasswords;
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       const generateTokenSpy = tokenService.generateToken;
       expect(comparePasswordsSpy).not.toHaveBeenCalled();
       expect(generateTokenSpy).not.toHaveBeenCalled();
@@ -145,6 +150,7 @@ describe('LoginUseCase', () => {
       // Assert
       expect(result.isFailure).toBe(true);
       expect(result.error).toBeInstanceOf(InvalidCredentialsError);
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       const generateTokenSpy = tokenService.generateToken;
       expect(generateTokenSpy).not.toHaveBeenCalled();
     });
@@ -162,6 +168,7 @@ describe('LoginUseCase', () => {
       expect(result.isFailure).toBe(true);
       expect(result.error).toBeInstanceOf(InvalidCredentialsError);
       expect(result.error.message).toContain('User role not found');
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       const generateTokenSpy = tokenService.generateToken;
       expect(generateTokenSpy).not.toHaveBeenCalled();
     });

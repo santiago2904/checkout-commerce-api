@@ -1,7 +1,11 @@
 import { Injectable, Inject } from '@nestjs/common';
 import type { IAuthRepository } from '@application/ports/out';
 import type { IHashService, ITokenService } from '@application/ports/auth';
-import { AUTH_REPOSITORY, HASH_SERVICE, TOKEN_SERVICE } from '@application/tokens';
+import {
+  AUTH_REPOSITORY,
+  HASH_SERVICE,
+  TOKEN_SERVICE,
+} from '@application/tokens';
 import { Result } from '@application/utils';
 import { LoginDto } from '@application/dtos';
 import { InvalidCredentialsError, UserNotFoundError } from './auth.errors';
@@ -42,11 +46,13 @@ export class LoginUseCase {
    */
   async execute(
     loginDto: LoginDto,
-  ): Promise<Result<LoginResponse, InvalidCredentialsError | UserNotFoundError>> {
+  ): Promise<
+    Result<LoginResponse, InvalidCredentialsError | UserNotFoundError>
+  > {
     try {
       // Find user by email
       const user = await this.authRepository.findByEmail(loginDto.email);
-      
+
       if (!user) {
         return Result.fail(new UserNotFoundError());
       }
@@ -63,9 +69,7 @@ export class LoginUseCase {
 
       // Ensure role is loaded
       if (!user.role) {
-        return Result.fail(
-          new InvalidCredentialsError('User role not found'),
-        );
+        return Result.fail(new InvalidCredentialsError('User role not found'));
       }
 
       // Generate JWT token
