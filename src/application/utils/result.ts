@@ -103,4 +103,34 @@ export class Result<T, E = Error> {
       ? onSuccess(this._value as T)
       : onFailure(this._error as E);
   }
+
+  /**
+   * Alias for isSuccess (for compatibility)
+   */
+  isOk(): boolean {
+    return this._isSuccess;
+  }
+
+  /**
+   * Alias for isFailure (for compatibility)
+   */
+  isErr(): boolean {
+    return !this._isSuccess;
+  }
+}
+
+/**
+ * Helper function to create a successful result
+ * Usage: ok(value) instead of Result.ok(value)
+ */
+export function ok<T, E = Error>(value: T): Result<T, E> {
+  return Result.ok(value);
+}
+
+/**
+ * Helper function to create a failed result
+ * Usage: err(error) instead of Result.fail(error)
+ */
+export function err<T, E = Error>(error: E): Result<T, E> {
+  return Result.fail(error);
 }

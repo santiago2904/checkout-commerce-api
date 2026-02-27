@@ -64,6 +64,30 @@ describe('Delivery Entity', () => {
       delivery.customerId = 'customer-id';
       expect(delivery.customerId).toBe('customer-id');
     });
+
+    it('should have postalCode property', () => {
+      const delivery = new Delivery();
+      delivery.postalCode = '10001';
+      expect(delivery.postalCode).toBe('10001');
+    });
+
+    it('should have recipientName property', () => {
+      const delivery = new Delivery();
+      delivery.recipientName = 'John Doe';
+      expect(delivery.recipientName).toBe('John Doe');
+    });
+
+    it('should have recipientPhone property', () => {
+      const delivery = new Delivery();
+      delivery.recipientPhone = '+1234567890';
+      expect(delivery.recipientPhone).toBe('+1234567890');
+    });
+
+    it('should have transactionId property', () => {
+      const delivery = new Delivery();
+      delivery.transactionId = 'transaction-123';
+      expect(delivery.transactionId).toBe('transaction-123');
+    });
   });
 
   describe('inheritance', () => {

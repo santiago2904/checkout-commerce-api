@@ -23,6 +23,15 @@ export class Delivery extends BaseEntity {
   @Column({ type: 'varchar', length: 100 })
   city: string;
 
+  @Column({ type: 'varchar', length: 20, nullable: true })
+  postalCode: string;
+
+  @Column({ type: 'varchar', length: 255 })
+  recipientName: string;
+
+  @Column({ type: 'varchar', length: 50 })
+  recipientPhone: string;
+
   @Column({ type: 'varchar', length: 50, nullable: true })
   trackingNumber: string;
 
@@ -34,6 +43,9 @@ export class Delivery extends BaseEntity {
 
   @Column({ type: 'timestamp', nullable: true })
   actualDelivery: Date;
+
+  @Column({ type: 'uuid', nullable: true })
+  transactionId: string;
 
   @ManyToOne(() => Customer, { eager: true })
   @JoinColumn({ name: 'customerId' })

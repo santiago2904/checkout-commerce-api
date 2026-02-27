@@ -51,6 +51,42 @@ describe('Transaction Entity', () => {
       transaction.customerId = 'customer-id';
       expect(transaction.customerId).toBe('customer-id');
     });
+
+    it('should have paymentMethod property', () => {
+      const transaction = new Transaction();
+      transaction.paymentMethod = 'CARD';
+      expect(transaction.paymentMethod).toBe('CARD');
+    });
+
+    it('should have ipAddress property', () => {
+      const transaction = new Transaction();
+      transaction.ipAddress = '192.168.1.1';
+      expect(transaction.ipAddress).toBe('192.168.1.1');
+    });
+
+    it('should have wompiTransactionId property', () => {
+      const transaction = new Transaction();
+      transaction.wompiTransactionId = 'wompi-123-456';
+      expect(transaction.wompiTransactionId).toBe('wompi-123-456');
+    });
+
+    it('should have wompiReference property', () => {
+      const transaction = new Transaction();
+      transaction.wompiReference = 'wompi-ref-123';
+      expect(transaction.wompiReference).toBe('wompi-ref-123');
+    });
+
+    it('should have errorCode property', () => {
+      const transaction = new Transaction();
+      transaction.errorCode = '422';
+      expect(transaction.errorCode).toBe('422');
+    });
+
+    it('should have errorMessage property', () => {
+      const transaction = new Transaction();
+      transaction.errorMessage = 'Insufficient funds';
+      expect(transaction.errorMessage).toBe('Insufficient funds');
+    });
   });
 
   describe('inheritance', () => {
@@ -83,10 +119,22 @@ describe('Transaction Entity', () => {
       expect(transaction.status).toBe(TransactionStatus.APPROVED);
     });
 
-    it('should accept FAILED status', () => {
+    it('should accept DECLINED status', () => {
       const transaction = new Transaction();
-      transaction.status = TransactionStatus.FAILED;
-      expect(transaction.status).toBe(TransactionStatus.FAILED);
+      transaction.status = TransactionStatus.DECLINED;
+      expect(transaction.status).toBe(TransactionStatus.DECLINED);
+    });
+
+    it('should accept VOIDED status', () => {
+      const transaction = new Transaction();
+      transaction.status = TransactionStatus.VOIDED;
+      expect(transaction.status).toBe(TransactionStatus.VOIDED);
+    });
+
+    it('should accept ERROR status', () => {
+      const transaction = new Transaction();
+      transaction.status = TransactionStatus.ERROR;
+      expect(transaction.status).toBe(TransactionStatus.ERROR);
     });
   });
 
