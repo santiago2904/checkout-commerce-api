@@ -1,6 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ConfigModule } from '@nestjs/config';
-import { AuthModule } from './auth.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
+import { StringValue } from 'ms';
 import {
   BcryptHashService,
   JwtTokenService,
@@ -18,7 +20,27 @@ describe('AuthModule', () => {
           isGlobal: true,
           envFilePath: '.env.test',
         }),
-        AuthModule,
+        PassportModule.register({ defaultStrategy: 'jwt' }),
+        JwtModule.registerAsync({
+          imports: [ConfigModule],
+          useFactory: (configService: ConfigService) => {
+            const secret = configService.get<string>('JWT_SECRET') || 'test-secret';
+            const expiresIn = configService.get<string>('JWT_EXPIRES_IN') || '1d';
+            return {
+              secret,
+              signOptions: {
+                expiresIn: expiresIn as StringValue,
+              },
+            };
+          },
+          inject: [ConfigService],
+        }),
+      ],
+      providers: [
+        BcryptHashService,
+        JwtTokenService,
+        JwtAuthGuard,
+        RolesGuard,
       ],
     }).compile();
   });
