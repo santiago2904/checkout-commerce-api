@@ -28,6 +28,7 @@ import {
   TOKEN_SERVICE,
 } from '@application/tokens';
 import { AuthController } from '@infrastructure/adapters/http/controllers';
+import { I18nService } from '@infrastructure/config/i18n';
 
 @Module({
   imports: [
@@ -55,6 +56,8 @@ import { AuthController } from '@infrastructure/adapters/http/controllers';
   ],
   controllers: [AuthController],
   providers: [
+    // Internationalization
+    I18nService,
     // Auth Services
     BcryptHashService,
     JwtTokenService,
