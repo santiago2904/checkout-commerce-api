@@ -53,14 +53,16 @@ export class ProductNotFoundError extends CheckoutError {
  * Process Checkout Use Case
  * Railway Oriented Programming (ROP) implementation
  *
+ * IMPORTANT: Wompi payments are ASYNCHRONOUS!
  * Flow:
  * 1. Validate products and stock
  * 2. Calculate total amount
  * 3. Create transaction in PENDING state
- * 4. Process payment with Wompi Strategy
- * 5. Update transaction with result
- * 6. If APPROVED: reduce stock and create delivery
- * 7. Return result
+ * 4. Process payment with Wompi Strategy (returns PENDING + wompiTransactionId)
+ * 5. Update transaction with wompiTransactionId
+ * 6. Return transaction info (status: PENDING)
+ * 7. Client polls GET /checkout/status/:transactionId until status is final (APPROVED/DECLINED/ERROR)
+ * 8. When APPROVED: stock reduction and delivery creation happens in background or via polling endpoint
  */
 @Injectable()
 export class ProcessCheckoutUseCase {
@@ -106,6 +108,7 @@ export class ProcessCheckoutUseCase {
     const transaction = transactionResult.value;
 
     // Step 3: Process payment with Wompi Strategy (ROP)
+    // Wompi is ASYNC: Always returns PENDING + wompiTransactionId
     const paymentResult = await this.processPayment(
       transaction,
       request,
@@ -113,7 +116,7 @@ export class ProcessCheckoutUseCase {
       ipAddress,
     );
     if (paymentResult.isErr()) {
-      // Update transaction with error
+      // Payment gateway error (not transaction declined)
       await this.updateTransactionWithError(
         transaction.id,
         paymentResult.error.code,
@@ -129,7 +132,7 @@ export class ProcessCheckoutUseCase {
 
     const paymentData = paymentResult.value;
 
-    // Step 4: Update transaction with payment result
+    // Step 4: Update transaction with Wompi transaction ID and status
     await this.transactionRepository.updateStatus(
       transaction.id,
       this.mapStatusToEnum(paymentData.status),
@@ -139,36 +142,25 @@ export class ProcessCheckoutUseCase {
       paymentData.errorMessage,
     );
 
-    // Step 5: If APPROVED, reduce stock and create delivery (ROP)
-    let deliveryId: string | undefined;
-    if (paymentData.status === 'APPROVED') {
-      const deliveryResult = await this.processApprovedCheckout(
-        transaction,
-        request,
-        customerId,
-      );
-      if (deliveryResult.isOk()) {
-        deliveryId = deliveryResult.value;
-      } else {
-        this.logger.error(
-          `Failed to process approved checkout: ${deliveryResult.error.message}`,
-        );
-      }
-    }
-
-    // Step 6: Return checkout response
+    // Step 5: Return checkout response with PENDING status
+    // Client will poll GET /checkout/status/:transactionId to check final status
+    // Stock reduction and delivery creation happen when status becomes APPROVED
     const response: CheckoutResponseDto = {
       transactionId: transaction.id,
       transactionNumber: transaction.transactionNumber,
-      status: paymentData.status,
+      status: paymentData.status, // Will be PENDING for Wompi
       amount: totalAmount,
       currency: 'COP',
       reference: transaction.reference,
       paymentMethod: paymentData.paymentMethod,
-      deliveryId,
+      wompiTransactionId: paymentData.transactionId, // For client polling
       errorCode: paymentData.errorCode,
       errorMessage: paymentData.errorMessage,
     };
+
+    this.logger.log(
+      `Checkout initiated successfully. Transaction: ${transaction.id}, Wompi ID: ${paymentData.transactionId}, Status: ${paymentData.status}`,
+    );
 
     return ok(response);
   }
