@@ -29,9 +29,11 @@ import {
   AUDIT_LOG_REPOSITORY,
 } from '@application/tokens';
 import { CheckoutController } from '@infrastructure/adapters/http/controllers';
+import { WebhookController } from '@infrastructure/adapters/http/controllers/webhook.controller';
 import { I18nService } from '@infrastructure/config/i18n';
 import { AuditInterceptor } from '@infrastructure/adapters/web/interceptors/audit.interceptor';
 import { WompiStrategy } from '@infrastructure/adapters/payment/wompi/wompi.strategy';
+import { WompiWebhookValidatorService } from '@infrastructure/adapters/payment/wompi/wompi-webhook-validator.service';
 import { HttpModule } from '@nestjs/axios';
 import { ConfigModule } from '@nestjs/config';
 
@@ -59,7 +61,7 @@ import { ConfigModule } from '@nestjs/config';
     HttpModule,
     ConfigModule,
   ],
-  controllers: [CheckoutController],
+  controllers: [CheckoutController, WebhookController],
   providers: [
     // Internationalization
     I18nService,
@@ -89,6 +91,8 @@ import { ConfigModule } from '@nestjs/config';
       provide: PAYMENT_GATEWAY,
       useClass: WompiStrategy,
     },
+    // Webhook Validator
+    WompiWebhookValidatorService,
     // Use Cases & Services
     ProcessCheckoutUseCase,
     CheckTransactionStatusUseCase,

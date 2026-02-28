@@ -5,12 +5,14 @@ import type {
   IDeliveryRepository,
   ITransactionItemRepository,
   IAuditLogRepository,
+  ITransactionRepository,
 } from '@application/ports/out';
 import {
   Transaction,
   TransactionItem,
 } from '@infrastructure/adapters/database/typeorm/entities';
 import { AUDIT_ACTIONS } from '@infrastructure/adapters/web/constants';
+import { TransactionStatus } from '@/domain/enums';
 
 /**
  * Fulfillment Error
@@ -58,6 +60,8 @@ export class FulfillmentService {
     private readonly deliveryRepository: IDeliveryRepository,
     @Inject('IAuditLogRepository')
     private readonly auditLogRepository: IAuditLogRepository,
+    @Inject('ITransactionRepository')
+    private readonly transactionRepository: ITransactionRepository,
   ) {}
 
   /**
@@ -363,6 +367,89 @@ export class FulfillmentService {
           'ERROR_PROCESSING_ERROR',
         ),
       );
+    }
+  }
+
+  /**
+   * Process fulfillment by Wompi transaction ID
+   *
+   * This method is called by the webhook controller when Wompi sends
+   * a transaction.updated event. It finds the transaction in our database
+   * and triggers the appropriate fulfillment process.
+   *
+   * @param wompiTransactionId - Wompi's transaction ID
+   * @param status - Transaction status from Wompi
+   */
+  async processFulfillmentByWompiId(
+    wompiTransactionId: string,
+    status: string,
+  ): Promise<void> {
+    this.logger.log(
+      `Processing fulfillment for Wompi transaction ${wompiTransactionId} with status ${status}`,
+    );
+
+    // Find transaction by wompiTransactionId
+    const transaction =
+      await this.transactionRepository.findByWompiTransactionId(
+        wompiTransactionId,
+      );
+
+    if (!transaction) {
+      this.logger.warn(
+        `Transaction not found for Wompi ID: ${wompiTransactionId}`,
+      );
+      return;
+    }
+
+    // Only process if transaction status in DB is PENDING
+    // This prevents re-processing already fulfilled transactions
+    if (transaction.status !== TransactionStatus.PENDING) {
+      this.logger.log(
+        `Transaction ${transaction.id} already processed with status ${transaction.status}. Skipping fulfillment.`,
+      );
+      return;
+    }
+
+    // Update transaction status from Wompi
+    const statusEnum = this.mapStatusToEnum(status);
+    transaction.status = statusEnum;
+    await this.transactionRepository.update(transaction.id, transaction);
+
+    // Execute appropriate fulfillment based on status
+    switch (status) {
+      case 'APPROVED':
+        await this.processApprovedTransaction(transaction);
+        break;
+      case 'DECLINED':
+        await this.processDeclinedTransaction(transaction);
+        break;
+      case 'ERROR':
+        await this.processErrorTransaction(transaction);
+        break;
+      default:
+        this.logger.log(
+          `Ignoring status ${status} for transaction ${transaction.id}`,
+        );
+    }
+  }
+
+  /**
+   * Map payment status to TransactionStatus enum
+   */
+  private mapStatusToEnum(
+    status: 'PENDING' | 'APPROVED' | 'DECLINED' | 'ERROR',
+  ): TransactionStatus {
+    switch (status) {
+      case 'PENDING':
+        return TransactionStatus.PENDING;
+      case 'APPROVED':
+        return TransactionStatus.APPROVED;
+      case 'DECLINED':
+        return TransactionStatus.DECLINED;
+      case 'ERROR':
+        return TransactionStatus.ERROR;
+      default:
+        return TransactionStatus.ERROR;
     }
   }
 }
