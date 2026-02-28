@@ -36,6 +36,7 @@ import { JwtAuthGuard } from '@infrastructure/adapters/auth/guards/jwt-auth.guar
 import { RolesGuard } from '@infrastructure/adapters/auth/guards/roles.guard';
 import { Roles } from '@infrastructure/adapters/auth/decorators/roles.decorator';
 import { RoleName } from '@domain/enums';
+import { extractRealIp } from '@infrastructure/adapters/web/utils';
 import type { TransactionStatusResponse } from '@application/use-cases/checkout/check-transaction-status.use-case';
 
 /**
@@ -110,7 +111,7 @@ export class CheckoutController {
       },
       customerId,
       customerEmail,
-      req.ip || 'unknown',
+      extractRealIp(req),
     );
 
     return result.fold(

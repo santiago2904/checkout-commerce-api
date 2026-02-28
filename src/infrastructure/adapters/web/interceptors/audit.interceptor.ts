@@ -16,6 +16,7 @@ import {
   AUDIT_CATEGORIES,
   getActionCategory,
 } from '@infrastructure/adapters/web/constants/audit-actions.constants';
+import { extractRealIp } from '@infrastructure/adapters/web/utils';
 
 /**
  * Audit Interceptor
@@ -104,7 +105,7 @@ export class AuditInterceptor implements NestInterceptor {
 
       // Build metadata
       const metadata: Record<string, any> = {
-        ip: request.ip,
+        ip: extractRealIp(request),
         userAgent: request.headers['user-agent'],
         method: request.method,
         url: request.url,

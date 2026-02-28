@@ -17,6 +17,14 @@
         "userNotFound": "Usuario no encontrado",
         "failed": "Inicio de sesión fallido"
       }
+    },
+    "jwt": {
+      "errors": {
+        "tokenExpired": "El token ha expirado. Por favor, inicie sesión nuevamente",
+        "invalidToken": "Token inválido",
+        "noToken": "Token no proporcionado",
+        "unauthorized": "No autorizado"
+      }
     }
   },
   "checkout": {

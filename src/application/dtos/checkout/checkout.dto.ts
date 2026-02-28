@@ -196,15 +196,6 @@ export class CheckoutRequestDto {
   @IsString()
   @IsNotEmpty()
   acceptanceToken: string;
-
-  /**
-   * Optional redirect URL where user should be redirected after successful payment
-   * Typically used by frontend to return user to specific page
-   */
-  @IsOptional()
-  @IsString()
-  @Length(1, 500, { message: 'Redirect URL must not exceed 500 characters' })
-  redirectUrl?: string;
 }
 
 /**

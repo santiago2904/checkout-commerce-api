@@ -106,6 +106,7 @@ describe('WompiStrategy', () => {
       reference: 'TEST-001',
       customerEmail: 'test@example.com',
       ipAddress: '192.168.1.1',
+      acceptanceToken: 'accept_test_123',
       paymentMethod: {
         type: 'CARD',
         token: 'tok_test_123',

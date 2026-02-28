@@ -162,6 +162,10 @@ export class WompiStrategy implements IPaymentGateway {
         }),
       );
 
+      this.logger.debug(
+        `get status response: ${JSON.stringify(response.data, null, 2)}`,
+      );
+
       return this.mapWompiResponse(response.data);
     } catch (error: unknown) {
       const errorMessage =
@@ -276,20 +280,17 @@ export class WompiStrategy implements IPaymentGateway {
    */
   private buildWompiRequest(data: TransactionData): WompiTransactionRequest {
     const request: WompiTransactionRequest = {
-      amount_in_cents: Math.round(data.amount * 100), // Convert COP pesos to centavos
+      amount_in_cents: Math.round(data.amount * 100),
       currency: data.currency,
       signature: '', // Will be calculated next
       customer_email: data.customerEmail,
       reference: data.reference,
       acceptance_token: data.acceptanceToken, // From frontend
       payment_method: this.buildPaymentMethod(data),
+      sandbox_status: WompiTransactionStatus.DECLINED,
+      redirect_url: data.redirectUrl || undefined,
+      ip: data.ipAddress,
     };
-
-    // Add optional redirect_url if provided
-    if (data.redirectUrl) {
-      request.redirect_url = data.redirectUrl;
-    }
-
     return request;
   }
 
@@ -381,6 +382,22 @@ export class WompiStrategy implements IPaymentGateway {
           ? data.status
           : undefined),
       errorMessage: data.error?.reason || data.status_message,
+      redirectUrl: data.redirect_url,
+      statusMessage: data.status_message,
+      merchant: data.merchant
+        ? {
+            id: data.merchant.id,
+            name: data.merchant.name,
+            legal_name: data.merchant.legal_name,
+            contact_name: data.merchant.contact_name,
+            phone_number: data.merchant.phone_number,
+            logo_url: data.merchant.logo_url,
+            legal_id_type: data.merchant.legal_id_type,
+            email: data.merchant.email,
+            legal_id: data.merchant.legal_id,
+            public_key: data.merchant.public_key,
+          }
+        : undefined,
     };
 
     // All states (PENDING, APPROVED, DECLINED, ERROR) are valid and should return ok()

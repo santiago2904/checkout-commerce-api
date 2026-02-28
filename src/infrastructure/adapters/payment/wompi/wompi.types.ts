@@ -67,8 +67,9 @@ export interface WompiTransactionRequest {
   redirect_url?: string;
   customer_data?: WompiCustomerData;
   shipping_address?: WompiShippingAddress;
+  sandbox_status?: WompiTransactionStatus;
+  ip?: string;
 }
-
 /**
  * Wompi Payment Method (CARD)
  */
@@ -131,6 +132,22 @@ export interface WompiShippingAddress {
 }
 
 /**
+ * Merchant information from Wompi
+ */
+export interface WompiMerchant {
+  id: number;
+  name: string;
+  legal_name: string;
+  contact_name: string;
+  phone_number: string;
+  logo_url: string | null;
+  legal_id_type: string;
+  email: string;
+  legal_id: string;
+  public_key: string;
+}
+
+/**
  * Wompi Transaction Response
  * Response from POST /transactions
  */
@@ -151,6 +168,7 @@ export interface WompiTransactionResponse {
     redirect_url?: string;
     payment_link_id?: string;
     payment_source_id?: number;
+    merchant?: WompiMerchant;
     // Billing data
     billing_data?: {
       legal_id: string;

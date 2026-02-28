@@ -40,6 +40,22 @@ export interface PaymentMethodData {
 }
 
 /**
+ * Merchant information from payment gateway
+ */
+export interface MerchantInfo {
+  id: number;
+  name: string;
+  legal_name: string;
+  contact_name: string;
+  phone_number: string;
+  logo_url: string | null;
+  legal_id_type: string;
+  email: string;
+  legal_id: string;
+  public_key: string;
+}
+
+/**
  * Payment processing result
  */
 export interface PaymentResult {
@@ -49,6 +65,9 @@ export interface PaymentResult {
   paymentMethod: string;
   errorCode?: string;
   errorMessage?: string;
+  redirectUrl?: string; // URL where user is redirected after payment
+  statusMessage?: string; // Human-readable status message from gateway
+  merchant?: MerchantInfo; // Merchant information
 }
 
 /**

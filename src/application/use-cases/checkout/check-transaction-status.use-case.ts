@@ -5,6 +5,7 @@ import type {
   IPaymentGateway,
   PaymentResult,
   ITransactionRepository,
+  MerchantInfo,
 } from '@application/ports/out';
 import { TransactionStatus } from '@domain/enums';
 import { Transaction } from '@infrastructure/adapters/database/typeorm/entities';
@@ -22,6 +23,9 @@ export interface TransactionStatusResponse {
   paymentMethod: string;
   errorCode?: string;
   errorMessage?: string;
+  redirectUrl?: string; // URL where user is redirected after payment
+  statusMessage?: string; // Human-readable status message from gateway
+  merchant?: MerchantInfo; // Merchant information
 }
 
 /**
@@ -219,6 +223,9 @@ export class CheckTransactionStatusUseCase {
       paymentMethod: transaction.paymentMethod,
       errorCode: paymentData.errorCode,
       errorMessage: paymentData.errorMessage,
+      redirectUrl: paymentData.redirectUrl,
+      statusMessage: paymentData.statusMessage,
+      merchant: paymentData.merchant,
     };
 
     return ok(response);

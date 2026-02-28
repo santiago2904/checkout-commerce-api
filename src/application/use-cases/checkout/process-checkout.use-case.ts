@@ -364,7 +364,7 @@ export class ProcessCheckoutUseCase {
       paymentMethod,
       ipAddress,
       acceptanceToken: request.acceptanceToken,
-      redirectUrl: request.redirectUrl,
+      redirectUrl: `${process.env.FRONTEND_URL}/checkout`,
     };
 
     return await this.paymentGateway.processPayment(transactionData);

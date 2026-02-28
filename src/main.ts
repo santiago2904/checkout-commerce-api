@@ -1,9 +1,17 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
+import { JwtExceptionFilter } from '@infrastructure/adapters/auth/filters';
+import { I18nService } from '@infrastructure/config/i18n';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // Get I18nService from DI container
+  const i18nService = app.get(I18nService);
+
+  // Register JWT Exception Filter globally
+  app.useGlobalFilters(new JwtExceptionFilter(i18nService));
 
   // Enable validation globally
   app.useGlobalPipes(
