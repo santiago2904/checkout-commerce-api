@@ -24,6 +24,7 @@ import {
   WompiTokenizeCardResponse,
 } from './wompi.types';
 import { WompiConfig } from './wompi.config';
+import { I18nService, SupportedLanguage } from '@infrastructure/config/i18n';
 
 /**
  * Wompi Payment Gateway Strategy
@@ -34,10 +35,12 @@ import { WompiConfig } from './wompi.config';
 export class WompiStrategy implements IPaymentGateway {
   private readonly logger = new Logger(WompiStrategy.name);
   private readonly wompiConfig: WompiConfig;
+  private readonly defaultLanguage: SupportedLanguage = 'es';
 
   constructor(
     private readonly configService: ConfigService,
     private readonly httpService: HttpService,
+    private readonly i18n: I18nService,
   ) {
     this.wompiConfig = this.configService.get<WompiConfig>('wompi')!;
   }
@@ -525,21 +528,16 @@ export class WompiStrategy implements IPaymentGateway {
     statusCode: number,
     context: string = 'transacción',
   ): string {
-    switch (statusCode) {
-      case 400:
-        return `Datos de ${context} inválidos. Verifique que todos los campos requeridos sean correctos (token de tarjeta, método de pago, acceptance_token)`;
-      case 401:
-        return 'Error de autenticación con Wompi. Verifique que la clave privada (private key) sea correcta';
-      case 422:
-        return `Error de validación en ${context}. Posibles causas: referencia duplicada, monto inválido, token de aceptación ya usado o inválido`;
-      case 404:
-        return 'Recurso no encontrado en Wompi';
-      case 500:
-        return 'Error interno del servidor de Wompi. Intente nuevamente más tarde';
-      case 503:
-        return 'Servicio de Wompi temporalmente no disponible. Intente nuevamente más tarde';
-      default:
-        return `Error HTTP ${statusCode}`;
+    const key = `payment.wompi.errors.${statusCode}`;
+    const translation = this.i18n.t(key, this.defaultLanguage, { context });
+
+    // If translation not found (returns key), use default
+    if (translation === key) {
+      return this.i18n.t('payment.wompi.errors.default', this.defaultLanguage, {
+        statusCode,
+      });
     }
+
+    return translation;
   }
 }

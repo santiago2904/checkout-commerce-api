@@ -16,6 +16,7 @@ import {
   WompiTransactionStatus,
   WompiErrorResponse,
 } from './wompi.types';
+import { I18nService } from '@infrastructure/config/i18n';
 
 describe('WompiStrategy', () => {
   let strategy: WompiStrategy;
@@ -29,6 +30,7 @@ describe('WompiStrategy', () => {
     privateKey: 'prv_test_456',
     apiUrl: 'https://sandbox.wompi.co/v1',
     eventsSecret: 'test_secret',
+    integritySecret: 'integrity_test_secret',
   };
 
   beforeEach(async () => {
@@ -49,6 +51,34 @@ describe('WompiStrategy', () => {
           useValue: {
             post: jest.fn(),
             get: jest.fn(),
+          },
+        },
+        {
+          provide: I18nService,
+          useValue: {
+            t: jest.fn(
+              (
+                key: string,
+                _lang: string,
+                params?: Record<string, string | number>,
+              ) => {
+                // Mock translations for error messages
+                const translations: Record<string, string> = {
+                  'payment.wompi.errors.400': `Datos de ${params?.context || 'transacción'} inválidos. Verifique que todos los campos requeridos sean correctos (token de tarjeta, método de pago, acceptance_token)`,
+                  'payment.wompi.errors.401':
+                    'Error de autenticación con Wompi. Verifique que la clave privada (private key) sea correcta',
+                  'payment.wompi.errors.422': `Error de validación en ${params?.context || 'transacción'}. Posibles causas: referencia duplicada, monto inválido, token de aceptación ya usado o inválido`,
+                  'payment.wompi.errors.404': 'Recurso no encontrado en Wompi',
+                  'payment.wompi.errors.500':
+                    'Error interno del servidor de Wompi. Intente nuevamente más tarde',
+                  'payment.wompi.errors.503':
+                    'Servicio de Wompi temporalmente no disponible. Intente nuevamente más tarde',
+                  'payment.wompi.errors.default': `Error HTTP ${params?.statusCode || 'desconocido'}`,
+                };
+                return translations[key] || key;
+              },
+            ),
+            translate: jest.fn(),
           },
         },
       ],
