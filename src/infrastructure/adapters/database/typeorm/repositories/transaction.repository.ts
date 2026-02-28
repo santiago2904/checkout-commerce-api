@@ -35,16 +35,6 @@ export class TypeOrmTransactionRepository implements ITransactionRepository {
   }
 
   /**
-   * Find transaction by transaction number
-   */
-  async findByNumber(transactionNumber: string): Promise<Transaction | null> {
-    return this.transactionRepository.findOne({
-      where: { transactionNumber },
-      relations: ['customer'],
-    });
-  }
-
-  /**
    * Find transaction by reference
    */
   async findByReference(reference: string): Promise<Transaction | null> {
@@ -61,7 +51,6 @@ export class TypeOrmTransactionRepository implements ITransactionRepository {
     id: string,
     status: TransactionStatus,
     wompiTransactionId?: string,
-    wompiReference?: string,
     errorCode?: string,
     errorMessage?: string,
   ): Promise<void> {
@@ -70,7 +59,6 @@ export class TypeOrmTransactionRepository implements ITransactionRepository {
       {
         status,
         wompiTransactionId,
-        wompiReference,
         errorCode,
         errorMessage,
       },

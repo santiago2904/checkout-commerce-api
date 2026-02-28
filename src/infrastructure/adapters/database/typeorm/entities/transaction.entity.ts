@@ -3,11 +3,13 @@ import {
   PrimaryGeneratedColumn,
   Column,
   ManyToOne,
+  OneToMany,
   JoinColumn,
 } from 'typeorm';
 import { BaseEntity } from './base.entity';
 import { Customer } from './customer.entity';
 import { TransactionStatus } from '@domain/enums';
+import type { TransactionItem } from './transaction-item.entity';
 
 /**
  * Transaction Entity
@@ -19,13 +21,10 @@ export class Transaction extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'varchar', length: 100, unique: true })
-  transactionNumber: string;
-
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   amount: number;
 
-  @Column({ type: 'varchar', length: 255, nullable: true })
+  @Column({ type: 'varchar', length: 255, nullable: false, unique: true })
   reference: string;
 
   @Column({
@@ -47,10 +46,6 @@ export class Transaction extends BaseEntity {
   @Column({ type: 'varchar', length: 255, nullable: true })
   wompiTransactionId: string | null;
 
-  // Wompi reference for the transaction
-  @Column({ type: 'varchar', length: 255, nullable: true })
-  wompiReference: string | null;
-
   // Error code if transaction failed (422, 400, 401, etc.)
   @Column({ type: 'varchar', length: 50, nullable: true })
   errorCode: string | null;
@@ -65,4 +60,8 @@ export class Transaction extends BaseEntity {
 
   @Column({ type: 'uuid' })
   customerId: string;
+
+  // Transaction items (products purchased in this transaction)
+  @OneToMany('TransactionItem', 'transaction', { cascade: true })
+  items: TransactionItem[];
 }

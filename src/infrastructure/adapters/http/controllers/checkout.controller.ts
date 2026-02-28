@@ -36,16 +36,19 @@ import { JwtAuthGuard } from '@infrastructure/adapters/auth/guards/jwt-auth.guar
 import { RolesGuard } from '@infrastructure/adapters/auth/guards/roles.guard';
 import { Roles } from '@infrastructure/adapters/auth/decorators/roles.decorator';
 import { RoleName } from '@domain/enums';
+import { extractRealIp } from '@infrastructure/adapters/web/utils';
 import type { TransactionStatusResponse } from '@application/use-cases/checkout/check-transaction-status.use-case';
 
 /**
  * Interface for authenticated request with user data
+ * Matches the structure returned by JWT strategy's validate() method
  */
 interface RequestWithUser extends Express.Request {
   user: {
-    id: string;
+    userId: string;
     email: string;
-    roles: string[];
+    roleId: string;
+    roleName: string;
     customer?: {
       id: string;
     };
@@ -108,7 +111,7 @@ export class CheckoutController {
       },
       customerId,
       customerEmail,
-      req.ip || 'unknown',
+      extractRealIp(req),
     );
 
     return result.fold(
@@ -144,8 +147,13 @@ export class CheckoutController {
 
         // Fallback for unknown checkout errors
         if (error instanceof CheckoutError) {
+          // Include error code if available for better debugging
+          const errorDetails = error.code
+            ? `[${error.code}] ${error.message}`
+            : error.message;
+
           throw new BadRequestException(
-            `${this.i18n.t('checkout.errors.failed', lang)}: ${error.message}`,
+            `${this.i18n.t('checkout.errors.failed', lang)}: ${errorDetails}`,
           );
         }
 

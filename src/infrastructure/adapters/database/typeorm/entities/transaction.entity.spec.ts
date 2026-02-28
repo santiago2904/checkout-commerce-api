@@ -15,12 +15,6 @@ describe('Transaction Entity', () => {
       expect(transaction.id).toBe('test-id');
     });
 
-    it('should have transactionNumber property', () => {
-      const transaction = new Transaction();
-      transaction.transactionNumber = 'TRX123456';
-      expect(transaction.transactionNumber).toBe('TRX123456');
-    });
-
     it('should have amount property', () => {
       const transaction = new Transaction();
       transaction.amount = 99.99;
@@ -68,12 +62,6 @@ describe('Transaction Entity', () => {
       const transaction = new Transaction();
       transaction.wompiTransactionId = 'wompi-123-456';
       expect(transaction.wompiTransactionId).toBe('wompi-123-456');
-    });
-
-    it('should have wompiReference property', () => {
-      const transaction = new Transaction();
-      transaction.wompiReference = 'wompi-ref-123';
-      expect(transaction.wompiReference).toBe('wompi-ref-123');
     });
 
     it('should have errorCode property', () => {

@@ -10,6 +10,7 @@ export const CUSTOMER_REPOSITORY = 'ICustomerRepository';
 export const DELIVERY_REPOSITORY = 'IDeliveryRepository';
 export const PRODUCT_REPOSITORY = 'IProductRepository';
 export const TRANSACTION_REPOSITORY = 'ITransactionRepository';
+export const TRANSACTION_ITEM_REPOSITORY = 'ITransactionItemRepository';
 
 // Service Tokens
 export const HASH_SERVICE = 'IHashService';

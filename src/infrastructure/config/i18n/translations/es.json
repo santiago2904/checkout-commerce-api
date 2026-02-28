@@ -17,6 +17,14 @@
         "userNotFound": "Usuario no encontrado",
         "failed": "Inicio de sesión fallido"
       }
+    },
+    "jwt": {
+      "errors": {
+        "tokenExpired": "El token ha expirado. Por favor, inicie sesión nuevamente",
+        "invalidToken": "Token inválido",
+        "noToken": "Token no proporcionado",
+        "unauthorized": "No autorizado"
+      }
     }
   },
   "checkout": {
@@ -29,6 +37,19 @@
       "transactionNotFound": "Transacción no encontrada",
       "failed": "Error al procesar checkout",
       "failedStatusCheck": "Error al consultar estado"
+    }
+  },
+  "payment": {
+    "wompi": {
+      "errors": {
+        "400": "Datos de {{context}} inválidos. Verifique que todos los campos requeridos sean correctos (token de tarjeta, método de pago, acceptance_token)",
+        "401": "Error de autenticación con Wompi. Verifique que la clave privada (private key) sea correcta",
+        "422": "Error de validación en {{context}}. Posibles causas: referencia duplicada, monto inválido, token de aceptación ya usado o inválido",
+        "404": "Recurso no encontrado en Wompi",
+        "500": "Error interno del servidor de Wompi. Intente nuevamente más tarde",
+        "503": "Servicio de Wompi temporalmente no disponible. Intente nuevamente más tarde",
+        "default": "Error HTTP {{statusCode}}"
+      }
     }
   }
 }

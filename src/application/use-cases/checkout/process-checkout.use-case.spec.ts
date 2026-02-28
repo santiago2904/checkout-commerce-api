@@ -10,6 +10,7 @@ import {
 import {
   IProductRepository,
   ITransactionRepository,
+  ITransactionItemRepository,
   IDeliveryRepository,
   IPaymentGateway,
 } from '@application/ports/out';
@@ -26,11 +27,12 @@ describe('ProcessCheckoutUseCase', () => {
   let useCase: ProcessCheckoutUseCase;
   let productRepository: jest.Mocked<IProductRepository>;
   let transactionRepository: jest.Mocked<ITransactionRepository>;
+  let transactionItemRepository: jest.Mocked<ITransactionItemRepository>;
   let deliveryRepository: jest.Mocked<IDeliveryRepository>;
   let paymentGateway: jest.Mocked<IPaymentGateway>;
 
   const mockProduct = {
-    id: 'product-id-1',
+    id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
     name: 'Test Product',
     price: 10000,
     stock: 50,
@@ -38,7 +40,6 @@ describe('ProcessCheckoutUseCase', () => {
 
   const mockTransaction = {
     id: 'transaction-id',
-    transactionNumber: 'TXN-001',
     reference: 'REF-001',
     amount: 20000,
     status: TransactionStatus.PENDING,
@@ -49,7 +50,7 @@ describe('ProcessCheckoutUseCase', () => {
   const mockCheckoutRequest: CheckoutRequestDto = {
     items: [
       {
-        productId: 'product-id-1',
+        productId: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
         quantity: 2,
       },
     ],
@@ -81,11 +82,16 @@ describe('ProcessCheckoutUseCase', () => {
     const mockTransactionRepo = {
       create: jest.fn(),
       findById: jest.fn(),
-      findByNumber: jest.fn(),
       findByReference: jest.fn(),
       updateStatus: jest.fn(),
       findByCustomerId: jest.fn(),
       findPending: jest.fn(),
+    };
+
+    const mockTransactionItemRepo = {
+      createMany: jest.fn(),
+      findByTransactionId: jest.fn(),
+      findById: jest.fn(),
     };
 
     const mockDeliveryRepo = {
@@ -113,6 +119,10 @@ describe('ProcessCheckoutUseCase', () => {
           useValue: mockTransactionRepo,
         },
         {
+          provide: 'ITransactionItemRepository',
+          useValue: mockTransactionItemRepo,
+        },
+        {
           provide: 'IDeliveryRepository',
           useValue: mockDeliveryRepo,
         },
@@ -126,12 +136,16 @@ describe('ProcessCheckoutUseCase', () => {
     useCase = module.get<ProcessCheckoutUseCase>(ProcessCheckoutUseCase);
     productRepository = module.get('IProductRepository');
     transactionRepository = module.get('ITransactionRepository');
+    transactionItemRepository = module.get('ITransactionItemRepository');
     deliveryRepository = module.get('IDeliveryRepository');
     paymentGateway = module.get('IPaymentGateway');
 
     // Suppress logger
     jest.spyOn(Logger.prototype, 'log').mockImplementation();
     jest.spyOn(Logger.prototype, 'error').mockImplementation();
+
+    // Set up default mock behavior for transactionItemRepository
+    transactionItemRepository.createMany.mockResolvedValue(undefined);
   });
 
   afterEach(() => {
@@ -168,7 +182,6 @@ describe('ProcessCheckoutUseCase', () => {
       expect(result.isOk()).toBe(true);
       expect(result.value).toMatchObject({
         transactionId: 'transaction-id',
-        transactionNumber: 'TXN-001',
         status: 'PENDING', // NOT 'APPROVED' - Wompi is async!
         amount: 20000,
         currency: 'COP',
@@ -180,9 +193,11 @@ describe('ProcessCheckoutUseCase', () => {
       expect(result.value.deliveryId).toBeUndefined();
 
       // Verify correct repository calls
-      expect(productRepository.findById).toHaveBeenCalledWith('product-id-1');
+      expect(productRepository.findById).toHaveBeenCalledWith(
+        'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+      );
       expect(productRepository.hasStock).toHaveBeenCalledWith(
-        'product-id-1',
+        'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
         2,
       );
       expect(transactionRepository.create).toHaveBeenCalled();
@@ -268,7 +283,6 @@ describe('ProcessCheckoutUseCase', () => {
         'transaction-id',
         TransactionStatus.ERROR,
         undefined,
-        undefined,
         'PAYMENT_DECLINED',
         'Card was declined',
       );
@@ -344,12 +358,16 @@ describe('ProcessCheckoutUseCase', () => {
   describe('execute - Multiple Products', () => {
     it('should handle checkout with multiple products', async () => {
       // Arrange
-      const mockProduct2 = { ...mockProduct, id: 'product-id-2', price: 15000 };
+      const mockProduct2 = {
+        ...mockProduct,
+        id: 'b1ffcc00-0d1c-4ef9-bb7e-7cc0ce491b22',
+        price: 15000,
+      };
       const multiItemRequest: CheckoutRequestDto = {
         ...mockCheckoutRequest,
         items: [
-          { productId: 'product-id-1', quantity: 2 },
-          { productId: 'product-id-2', quantity: 1 },
+          { productId: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', quantity: 2 },
+          { productId: 'b1ffcc00-0d1c-4ef9-bb7e-7cc0ce491b22', quantity: 1 },
         ],
       };
 
@@ -397,12 +415,15 @@ describe('ProcessCheckoutUseCase', () => {
 
     it('should fail if any product in multi-item checkout has insufficient stock', async () => {
       // Arrange
-      const mockProduct2 = { ...mockProduct, id: 'product-id-2' };
+      const mockProduct2 = {
+        ...mockProduct,
+        id: 'b1ffcc00-0d1c-4ef9-bb7e-7cc0ce491b22',
+      };
       const multiItemRequest: CheckoutRequestDto = {
         ...mockCheckoutRequest,
         items: [
-          { productId: 'product-id-1', quantity: 2 },
-          { productId: 'product-id-2', quantity: 1 },
+          { productId: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', quantity: 2 },
+          { productId: 'b1ffcc00-0d1c-4ef9-bb7e-7cc0ce491b22', quantity: 1 },
         ],
       };
 

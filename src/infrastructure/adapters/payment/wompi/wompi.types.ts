@@ -11,6 +11,38 @@ export enum WompiTransactionStatus {
 }
 
 /**
+ * Wompi Tokenize Card Request
+ * POST /tokens/cards
+ * Docs: https://docs.wompi.co/docs/en/crear-tokens-de-tarjetas
+ */
+export interface WompiTokenizeCardRequest {
+  number: string; // Card number
+  cvc: string; // Security code (3 or 4 digits)
+  exp_month: string; // Expiration month (2 digits)
+  exp_year: string; // Expiration year (2 digits)
+  card_holder: string; // Cardholder name
+}
+
+/**
+ * Wompi Tokenize Card Response
+ */
+export interface WompiTokenizeCardResponse {
+  status: 'CREATED';
+  data: {
+    id: string; // Token ID (e.g., "tok_prod_1_BBb749EAB32e97a2D058Dd538a608301")
+    created_at: string;
+    brand: string; // e.g., "VISA", "MASTERCARD", "AMEX"
+    name: string; // Masked card name
+    last_four: string; // Last 4 digits of card
+    bin: string; // First 6 digits of card
+    exp_year: string;
+    exp_month: string;
+    card_holder: string;
+    expires_at: string;
+  };
+}
+
+/**
  * Wompi Payment Method Types
  */
 export enum WompiPaymentMethodType {
@@ -31,11 +63,13 @@ export interface WompiTransactionRequest {
   customer_email: string;
   payment_method: WompiPaymentMethod;
   reference: string;
+  acceptance_token: string;
   redirect_url?: string;
   customer_data?: WompiCustomerData;
   shipping_address?: WompiShippingAddress;
+  sandbox_status?: WompiTransactionStatus;
+  ip?: string;
 }
-
 /**
  * Wompi Payment Method (CARD)
  */
@@ -98,6 +132,22 @@ export interface WompiShippingAddress {
 }
 
 /**
+ * Merchant information from Wompi
+ */
+export interface WompiMerchant {
+  id: number;
+  name: string;
+  legal_name: string;
+  contact_name: string;
+  phone_number: string;
+  logo_url: string | null;
+  legal_id_type: string;
+  email: string;
+  legal_id: string;
+  public_key: string;
+}
+
+/**
  * Wompi Transaction Response
  * Response from POST /transactions
  */
@@ -118,6 +168,7 @@ export interface WompiTransactionResponse {
     redirect_url?: string;
     payment_link_id?: string;
     payment_source_id?: number;
+    merchant?: WompiMerchant;
     // Billing data
     billing_data?: {
       legal_id: string;

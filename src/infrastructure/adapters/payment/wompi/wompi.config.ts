@@ -5,6 +5,7 @@ export interface WompiConfig {
   privateKey: string;
   apiUrl: string;
   eventsSecret: string;
+  integritySecret: string;
 }
 
 export default registerAs(
@@ -14,5 +15,6 @@ export default registerAs(
     privateKey: process.env.WOMPI_PRIVATE_KEY || '',
     apiUrl: process.env.WOMPI_API_URL || 'https://sandbox.wompi.co/v1', // Sandbox by default
     eventsSecret: process.env.WOMPI_EVENTS_SECRET || '',
+    integritySecret: process.env.WOMPI_INTEGRITY_SECRET || '',
   }),
 );

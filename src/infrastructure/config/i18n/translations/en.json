@@ -17,6 +17,14 @@
         "userNotFound": "User not found",
         "failed": "Login failed"
       }
+    },
+    "jwt": {
+      "errors": {
+        "tokenExpired": "Token has expired. Please login again",
+        "invalidToken": "Invalid token",
+        "noToken": "No token provided",
+        "unauthorized": "Unauthorized"
+      }
     }
   },
   "checkout": {
@@ -29,6 +37,19 @@
       "transactionNotFound": "Transaction not found",
       "failed": "Checkout failed",
       "failedStatusCheck": "Failed to check status"
+    }
+  },
+  "payment": {
+    "wompi": {
+      "errors": {
+        "400": "Invalid {{context}} data. Verify that all required fields are correct (card token, payment method, acceptance_token)",
+        "401": "Authentication error with Wompi. Verify that the private key is correct",
+        "422": "Validation error in {{context}}. Possible causes: duplicate reference, invalid amount, acceptance token already used or invalid",
+        "404": "Resource not found in Wompi",
+        "500": "Wompi internal server error. Please try again later",
+        "503": "Wompi service temporarily unavailable. Please try again later",
+        "default": "HTTP error {{statusCode}}"
+      }
     }
   }
 }

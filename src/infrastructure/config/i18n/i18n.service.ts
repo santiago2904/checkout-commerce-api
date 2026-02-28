@@ -17,11 +17,13 @@ export class I18nService {
    * Translate a key to the specified language
    * @param key - Translation key (e.g., 'auth.register.success')
    * @param lang - Language code (default: 'en')
+   * @param params - Optional parameters to replace in the translation (e.g., { context: 'transacción' })
    * @returns Translated string
    */
   translate(
     key: string,
     lang: SupportedLanguage = this.defaultLanguage,
+    params?: Record<string, string | number>,
   ): string {
     const keys = key.split('.');
 
@@ -37,13 +39,29 @@ export class I18nService {
       }
     }
 
-    return typeof value === 'string' ? value : key;
+    let translated = typeof value === 'string' ? value : key;
+
+    // Replace parameters in the translation
+    if (params) {
+      for (const [paramKey, paramValue] of Object.entries(params)) {
+        translated = translated.replace(
+          new RegExp(`{{\\s*${paramKey}\\s*}}`, 'g'),
+          String(paramValue),
+        );
+      }
+    }
+
+    return translated;
   }
 
   /**
    * Alias for translate method
    */
-  t(key: string, lang?: SupportedLanguage): string {
-    return this.translate(key, lang);
+  t(
+    key: string,
+    lang?: SupportedLanguage,
+    params?: Record<string, string | number>,
+  ): string {
+    return this.translate(key, lang, params);
   }
 }

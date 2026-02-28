@@ -1,6 +1,17 @@
 import { Result } from '@application/utils';
 
 /**
+ * Card tokenization data
+ */
+export interface CardTokenizationData {
+  number: string;
+  cvc: string;
+  exp_month: string;
+  exp_year: string;
+  card_holder: string;
+}
+
+/**
  * Transaction data required to process a payment
  */
 export interface TransactionData {
@@ -10,6 +21,8 @@ export interface TransactionData {
   customerEmail: string;
   paymentMethod: PaymentMethodData;
   ipAddress: string;
+  acceptanceToken: string; // Wompi acceptance token from frontend
+  redirectUrl?: string; // Optional redirect URL for frontend after payment
 }
 
 /**
@@ -27,6 +40,22 @@ export interface PaymentMethodData {
 }
 
 /**
+ * Merchant information from payment gateway
+ */
+export interface MerchantInfo {
+  id: number;
+  name: string;
+  legal_name: string;
+  contact_name: string;
+  phone_number: string;
+  logo_url: string | null;
+  legal_id_type: string;
+  email: string;
+  legal_id: string;
+  public_key: string;
+}
+
+/**
  * Payment processing result
  */
 export interface PaymentResult {
@@ -36,6 +65,9 @@ export interface PaymentResult {
   paymentMethod: string;
   errorCode?: string;
   errorMessage?: string;
+  redirectUrl?: string; // URL where user is redirected after payment
+  statusMessage?: string; // Human-readable status message from gateway
+  merchant?: MerchantInfo; // Merchant information
 }
 
 /**
@@ -59,6 +91,15 @@ export interface IPaymentGateway {
   getTransactionStatus(
     transactionId: string,
   ): Promise<Result<PaymentResult, PaymentError>>;
+
+  /**
+   * Tokenize a credit/debit card
+   * Used for CARD payments where card details are provided instead of a pre-generated token
+   * Returns a secure token that can be used for payment processing
+   */
+  tokenizeCard(
+    cardData: CardTokenizationData,
+  ): Promise<Result<string, PaymentError>>;
 
   /**
    * Get the name of the payment gateway
