@@ -669,6 +669,12 @@ curl -X GET http://localhost:3000/api/checkout/status/<transaction-id-del-paso-5
 # Respuesta: { statusCode: 200, data: { status: "PENDING | APPROVED | DECLINED | ERROR", ... } }
 
 # Repetir paso 6 hasta que status cambie a APPROVED, DECLINED o ERROR
+
+# 7. (Opcional) Recuperar todas tus transacciones - útil después de un refresh
+curl -X GET http://localhost:3000/api/checkout/my-transactions \
+  -H "Authorization: Bearer <tu-access-token>"
+# Respuesta: { statusCode: 200, data: [{ transactionId, status, items, delivery, ... }, ...] }
+# Útil para: recuperar progreso después de refresh, ver historial de compras, encontrar transacciones PENDING
 ```
 
 ---
@@ -1160,6 +1166,97 @@ Authorization: Bearer <jwt-token>
 - `404 Not Found`: Transacción no encontrada
 - `400 Bad Request`: Error al consultar estado
 - `401 Unauthorized`: Token inválido o expirado
+
+---
+
+#### GET `/api/checkout/my-transactions`
+
+Obtener todas las transacciones del cliente autenticado. **Requiere autenticación** y rol **CUSTOMER**.
+
+Este endpoint permite recuperar el progreso de transacciones después de un refresh, mejorando la resiliencia de la aplicación.
+
+**Headers:**
+```
+Authorization: Bearer <jwt-token>
+```
+
+**Response:** `200 OK`
+
+```json
+{
+  "statusCode": 200,
+  "message": "Transacciones recuperadas",
+  "data": [
+    {
+      "transactionId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+      "reference": "REF-1648075828-38648",
+      "status": "APPROVED",
+      "amount": 1299.99,
+      "currency": "COP",
+      "paymentMethod": "CARD",
+      "wompiTransactionId": "12345-1648075828-38648",
+      "errorCode": null,
+      "errorMessage": null,
+      "createdAt": "2024-01-15T10:30:28.000Z",
+      "updatedAt": "2024-01-15T10:31:15.000Z",
+      "items": [
+        {
+          "productId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+          "productName": "Laptop Dell XPS 13",
+          "quantity": 1,
+          "unitPrice": 1299.99,
+          "subtotal": 1299.99
+        }
+      ],
+      "delivery": {
+        "deliveryId": "d1e2f3g4-h5i6-7890-jklm-no1234567890",
+        "status": "PENDING",
+        "trackingNumber": "TRK-1234567890",
+        "recipientName": "Juan Pérez",
+        "address": "Calle 123 #45-67, Apto 101",
+        "city": "Bogotá",
+        "estimatedDelivery": "2024-01-18T00:00:00.000Z",
+        "actualDelivery": null
+      }
+    },
+    {
+      "transactionId": "a2b3c4d5-e6f7-8901-bcde-f12345678901",
+      "reference": "REF-1648000000-12345",
+      "status": "PENDING",
+      "amount": 799.99,
+      "currency": "COP",
+      "paymentMethod": "NEQUI",
+      "wompiTransactionId": "98765-1648000000-12345",
+      "errorCode": null,
+      "errorMessage": null,
+      "createdAt": "2024-01-15T09:00:00.000Z",
+      "updatedAt": "2024-01-15T09:00:00.000Z",
+      "items": [
+        {
+          "productId": "b2c3d4e5-f6g7-8901-cdef-g23456789012",
+          "productName": "Samsung Galaxy S24",
+          "quantity": 1,
+          "unitPrice": 799.99,
+          "subtotal": 799.99
+        }
+      ]
+    }
+  ]
+}
+```
+
+**Notas:**
+- Las transacciones se devuelven ordenadas por fecha de creación (más recientes primero)
+- El campo `delivery` solo está presente si la transacción fue APPROVED y se creó un delivery
+- Transacciones PENDING pueden no tener `delivery` aún
+- Útil para recuperar el estado de transacciones después de un refresh de página
+
+**Errores Posibles:**
+- `400 Bad Request`: Error al obtener transacciones
+- `401 Unauthorized`: Token inválido o expirado
+- `403 Forbidden`: Usuario no tiene rol CUSTOMER
+
+---
 
 ### Webhooks (Wompi)
 

@@ -18,6 +18,7 @@ import {
 import {
   ProcessCheckoutUseCase,
   CheckTransactionStatusUseCase,
+  GetMyTransactionsUseCase,
   FulfillmentService,
 } from '@application/use-cases/checkout';
 import {
@@ -96,10 +97,15 @@ import { ConfigModule } from '@nestjs/config';
     // Use Cases & Services
     ProcessCheckoutUseCase,
     CheckTransactionStatusUseCase,
+    GetMyTransactionsUseCase,
     FulfillmentService,
     // Interceptors
     AuditInterceptor,
   ],
-  exports: [ProcessCheckoutUseCase, CheckTransactionStatusUseCase],
+  exports: [
+    ProcessCheckoutUseCase,
+    CheckTransactionStatusUseCase,
+    GetMyTransactionsUseCase,
+  ],
 })
 export class CheckoutModule {}

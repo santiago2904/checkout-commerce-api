@@ -16,11 +16,13 @@ import {
 import {
   ProcessCheckoutUseCase,
   CheckTransactionStatusUseCase,
+  GetMyTransactionsUseCase,
 } from '@application/use-cases/checkout';
 import {
   CheckoutRequestDto,
   CheckoutResponseDto,
 } from '@application/dtos/checkout';
+import type { MyTransactionResponse } from '@application/use-cases/checkout/get-my-transactions.use-case';
 import {
   CheckoutError,
   InsufficientStockError,
@@ -69,6 +71,7 @@ export class CheckoutController {
   constructor(
     private readonly processCheckoutUseCase: ProcessCheckoutUseCase,
     private readonly checkTransactionStatusUseCase: CheckTransactionStatusUseCase,
+    private readonly getMyTransactionsUseCase: GetMyTransactionsUseCase,
     private readonly i18n: I18nService,
   ) {}
 
@@ -209,6 +212,64 @@ export class CheckoutController {
         // Fallback for other errors
         throw new BadRequestException(
           `${this.i18n.t('checkout.errors.failedStatusCheck', lang)}: ${error.message}`,
+        );
+      },
+    );
+  }
+
+  /**
+   * Get all transactions for authenticated customer
+   * GET /checkout/my-transactions
+   *
+   * Enables app resilience by allowing users to recover transaction progress
+   * after page refresh. Returns all transactions ordered by newest first.
+   */
+  @Get('my-transactions')
+  @HttpCode(HttpStatus.OK)
+  @Roles(RoleName.CUSTOMER)
+  @Audit(AUDIT_ACTIONS.CHECKOUT_MY_TRANSACTIONS_VIEW)
+  async getMyTransactions(
+    @Request() req: RequestWithUser,
+    @Lang() lang: SupportedLanguage,
+  ): Promise<{
+    statusCode: number;
+    message: string;
+    data: MyTransactionResponse[];
+  }> {
+    const customerId = req.user?.customer?.id;
+
+    if (!customerId) {
+      this.logger.error('Customer ID not found in request', { user: req.user });
+      throw new BadRequestException(
+        this.i18n.t('checkout.errors.customerNotFound', lang),
+      );
+    }
+
+    this.logger.log(`Fetching transactions for customer ${customerId}`);
+
+    const result = await this.getMyTransactionsUseCase.execute(customerId);
+
+    return result.fold(
+      // Success case
+      (data) => {
+        this.logger.log(
+          `Retrieved ${data.length} transactions for customer ${customerId}`,
+        );
+        return {
+          statusCode: HttpStatus.OK,
+          message: this.i18n.t('checkout.transactionsRetrieved', lang),
+          data,
+        };
+      },
+      // Error case
+      (error) => {
+        this.logger.error(
+          `Failed to fetch transactions for customer ${customerId}`,
+          error.stack,
+        );
+
+        throw new BadRequestException(
+          `${this.i18n.t('checkout.errors.failedToGetTransactions', lang)}: ${error.message}`,
         );
       },
     );
