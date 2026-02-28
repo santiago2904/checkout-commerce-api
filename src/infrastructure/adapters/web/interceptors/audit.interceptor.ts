@@ -90,10 +90,11 @@ export class AuditInterceptor implements NestInterceptor {
   ): Promise<void> {
     try {
       // Extract user information
-      // For authenticated endpoints: use request.user
+      // For authenticated endpoints: use request.user (from JWT strategy)
+      // JWT strategy returns: { userId, email, roleId, roleName, customer }
       // For public endpoints (register/login): extract from response
-      let userId = user?.id || 'anonymous';
-      let roleName = user?.role?.name || 'UNKNOWN';
+      let userId = user?.userId || 'anonymous';
+      let roleName = user?.roleName || 'UNKNOWN';
 
       // If no user in request, try to extract from response (for register/login)
       if (!user && response?.data?.user) {

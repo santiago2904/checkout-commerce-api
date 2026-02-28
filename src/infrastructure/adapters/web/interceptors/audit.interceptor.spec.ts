@@ -18,11 +18,12 @@ describe('AuditInterceptor', () => {
   let mockCallHandler: jest.Mocked<CallHandler>;
 
   const mockUser = {
-    id: 'user-123',
+    userId: 'user-123',
     email: 'test@example.com',
-    role: {
-      id: 'role-123',
-      name: 'CUSTOMER',
+    roleId: 'role-123',
+    roleName: 'CUSTOMER',
+    customer: {
+      id: 'customer-123',
     },
   };
 
@@ -133,8 +134,8 @@ describe('AuditInterceptor', () => {
             );
             expect(auditLogRepository.create).toHaveBeenCalledWith(
               expect.objectContaining({
-                userId: mockUser.id,
-                roleName: mockUser.role.name,
+                userId: mockUser.userId,
+                roleName: mockUser.roleName,
                 action,
                 metadata: expect.objectContaining({
                   ip: mockRequest.ip,
@@ -297,8 +298,8 @@ describe('AuditInterceptor', () => {
           setTimeout(() => {
             expect(auditLogRepository.create).toHaveBeenCalledWith(
               expect.objectContaining({
-                userId: mockUser.id,
-                roleName: mockUser.role.name,
+                userId: mockUser.userId,
+                roleName: mockUser.roleName,
                 action,
                 metadata: expect.objectContaining({
                   error: {

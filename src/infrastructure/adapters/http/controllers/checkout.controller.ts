@@ -40,12 +40,14 @@ import type { TransactionStatusResponse } from '@application/use-cases/checkout/
 
 /**
  * Interface for authenticated request with user data
+ * Matches the structure returned by JWT strategy's validate() method
  */
 interface RequestWithUser extends Express.Request {
   user: {
-    id: string;
+    userId: string;
     email: string;
-    roles: string[];
+    roleId: string;
+    roleName: string;
     customer?: {
       id: string;
     };

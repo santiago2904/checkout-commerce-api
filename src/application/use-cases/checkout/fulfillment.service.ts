@@ -92,10 +92,12 @@ export class FulfillmentService {
 
     // Log start in audit_logs
     await this.auditLogRepository.create({
-      userId: transaction.customerId,
+      userId: 'SYSTEM',
+      roleName: 'SYSTEM',
       action: AUDIT_ACTIONS.FULFILLMENT_APPROVED_START,
       metadata: {
         transactionId: transaction.id,
+        customerId: transaction.customerId,
         amount: transaction.amount,
       },
     });
@@ -121,10 +123,12 @@ export class FulfillmentService {
 
       // Log stock reduction
       await this.auditLogRepository.create({
-        userId: transaction.customerId,
+        userId: 'SYSTEM',
+        roleName: 'SYSTEM',
         action: AUDIT_ACTIONS.FULFILLMENT_STOCK_REDUCED,
         metadata: {
           transactionId: transaction.id,
+          customerId: transaction.customerId,
           itemsCount: items.length,
           items: items.map((item) => ({
             productId: item.productId,
@@ -160,10 +164,12 @@ export class FulfillmentService {
 
       // Log delivery creation
       await this.auditLogRepository.create({
-        userId: transaction.customerId,
+        userId: 'SYSTEM',
+        roleName: 'SYSTEM',
         action: AUDIT_ACTIONS.FULFILLMENT_DELIVERY_CREATED,
         metadata: {
           transactionId: transaction.id,
+          customerId: transaction.customerId,
           deliveryId: delivery.id,
           address: address.addressLine1,
           city: address.city,
@@ -172,10 +178,12 @@ export class FulfillmentService {
 
       // Step 4: Log overall success
       await this.auditLogRepository.create({
-        userId: transaction.customerId,
+        userId: 'SYSTEM',
+        roleName: 'SYSTEM',
         action: AUDIT_ACTIONS.FULFILLMENT_APPROVED_SUCCESS,
         metadata: {
           transactionId: transaction.id,
+          customerId: transaction.customerId,
           deliveryId: delivery.id,
           itemsCount: items.length,
           totalAmount: transaction.amount,
@@ -211,10 +219,12 @@ export class FulfillmentService {
 
       // Log failure in audit_logs
       await this.auditLogRepository.create({
-        userId: transaction.customerId,
+        userId: 'SYSTEM',
+        roleName: 'SYSTEM',
         action: AUDIT_ACTIONS.FULFILLMENT_APPROVED_FAILED,
         metadata: {
           transactionId: transaction.id,
+          customerId: transaction.customerId,
           error: errorMessage,
         },
       });
@@ -247,10 +257,12 @@ export class FulfillmentService {
     try {
       // Log declined transaction
       await this.auditLogRepository.create({
-        userId: transaction.customerId,
+        userId: 'SYSTEM',
+        roleName: 'SYSTEM',
         action: AUDIT_ACTIONS.FULFILLMENT_DECLINED_PROCESSED,
         metadata: {
           transactionId: transaction.id,
+          customerId: transaction.customerId,
           amount: transaction.amount,
           declineReason: transaction.errorMessage || 'Unknown reason',
           errorCode: transaction.errorCode,
@@ -307,10 +319,12 @@ export class FulfillmentService {
     try {
       // Log error transaction
       await this.auditLogRepository.create({
-        userId: transaction.customerId,
+        userId: 'SYSTEM',
+        roleName: 'SYSTEM',
         action: AUDIT_ACTIONS.FULFILLMENT_ERROR_LOGGED,
         metadata: {
           transactionId: transaction.id,
+          customerId: transaction.customerId,
           amount: transaction.amount,
           errorMessage: transaction.errorMessage || 'Unknown error',
           errorCode: transaction.errorCode,

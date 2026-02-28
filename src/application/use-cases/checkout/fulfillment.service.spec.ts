@@ -270,10 +270,12 @@ describe('FulfillmentService', () => {
       // Verify audit log was created with decline reason
       expect(auditLogRepository.create).toHaveBeenCalledWith(
         expect.objectContaining({
-          userId: 'customer-123',
+          userId: 'SYSTEM',
+          roleName: 'SYSTEM',
           action: AUDIT_ACTIONS.FULFILLMENT_DECLINED_PROCESSED,
           metadata: expect.objectContaining({
             transactionId: 'trans-123',
+            customerId: 'customer-123',
             amount: 100.0,
             declineReason: 'Insufficient funds',
             errorCode: 'DECLINED_BY_BANK',
@@ -337,10 +339,12 @@ describe('FulfillmentService', () => {
       // Verify audit log was created with error details
       expect(auditLogRepository.create).toHaveBeenCalledWith(
         expect.objectContaining({
-          userId: 'customer-123',
+          userId: 'SYSTEM',
+          roleName: 'SYSTEM',
           action: AUDIT_ACTIONS.FULFILLMENT_ERROR_LOGGED,
           metadata: expect.objectContaining({
             transactionId: 'trans-123',
+            customerId: 'customer-123',
             amount: 100.0,
             errorMessage: 'Gateway timeout',
             errorCode: 'GATEWAY_ERROR',
