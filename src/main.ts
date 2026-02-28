@@ -12,8 +12,13 @@ async function bootstrap() {
 
   // Register JWT Exception Filter globally
   app.useGlobalFilters(new JwtExceptionFilter(i18nService));
-
+  app.setGlobalPrefix('api');
   // Enable validation globally
+
+  app.enableCors({
+    origin: true,
+    credentials: true,
+  });
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true, // Strip properties that don't have decorators
