@@ -421,20 +421,19 @@ export class WompiStrategy implements IPaymentGateway {
 
     // Extract detailed error messages from Wompi response
     const wompiMessage = this.formatWompiErrorMessage(error);
-    const descriptiveMessage = this.getErrorDescriptionByStatusCode(statusCode);
-    const fullMessage = `${descriptiveMessage}: ${wompiMessage || error.reason || 'Error desconocido'}`;
+    const errorMessage = wompiMessage || error.reason || 'Error desconocido';
 
     switch (statusCode) {
       case 400:
-        return err(new InvalidPaymentDataError(fullMessage, error.messages));
+        return err(new InvalidPaymentDataError(errorMessage, error.messages));
       case 401:
-        return err(new PaymentGatewayError(fullMessage, error));
+        return err(new PaymentGatewayError(errorMessage, error));
       case 422:
-        return err(new InvalidPaymentDataError(fullMessage, error.messages));
+        return err(new InvalidPaymentDataError(errorMessage, error.messages));
       default:
         return err(
           new PaymentGatewayError(
-            `Error inesperado (${statusCode}): ${wompiMessage || error.reason || 'Error desconocido'}`,
+            `Error inesperado (${statusCode}): ${errorMessage}`,
             error,
           ),
         );
@@ -452,23 +451,19 @@ export class WompiStrategy implements IPaymentGateway {
 
     // Extract detailed error messages from Wompi response
     const wompiMessage = this.formatWompiErrorMessage(error);
-    const descriptiveMessage = this.getErrorDescriptionByStatusCode(
-      statusCode,
-      'tokenización',
-    );
-    const fullMessage = `${descriptiveMessage}: ${wompiMessage || error.reason || 'Error desconocido'}`;
+    const errorMessage = wompiMessage || error.reason || 'Error desconocido';
 
     switch (statusCode) {
       case 400:
-        return err(new InvalidPaymentDataError(fullMessage, error.messages));
+        return err(new InvalidPaymentDataError(errorMessage, error.messages));
       case 401:
-        return err(new PaymentGatewayError(fullMessage, error));
+        return err(new PaymentGatewayError(errorMessage, error));
       case 422:
-        return err(new InvalidPaymentDataError(fullMessage, error.messages));
+        return err(new InvalidPaymentDataError(errorMessage, error.messages));
       default:
         return err(
           new PaymentGatewayError(
-            `Error inesperado en tokenización (${statusCode}): ${wompiMessage || error.reason || 'Error desconocido'}`,
+            `Error inesperado en tokenización (${statusCode}): ${errorMessage}`,
             error,
           ),
         );
