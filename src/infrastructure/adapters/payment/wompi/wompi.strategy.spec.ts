@@ -356,7 +356,7 @@ describe('WompiStrategy', () => {
       expect(result.isErr()).toBe(true);
       if (result.isErr()) {
         expect(result.error).toBeInstanceOf(PaymentGatewayError);
-        expect(result.error.message).toContain('Authentication failed');
+        expect(result.error.message).toContain('autenticación');
       }
     });
 

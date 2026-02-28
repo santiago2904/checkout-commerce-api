@@ -22,6 +22,7 @@ export interface TransactionData {
   paymentMethod: PaymentMethodData;
   ipAddress: string;
   acceptanceToken: string; // Wompi acceptance token from frontend
+  redirectUrl?: string; // Optional redirect URL for frontend after payment
 }
 
 /**

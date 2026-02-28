@@ -282,6 +282,11 @@ export class WompiStrategy implements IPaymentGateway {
       payment_method: this.buildPaymentMethod(data),
     };
 
+    // Add optional redirect_url if provided
+    if (data.redirectUrl) {
+      request.redirect_url = data.redirectUrl;
+    }
+
     return request;
   }
 
@@ -412,31 +417,21 @@ export class WompiStrategy implements IPaymentGateway {
     const { error } = errorResponse;
 
     // Extract detailed error messages from Wompi response
-    const detailedMessage = this.formatWompiErrorMessage(error);
+    const wompiMessage = this.formatWompiErrorMessage(error);
+    const descriptiveMessage = this.getErrorDescriptionByStatusCode(statusCode);
+    const fullMessage = `${descriptiveMessage}: ${wompiMessage || error.reason || 'Error desconocido'}`;
 
     switch (statusCode) {
       case 400:
-        return err(
-          new InvalidPaymentDataError(
-            detailedMessage || error.reason || 'Invalid payment data',
-            error.messages,
-          ),
-        );
+        return err(new InvalidPaymentDataError(fullMessage, error.messages));
       case 401:
-        return err(
-          new PaymentGatewayError('Authentication failed with Wompi', error),
-        );
+        return err(new PaymentGatewayError(fullMessage, error));
       case 422:
-        return err(
-          new InvalidPaymentDataError(
-            detailedMessage || error.reason || 'Validation error',
-            error.messages,
-          ),
-        );
+        return err(new InvalidPaymentDataError(fullMessage, error.messages));
       default:
         return err(
           new PaymentGatewayError(
-            detailedMessage || error.reason || 'Unknown error from Wompi',
+            `Error inesperado (${statusCode}): ${wompiMessage || error.reason || 'Error desconocido'}`,
             error,
           ),
         );
@@ -453,31 +448,24 @@ export class WompiStrategy implements IPaymentGateway {
     const { error } = errorResponse;
 
     // Extract detailed error messages from Wompi response
-    const detailedMessage = this.formatWompiErrorMessage(error);
+    const wompiMessage = this.formatWompiErrorMessage(error);
+    const descriptiveMessage = this.getErrorDescriptionByStatusCode(
+      statusCode,
+      'tokenización',
+    );
+    const fullMessage = `${descriptiveMessage}: ${wompiMessage || error.reason || 'Error desconocido'}`;
 
     switch (statusCode) {
       case 400:
-        return err(
-          new InvalidPaymentDataError(
-            detailedMessage || error.reason || 'Invalid card data',
-            error.messages,
-          ),
-        );
+        return err(new InvalidPaymentDataError(fullMessage, error.messages));
       case 401:
-        return err(
-          new PaymentGatewayError('Authentication failed with Wompi', error),
-        );
+        return err(new PaymentGatewayError(fullMessage, error));
       case 422:
-        return err(
-          new InvalidPaymentDataError(
-            detailedMessage || error.reason || 'Card validation error',
-            error.messages,
-          ),
-        );
+        return err(new InvalidPaymentDataError(fullMessage, error.messages));
       default:
         return err(
           new PaymentGatewayError(
-            error.reason || 'Unknown error from Wompi',
+            `Error inesperado en tokenización (${statusCode}): ${wompiMessage || error.reason || 'Error desconocido'}`,
             error,
           ),
         );
@@ -528,5 +516,30 @@ export class WompiStrategy implements IPaymentGateway {
     }
 
     return allMessages.join('. ');
+  }
+
+  /**
+   * Get descriptive error message based on HTTP status code
+   */
+  private getErrorDescriptionByStatusCode(
+    statusCode: number,
+    context: string = 'transacción',
+  ): string {
+    switch (statusCode) {
+      case 400:
+        return `Datos de ${context} inválidos. Verifique que todos los campos requeridos sean correctos (token de tarjeta, método de pago, acceptance_token)`;
+      case 401:
+        return 'Error de autenticación con Wompi. Verifique que la clave privada (private key) sea correcta';
+      case 422:
+        return `Error de validación en ${context}. Posibles causas: referencia duplicada, monto inválido, token de aceptación ya usado o inválido`;
+      case 404:
+        return 'Recurso no encontrado en Wompi';
+      case 500:
+        return 'Error interno del servidor de Wompi. Intente nuevamente más tarde';
+      case 503:
+        return 'Servicio de Wompi temporalmente no disponible. Intente nuevamente más tarde';
+      default:
+        return `Error HTTP ${statusCode}`;
+    }
   }
 }
