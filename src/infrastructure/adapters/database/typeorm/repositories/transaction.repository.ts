@@ -45,6 +45,18 @@ export class TypeOrmTransactionRepository implements ITransactionRepository {
   }
 
   /**
+   * Find transaction by Wompi transaction id
+   */
+  async findByWompiTransactionId(
+    wompiTransactionId: string,
+  ): Promise<Transaction | null> {
+    return this.transactionRepository.findOne({
+      where: { wompiTransactionId },
+      relations: ['customer'],
+    });
+  }
+
+  /**
    * Update transaction status and Wompi details
    */
   async updateStatus(
@@ -63,6 +75,13 @@ export class TypeOrmTransactionRepository implements ITransactionRepository {
         errorMessage,
       },
     );
+  }
+
+  /**
+   * Update transaction
+   */
+  async update(id: string, transaction: Partial<Transaction>): Promise<void> {
+    await this.transactionRepository.update({ id }, transaction);
   }
 
   /**

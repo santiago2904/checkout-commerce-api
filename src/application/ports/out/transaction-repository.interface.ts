@@ -22,6 +22,13 @@ export interface ITransactionRepository {
   findByReference(reference: string): Promise<Transaction | null>;
 
   /**
+   * Find transaction by Wompi transaction id
+   */
+  findByWompiTransactionId(
+    wompiTransactionId: string,
+  ): Promise<Transaction | null>;
+
+  /**
    * Update transaction status
    */
   updateStatus(
@@ -31,6 +38,11 @@ export interface ITransactionRepository {
     errorCode?: string,
     errorMessage?: string,
   ): Promise<void>;
+
+  /**
+   * Update transaction
+   */
+  update(id: string, transaction: Partial<Transaction>): Promise<void>;
 
   /**
    * Find all transactions by customer id

@@ -9,6 +9,7 @@ import type {
   IDeliveryRepository,
   ITransactionItemRepository,
   IAuditLogRepository,
+  ITransactionRepository,
 } from '@application/ports/out';
 import { Transaction } from '@infrastructure/adapters/database/typeorm/entities';
 import { TransactionStatus } from '@domain/enums';
@@ -20,6 +21,7 @@ describe('FulfillmentService', () => {
   let deliveryRepository: jest.Mocked<IDeliveryRepository>;
   let transactionItemRepository: jest.Mocked<ITransactionItemRepository>;
   let auditLogRepository: jest.Mocked<IAuditLogRepository>;
+  let transactionRepository: jest.Mocked<ITransactionRepository>;
 
   const mockTransaction: Partial<Transaction> = {
     id: 'trans-123',
@@ -52,6 +54,10 @@ describe('FulfillmentService', () => {
     auditLogRepository = {
       create: jest.fn(),
     } as any;
+    transactionRepository = {
+      findByWompiTransactionId: jest.fn(),
+      update: jest.fn(),
+    } as any;
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -71,6 +77,10 @@ describe('FulfillmentService', () => {
         {
           provide: 'IAuditLogRepository',
           useValue: auditLogRepository,
+        },
+        {
+          provide: 'ITransactionRepository',
+          useValue: transactionRepository,
         },
       ],
     }).compile();
