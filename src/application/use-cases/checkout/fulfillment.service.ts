@@ -38,6 +38,11 @@ export interface FulfillmentResult {
 }
 
 /**
+ * Payment Status Type
+ */
+export type PaymentStatus = 'PENDING' | 'APPROVED' | 'DECLINED' | 'ERROR';
+
+/**
  * Fulfillment Service
  *
  * Responsible for processing transaction fulfillment based on status:
@@ -411,7 +416,7 @@ export class FulfillmentService {
     }
 
     // Update transaction status from Wompi
-    const statusEnum = this.mapStatusToEnum(status);
+    const statusEnum = this.mapStatusToEnum(status as PaymentStatus);
     transaction.status = statusEnum;
     await this.transactionRepository.update(transaction.id, transaction);
 
@@ -436,9 +441,7 @@ export class FulfillmentService {
   /**
    * Map payment status to TransactionStatus enum
    */
-  private mapStatusToEnum(
-    status: 'PENDING' | 'APPROVED' | 'DECLINED' | 'ERROR',
-  ): TransactionStatus {
+  private mapStatusToEnum(status: PaymentStatus): TransactionStatus {
     switch (status) {
       case 'PENDING':
         return TransactionStatus.PENDING;
