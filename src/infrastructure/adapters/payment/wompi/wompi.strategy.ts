@@ -499,12 +499,14 @@ export class WompiStrategy implements IPaymentGateway {
       return error.reason || '';
     }
 
-    // Extract all error messages from the messages object
+    // Extract all error messages with field names
     const allMessages: string[] = [];
 
-    for (const messages of Object.values(error.messages)) {
+    for (const [field, messages] of Object.entries(error.messages)) {
       if (Array.isArray(messages)) {
-        allMessages.push(...messages);
+        // Include field name with each message
+        const fieldMessages = messages.map((msg) => `${field}: ${msg}`);
+        allMessages.push(...fieldMessages);
       }
     }
 

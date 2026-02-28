@@ -32,7 +32,7 @@ describe('ProcessCheckoutUseCase', () => {
   let paymentGateway: jest.Mocked<IPaymentGateway>;
 
   const mockProduct = {
-    id: 'product-id-1',
+    id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
     name: 'Test Product',
     price: 10000,
     stock: 50,
@@ -50,7 +50,7 @@ describe('ProcessCheckoutUseCase', () => {
   const mockCheckoutRequest: CheckoutRequestDto = {
     items: [
       {
-        productId: 'product-id-1',
+        productId: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
         quantity: 2,
       },
     ],
@@ -193,9 +193,11 @@ describe('ProcessCheckoutUseCase', () => {
       expect(result.value.deliveryId).toBeUndefined();
 
       // Verify correct repository calls
-      expect(productRepository.findById).toHaveBeenCalledWith('product-id-1');
+      expect(productRepository.findById).toHaveBeenCalledWith(
+        'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+      );
       expect(productRepository.hasStock).toHaveBeenCalledWith(
-        'product-id-1',
+        'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
         2,
       );
       expect(transactionRepository.create).toHaveBeenCalled();
@@ -356,12 +358,16 @@ describe('ProcessCheckoutUseCase', () => {
   describe('execute - Multiple Products', () => {
     it('should handle checkout with multiple products', async () => {
       // Arrange
-      const mockProduct2 = { ...mockProduct, id: 'product-id-2', price: 15000 };
+      const mockProduct2 = {
+        ...mockProduct,
+        id: 'b1ffcc00-0d1c-4ef9-bb7e-7cc0ce491b22',
+        price: 15000,
+      };
       const multiItemRequest: CheckoutRequestDto = {
         ...mockCheckoutRequest,
         items: [
-          { productId: 'product-id-1', quantity: 2 },
-          { productId: 'product-id-2', quantity: 1 },
+          { productId: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', quantity: 2 },
+          { productId: 'b1ffcc00-0d1c-4ef9-bb7e-7cc0ce491b22', quantity: 1 },
         ],
       };
 
@@ -409,12 +415,15 @@ describe('ProcessCheckoutUseCase', () => {
 
     it('should fail if any product in multi-item checkout has insufficient stock', async () => {
       // Arrange
-      const mockProduct2 = { ...mockProduct, id: 'product-id-2' };
+      const mockProduct2 = {
+        ...mockProduct,
+        id: 'b1ffcc00-0d1c-4ef9-bb7e-7cc0ce491b22',
+      };
       const multiItemRequest: CheckoutRequestDto = {
         ...mockCheckoutRequest,
         items: [
-          { productId: 'product-id-1', quantity: 2 },
-          { productId: 'product-id-2', quantity: 1 },
+          { productId: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', quantity: 2 },
+          { productId: 'b1ffcc00-0d1c-4ef9-bb7e-7cc0ce491b22', quantity: 1 },
         ],
       };
 

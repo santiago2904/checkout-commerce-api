@@ -19,7 +19,7 @@ import {
   CheckoutResponseDto,
 } from '@application/dtos/checkout';
 import { TransactionStatus } from '@domain/enums';
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4, validate as isValidUUID } from 'uuid';
 import { Transaction } from '@infrastructure/adapters/database/typeorm/entities';
 import { Product } from '@infrastructure/adapters/database/typeorm/entities';
 
@@ -200,6 +200,11 @@ export class ProcessCheckoutUseCase {
     let totalAmount = 0;
 
     for (const item of request.items) {
+      // Validate UUID format before querying database
+      if (!isValidUUID(item.productId)) {
+        return err(new ProductNotFoundError(item.productId));
+      }
+
       // Find product
       const product = await this.productRepository.findById(item.productId);
       if (!product) {

@@ -11,6 +11,7 @@ import {
   Length,
   Matches,
   ValidateIf,
+  IsPhoneNumber,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -146,6 +147,7 @@ export class ShippingAddressDto {
 
   @IsString()
   @IsNotEmpty()
+  @IsPhoneNumber()
   recipientPhone: string;
 }
 

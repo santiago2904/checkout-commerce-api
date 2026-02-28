@@ -386,7 +386,7 @@ describe('WompiStrategy', () => {
       expect(result.isErr()).toBe(true);
       if (result.isErr()) {
         expect(result.error).toBeInstanceOf(PaymentGatewayError);
-        expect(result.error.message).toContain('autenticación');
+        expect(result.error.message).toContain('Invalid API key');
       }
     });
 
