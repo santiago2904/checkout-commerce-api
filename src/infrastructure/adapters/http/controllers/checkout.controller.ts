@@ -327,7 +327,7 @@ export class CheckoutController {
    * Enables app resilience by allowing users to recover transaction progress
    * after page refresh. Returns all transactions ordered by newest first.
    */
-  @Get('my-transactions')
+  @Get('me/transactions')
   @HttpCode(HttpStatus.OK)
   @Roles(RoleName.CUSTOMER)
   @Audit(AUDIT_ACTIONS.CHECKOUT_MY_TRANSACTIONS_VIEW)

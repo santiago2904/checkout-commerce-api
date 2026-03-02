@@ -5,7 +5,10 @@ import type {
   ITransactionItemRepository,
   IDeliveryRepository,
 } from '@application/ports/out';
-import { Transaction } from '@infrastructure/adapters/database/typeorm/entities';
+import {
+  Transaction,
+  TransactionItem,
+} from '@infrastructure/adapters/database/typeorm/entities';
 
 /**
  * Get My Transactions Error
@@ -41,6 +44,7 @@ export interface MyTransactionResponse {
     quantity: number;
     unitPrice: number;
     subtotal: number;
+    imageUrl?: string;
   }>;
   delivery?: {
     deliveryId: string;
@@ -163,12 +167,13 @@ export class GetMyTransactionsUseCase {
             errorMessage: transaction.errorMessage ?? undefined,
             createdAt: transaction.createdAt,
             updatedAt: transaction.updatedAt,
-            items: items.map((item) => ({
+            items: items.map((item: TransactionItem) => ({
               productId: item.productId,
               productName: item.productName,
               quantity: item.quantity,
               unitPrice: Number(item.unitPrice),
               subtotal: Number(item.subtotal),
+              imageUrl: item.product?.imageUrl ?? undefined,
             })),
           };
 
