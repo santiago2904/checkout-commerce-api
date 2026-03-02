@@ -34,7 +34,7 @@ export class GetProductsUseCase {
   async execute(): Promise<Result<ProductResponse[], ProductsFetchError>> {
     try {
       // Fetch all products with stock
-      const products = await this.productRepository.findAll();
+      const products = await this.productRepository.findAllWithStock();
 
       // Map to response DTOs
       const productResponses: ProductResponse[] = products.map((product) => ({

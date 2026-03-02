@@ -1,0 +1,37 @@
+# ================================
+# Example Terraform Variables File
+# ================================
+# Copy this file to terraform.tfvars and customize the values
+# Command: cp terraform.tfvars.example terraform.tfvars
+
+# Project Configuration
+project_name = "checkout-commerce"
+environment  = "prod"
+aws_region   = "us-east-1"
+
+# Database Configuration
+db_instance_class    = "db.t3.micro"  # Free tier eligible
+db_name              = "checkoutdb"
+db_username          = "dbadmin"
+db_password          = "CHANGE_ME_TO_SECURE_PASSWORD_32_CHARS_MIN"
+db_allocated_storage = 20  # 20 GB is free tier eligible
+db_backup_retention_days = 7
+db_multi_az              = false  # Set to false for cost savings (not free tier)
+db_publicly_accessible   = false  # Keep false for security
+
+# ECR Configuration
+ecr_image_tag_mutability = "MUTABLE"
+ecr_scan_on_push         = true
+ecr_lifecycle_max_images = 10
+
+# Networking Configuration
+vpc_cidr           = "10.0.0.0/16"
+availability_zones = ["us-east-1a", "us-east-1b"]
+
+# Tags
+tags = {
+  Project     = "checkout-commerce"
+  ManagedBy   = "Terraform"
+  Environment = "prod"
+  Owner       = "DevOps Team"
+}
