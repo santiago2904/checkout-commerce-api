@@ -28,7 +28,9 @@ const runMigrations = async () => {
     console.log('Initializing database connection...');
     await dataSource.initialize();
     console.log('Running migrations...');
-    const migrations = await dataSource.runMigrations({ transaction: 'all' });
+    // Use 'each' instead of 'all' to allow enum modifications
+    // ALTER TYPE ADD VALUE cannot run inside a transaction block
+    const migrations = await dataSource.runMigrations({ transaction: 'each' });
 
     if (migrations.length === 0) {
       console.log('No migrations to run - database is up to date');

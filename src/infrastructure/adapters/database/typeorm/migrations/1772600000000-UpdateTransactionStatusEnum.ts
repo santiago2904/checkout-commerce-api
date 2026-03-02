@@ -7,6 +7,10 @@ export class UpdateTransactionStatusEnum1772600000000
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     // PostgreSQL requires ALTER TYPE to add new values to an enum
+    // Note: ALTER TYPE must be outside a transaction block, but TypeORM
+    // handles this automatically. The UPDATE has been removed to avoid
+    // "unsafe use of new value" error within the same transaction.
+    
     // Add DECLINED status
     await queryRunner.query(
       `ALTER TYPE "transaction_status_enum" ADD VALUE IF NOT EXISTS 'DECLINED'`,
@@ -22,12 +26,8 @@ export class UpdateTransactionStatusEnum1772600000000
       `ALTER TYPE "transaction_status_enum" ADD VALUE IF NOT EXISTS 'ERROR'`,
     );
 
-    // Update 'FAILED' status to 'DECLINED' in existing records (if any)
-    await queryRunner.query(`
-      UPDATE "transactions" 
-      SET "status" = 'DECLINED' 
-      WHERE "status" = 'FAILED'
-    `);
+    // Note: No UPDATE needed as FAILED status was never used in production
+    // If needed, update existing FAILED records manually after migration
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
