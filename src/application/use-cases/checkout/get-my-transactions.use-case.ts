@@ -90,9 +90,28 @@ export class GetMyTransactionsUseCase {
     this.logger.log(`Fetching transactions for customer ${customerId}`);
 
     try {
-      // Step 1: Get all transactions for customer
-      const transactions: Transaction[] =
+      // Step 1: Get transactions by customerId first
+      const transactionsByCustomerId =
         await this.transactionRepository.findByCustomerId(customerId);
+
+      // Step 2: Get customer email from first transaction (if any) to find guest transactions
+      let transactionsByEmail: Transaction[] = [];
+      if (transactionsByCustomerId.length > 0) {
+        const customerEmail = transactionsByCustomerId[0].customer?.user?.email;
+        if (customerEmail) {
+          transactionsByEmail =
+            await this.transactionRepository.findByCustomerEmail(customerEmail);
+        }
+      }
+
+      // Step 3: Combine and deduplicate transactions
+      const transactionMap = new Map<string, Transaction>();
+      [...transactionsByCustomerId, ...transactionsByEmail].forEach((t) => {
+        transactionMap.set(t.id, t);
+      });
+      const transactions = Array.from(transactionMap.values()).sort(
+        (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
+      );
 
       this.logger.log(
         `Found ${transactions.length} transactions for customer ${customerId}`,

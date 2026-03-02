@@ -148,17 +148,31 @@ export class FulfillmentService {
       });
 
       // Step 3: Create delivery record
-      const address = shippingAddress || {
-        addressLine1: transaction.customer.address || 'Not provided',
-        city: 'Not provided',
-        postalCode: '',
-        recipientName: `${transaction.customer.firstName} ${transaction.customer.lastName}`,
-        recipientPhone: transaction.customer.phone || '',
-      };
+      // Priority: use provided shippingAddress, fallback to customer data if available
+      let address;
+      
+      if (shippingAddress) {
+        // Guest checkout or explicit shipping address provided
+        address = shippingAddress;
+      } else if (transaction.customer) {
+        // Authenticated checkout with customer data
+        address = {
+          addressLine1: transaction.customer.address || 'Not provided',
+          city: 'Not provided',
+          postalCode: '',
+          recipientName: `${transaction.customer.firstName} ${transaction.customer.lastName}`,
+          recipientPhone: transaction.customer.phone || '',
+        };
+      } else {
+        // No shipping address and no customer data - this should not happen
+        throw new Error(
+          'Cannot create delivery: no shipping address or customer data available',
+        );
+      }
 
       const delivery = await this.deliveryRepository.create({
         transactionId: transaction.id,
-        customerId: transaction.customerId,
+        customerId: transaction.customerId, // Can be null for guest checkout
         address: address.addressLine1,
         city: address.city,
         postalCode: address.postalCode || '',

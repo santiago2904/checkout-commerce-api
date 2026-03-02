@@ -1175,6 +1175,11 @@ Obtener todas las transacciones del cliente autenticado. **Requiere autenticaci�
 
 Este endpoint permite recuperar el progreso de transacciones después de un refresh, mejorando la resiliencia de la aplicación.
 
+**Nota:** Este endpoint ahora busca transacciones tanto por `customerId` como por `email` del customer. Esto permite:
+- Mostrar transacciones de checkout como invitado si el usuario se registra posteriormente con el mismo email
+- Preparar el sistema para futuros flujos de guest checkout
+- Combinar y deduplicar automáticamente todas las transacciones del usuario
+
 **Headers:**
 ```
 Authorization: Bearer <jwt-token>

@@ -50,6 +50,12 @@ export interface ITransactionRepository {
   findByCustomerId(customerId: string): Promise<Transaction[]>;
 
   /**
+   * Find all transactions by customer email
+   * Includes guest checkout transactions and registered user transactions
+   */
+  findByCustomerEmail(email: string): Promise<Transaction[]>;
+
+  /**
    * Find all pending transactions
    */
   findPending(): Promise<Transaction[]>;

@@ -7,6 +7,7 @@ import {
   InsufficientStockError,
   ProductNotFoundError,
 } from './process-checkout.use-case';
+import { TransactionStatusTokenService } from './transaction-status-token.service';
 import {
   IProductRepository,
   ITransactionRepository,
@@ -84,6 +85,7 @@ describe('ProcessCheckoutUseCase', () => {
       findById: jest.fn(),
       findByReference: jest.fn(),
       updateStatus: jest.fn(),
+      update: jest.fn().mockResolvedValue(undefined),
       findByCustomerId: jest.fn(),
       findPending: jest.fn(),
     };
@@ -105,6 +107,11 @@ describe('ProcessCheckoutUseCase', () => {
       processPayment: jest.fn(),
       getTransactionStatus: jest.fn(),
       getName: jest.fn().mockReturnValue('Wompi'),
+    };
+
+    const mockStatusTokenService = {
+      generateStatusToken: jest.fn().mockResolvedValue('mock.jwt.token'),
+      verifyStatusToken: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -129,6 +136,10 @@ describe('ProcessCheckoutUseCase', () => {
         {
           provide: 'IPaymentGateway',
           useValue: mockPaymentGateway,
+        },
+        {
+          provide: TransactionStatusTokenService,
+          useValue: mockStatusTokenService,
         },
       ],
     }).compile();
