@@ -40,3 +40,15 @@ lerna-debug.log*
 .env.local
 .env.development
 .env.production
+
+# Terraform
+terraform/.terraform/*
+terraform/*.tfstate
+terraform/*.tfstate.*
+terraform/*.tfvars
+terraform/*.tfvars.json
+terraform/*.tfplan
+terraform/crash.log
+terraform/crash.*.log
+
+docker-compose.yml

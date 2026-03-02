@@ -47,22 +47,27 @@ src/
 ## 🎯 Principios de la Arquitectura
 
 ### 1. **Independencia de Frameworks**
+
 - La lógica de negocio (domain) no depende de NestJS, TypeORM u otras librerías externas
 - Los casos de uso (application) son puros TypeScript
 
 ### 2. **Testeable**
+
 - La lógica de negocio se puede probar sin BD, sin web server
 - Usar mocks de los puertos (interfaces)
 
 ### 3. **Independencia de UI**
+
 - Los controladores son solo adaptadores delgados
 - Toda la lógica está en los casos de uso
 
 ### 4. **Independencia de Base de Datos**
+
 - El dominio define interfaces (repositorios)
 - TypeORM es solo un detalle de implementación intercambiable
 
 ### 5. **Independencia de Servicios Externos**
+
 - Patrón Strategy para pasarelas de pago
 - Fácil cambiar de Wompi a otra pasarela
 
@@ -110,3 +115,11 @@ Infrastructure (depende de Domain y Application)
 - **Casos de uso:** `LoginUseCase.ts`, `ProcessCheckoutUseCase.ts`
 - **DTOs:** `LoginRequestDto.ts`, `CheckoutRequestDto.ts`
 - **Controladores:** `auth.controller.ts`, `checkout.controller.ts`
+
+## WOMPI DOCS
+
+<https://docs.wompi.co/docs/colombia/transacciones/>
+<https://docs.wompi.co/docs/colombia/fuentes-de-pago/>
+<https://docs.wompi.co/docs/colombia/metodos-de-pago/>
+<https://docs.wompi.co/docs/colombia/ambientes-y-llaves/>
+<https://docs.wompi.co/docs/colombia/eventos/>
