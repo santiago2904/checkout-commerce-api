@@ -1,9 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-require-imports */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
+
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import { WompiWebhookValidatorService } from './wompi-webhook-validator.service';
@@ -17,7 +13,7 @@ describe('WompiWebhookValidatorService', () => {
   const mockEventsSecret = 'stagtest_events_2PDUmhMywUkvb1LvxYnayFbmofT7w39N';
 
   const mockConfigService = {
-    get: jest.fn((key: string, defaultValue: any) => {
+    get: jest.fn((key: string, defaultValue?: unknown) => {
       if (key === 'wompi.eventsSecret') {
         return mockEventsSecret;
       }
@@ -191,7 +187,7 @@ describe('WompiWebhookValidatorService', () => {
           checksum: 'test',
         },
         timestamp: 1234567890,
-      } as any;
+      } as WompiEventDto;
 
       const result = service.validateEventSignature(invalidEvent);
       expect(result).toBe(false);

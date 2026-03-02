@@ -42,7 +42,7 @@ export class AuditInterceptor implements NestInterceptor {
     private readonly auditLogRepository: IAuditLogRepository,
   ) {}
 
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     // Get the action from @Audit decorator metadata
     const action = this.reflector.get<string>(AUDIT_KEY, context.getHandler());
 
@@ -51,9 +51,8 @@ export class AuditInterceptor implements NestInterceptor {
       return next.handle();
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const request = context.switchToHttp().getRequest();
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+
     const user = request.user; // Injected by JWT strategy (may be undefined for public endpoints)
 
     // Execute the handler and audit after successful execution
@@ -67,10 +66,9 @@ export class AuditInterceptor implements NestInterceptor {
         error: (error) => {
           // Log audit even on errors (optional)
           this.logger.warn(
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             `Action ${action} failed but will still be audited: ${error.message}`,
           );
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+
           void this.auditAsync(user, action, request, null, error);
         },
       }),
@@ -81,12 +79,12 @@ export class AuditInterceptor implements NestInterceptor {
    * Audit asynchronously (fire and forget)
    * Does not block the HTTP response
    */
-  /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
+
   private async auditAsync(
-    user: any,
+    user: Record<string, unknown> | undefined,
     action: string,
-    request: any,
-    response?: any,
+    request: Record<string, unknown>,
+    response?: Record<string, unknown>,
     error?: Error,
   ): Promise<void> {
     try {
@@ -104,7 +102,7 @@ export class AuditInterceptor implements NestInterceptor {
       }
 
       // Build metadata
-      const metadata: Record<string, any> = {
+      const metadata: Record<string, unknown> = {
         ip: extractRealIp(request),
         userAgent: request.headers['user-agent'],
         method: request.method,

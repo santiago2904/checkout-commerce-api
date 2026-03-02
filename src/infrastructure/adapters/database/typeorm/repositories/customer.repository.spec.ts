@@ -1,7 +1,4 @@
-/* eslint-disable @typescript-eslint/unbound-method */ import {
-  Test,
-  TestingModule,
-} from '@nestjs/testing';
+import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { TypeOrmCustomerRepository } from './customer.repository';

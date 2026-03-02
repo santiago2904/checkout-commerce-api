@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import {
   ExceptionFilter,
   Catch,
@@ -23,14 +21,14 @@ export class JwtExceptionFilter implements ExceptionFilter {
     private readonly i18nService: I18nService,
   ) {}
 
-  catch(exception: any, host: ArgumentsHost) {
+  catch(exception: UnauthorizedException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
 
     // Extract the original error from UnauthorizedException
     // The error can be in exception.response (when passed to UnauthorizedException constructor)
     // or in exception itself
-    let originalError: any;
+    let originalError: unknown;
 
     if (exception?.response) {
       // If response.message exists and is an object, use that

@@ -497,10 +497,8 @@ export class WompiStrategy implements IPaymentGateway {
       typeof error === 'object' &&
       error !== null &&
       'response' in error &&
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      typeof (error as any).response === 'object' &&
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      (error as any).response !== null
+      typeof (error as Record<string, unknown>).response === 'object' &&
+      (error as Record<string, unknown>).response !== null
     );
   }
 

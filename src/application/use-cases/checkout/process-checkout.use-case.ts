@@ -366,8 +366,7 @@ export class ProcessCheckoutUseCase {
     }
 
     const paymentMethod: PaymentMethodData = {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      type: request.paymentMethod.type as any,
+      type: request.paymentMethod.type as PaymentMethodData['type'],
       token,
       installments: request.paymentMethod.installments,
       phoneNumber: request.paymentMethod.phoneNumber,

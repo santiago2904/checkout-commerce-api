@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/unbound-method */
 import { Test, TestingModule } from '@nestjs/testing';
 import { Logger } from '@nestjs/common';
 import { FulfillmentService, FulfillmentError } from './fulfillment.service';
@@ -35,29 +32,29 @@ describe('FulfillmentService', () => {
       email: 'john@example.com',
       phone: '+573001234567',
       address: '123 Main St',
-    } as any,
+    } as Partial<Transaction['customer']>,
   };
 
   beforeEach(async () => {
     productRepository = {
       updateStock: jest.fn(),
-    } as any;
+    } as jest.Mocked<IProductRepository>;
 
     deliveryRepository = {
       create: jest.fn(),
-    } as any;
+    } as jest.Mocked<IDeliveryRepository>;
 
     transactionItemRepository = {
       findByTransactionId: jest.fn(),
-    } as any;
+    } as jest.Mocked<ITransactionItemRepository>;
 
     auditLogRepository = {
       create: jest.fn(),
-    } as any;
+    } as jest.Mocked<IAuditLogRepository>;
     transactionRepository = {
       findByWompiTransactionId: jest.fn(),
       update: jest.fn(),
-    } as any;
+    } as jest.Mocked<ITransactionRepository>;
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -134,7 +131,9 @@ describe('FulfillmentService', () => {
       transactionItemRepository.findByTransactionId.mockResolvedValue(
         mockItems,
       );
-      deliveryRepository.create.mockResolvedValue(mockDelivery as any);
+      deliveryRepository.create.mockResolvedValue(
+        mockDelivery as Partial<typeof mockDelivery>,
+      );
 
       const result = await service.processApprovedTransaction(
         mockTransaction as Transaction,
@@ -188,7 +187,9 @@ describe('FulfillmentService', () => {
       transactionItemRepository.findByTransactionId.mockResolvedValue(
         mockItems,
       );
-      deliveryRepository.create.mockResolvedValue(mockDelivery as any);
+      deliveryRepository.create.mockResolvedValue(
+        mockDelivery as Partial<typeof mockDelivery>,
+      );
 
       const customAddress = {
         addressLine1: '456 Custom St',

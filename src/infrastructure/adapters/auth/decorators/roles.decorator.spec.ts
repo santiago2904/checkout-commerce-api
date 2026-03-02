@@ -17,7 +17,7 @@ describe('Roles Decorator', () => {
 
     const roles = reflector.get<RoleName[]>(
       ROLES_KEY,
-      // eslint-disable-next-line @typescript-eslint/unbound-method
+
       TestController.prototype.testMethod,
     );
     expect(roles).toEqual([RoleName.ADMIN]);
@@ -31,7 +31,7 @@ describe('Roles Decorator', () => {
 
     const roles = reflector.get<RoleName[]>(
       ROLES_KEY,
-      // eslint-disable-next-line @typescript-eslint/unbound-method
+
       TestController.prototype.testMethod,
     );
     expect(roles).toEqual([RoleName.ADMIN, RoleName.CUSTOMER]);

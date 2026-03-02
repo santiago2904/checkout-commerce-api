@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/unbound-method */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Test, TestingModule } from '@nestjs/testing';
 import { Logger } from '@nestjs/common';
 import {
@@ -77,22 +75,22 @@ describe('CheckTransactionStatusUseCase', () => {
   const mockTransactionRepository: jest.Mocked<ITransactionRepository> = {
     findById: jest.fn(),
     updateStatus: jest.fn(),
-  } as any;
+  } as jest.Mocked<ITransactionRepository>;
 
   const mockPaymentGateway: jest.Mocked<IPaymentGateway> = {
     getTransactionStatus: jest.fn(),
-  } as any;
+  } as jest.Mocked<IPaymentGateway>;
 
   const mockFulfillmentService: jest.Mocked<FulfillmentService> = {
     processApprovedTransaction: jest.fn(),
     processDeclinedTransaction: jest.fn(),
     processErrorTransaction: jest.fn(),
-  } as any;
+  } as jest.Mocked<FulfillmentService>;
 
   const mockStatusTokenService: jest.Mocked<TransactionStatusTokenService> = {
     verifyStatusToken: jest.fn(),
     generateStatusToken: jest.fn(),
-  } as any;
+  } as jest.Mocked<TransactionStatusTokenService>;
 
   beforeEach(async () => {
     // Reset mock to return valid token payload by default

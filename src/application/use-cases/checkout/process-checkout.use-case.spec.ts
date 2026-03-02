@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/unbound-method */
 import { Test, TestingModule } from '@nestjs/testing';
 import { Logger } from '@nestjs/common';
 import {
@@ -275,7 +274,7 @@ describe('ProcessCheckoutUseCase', () => {
         err({
           code: 'PAYMENT_DECLINED',
           message: 'Card was declined',
-        } as any),
+        }),
       );
 
       // Act
@@ -312,7 +311,7 @@ describe('ProcessCheckoutUseCase', () => {
         err({
           code: 'GATEWAY_ERROR',
           message: 'Gateway connection failed',
-        } as any),
+        }),
       );
 
       // Act
@@ -392,8 +391,10 @@ describe('ProcessCheckoutUseCase', () => {
       });
       transactionRepository.updateStatus.mockResolvedValue(undefined);
       productRepository.updateStock.mockResolvedValue(undefined);
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      deliveryRepository.create.mockResolvedValue({ id: 'delivery-id' } as any);
+
+      deliveryRepository.create.mockResolvedValue({
+        id: 'delivery-id',
+      } as Partial<{ id: string }>);
 
       paymentGateway.processPayment.mockResolvedValue(
         ok({

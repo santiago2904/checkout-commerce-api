@@ -67,7 +67,7 @@ describe('GetProductsUseCase', () => {
 
       // Assert
       expect(result.isSuccess).toBeTruthy();
-      // eslint-disable-next-line @typescript-eslint/unbound-method
+
       expect(mockProductRepository.findAllWithStock).toHaveBeenCalledTimes(1);
 
       const products = result.value;
@@ -91,7 +91,7 @@ describe('GetProductsUseCase', () => {
       // Assert
       expect(result.isSuccess).toBeTruthy();
       expect(result.value).toEqual([]);
-      // eslint-disable-next-line @typescript-eslint/unbound-method
+
       expect(mockProductRepository.findAllWithStock).toHaveBeenCalledTimes(1);
     });
 
@@ -112,7 +112,7 @@ describe('GetProductsUseCase', () => {
       );
       expect(error).toBeInstanceOf(ProductsFetchError);
       expect(error?.message).toBe('Failed to fetch products');
-      // eslint-disable-next-line @typescript-eslint/unbound-method
+
       expect(mockProductRepository.findAllWithStock).toHaveBeenCalledTimes(1);
     });
 

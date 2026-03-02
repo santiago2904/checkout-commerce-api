@@ -150,7 +150,7 @@ export class FulfillmentService {
       // Step 3: Create delivery record
       // Priority: use provided shippingAddress, fallback to customer data if available
       let address;
-      
+
       if (shippingAddress) {
         // Guest checkout or explicit shipping address provided
         address = shippingAddress;

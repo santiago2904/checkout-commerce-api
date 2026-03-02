@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/unbound-method */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { Test, TestingModule } from '@nestjs/testing';
 import {
   BadRequestException,
@@ -25,6 +23,19 @@ import type { CheckoutResponseDto } from '@application/dtos/checkout';
 import type { TransactionStatusResponse } from '@application/use-cases/checkout/check-transaction-status.use-case';
 import { TransactionStatus } from '@domain/enums';
 import { AuditInterceptor } from '@infrastructure/adapters/web/interceptors/audit.interceptor';
+import type { Express } from 'express';
+
+type RequestWithUser = Express.Request & {
+  user: {
+    userId: string;
+    email: string;
+    roleId: string;
+    roleName: string;
+    customer?: {
+      id: string;
+    };
+  };
+};
 
 describe('CheckoutController', () => {
   let controller: CheckoutController;
@@ -60,7 +71,7 @@ describe('CheckoutController', () => {
     },
     ip: '192.168.1.1',
     headers: {},
-  };
+  } as unknown as RequestWithUser;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -141,11 +152,7 @@ describe('CheckoutController', () => {
       );
       mockProcessCheckoutUseCase.execute.mockResolvedValue(successResult);
 
-      const result = await controller.checkout(
-        checkoutDto,
-        mockRequest as any,
-        'es',
-      );
+      const result = await controller.checkout(checkoutDto, mockRequest, 'es');
 
       expect(result).toEqual({
         statusCode: 201,
@@ -170,7 +177,11 @@ describe('CheckoutController', () => {
       };
 
       await expect(
-        controller.checkout(checkoutDto, requestWithoutCustomer as any, 'es'),
+        controller.checkout(
+          checkoutDto,
+          requestWithoutCustomer as unknown as RequestWithUser,
+          'es',
+        ),
       ).rejects.toThrow(BadRequestException);
 
       expect(i18nService.t).toHaveBeenCalledWith(
@@ -186,7 +197,7 @@ describe('CheckoutController', () => {
       mockProcessCheckoutUseCase.execute.mockResolvedValue(errorResult);
 
       await expect(
-        controller.checkout(checkoutDto, mockRequest as any, 'es'),
+        controller.checkout(checkoutDto, mockRequest, 'es'),
       ).rejects.toThrow(BadRequestException);
 
       expect(i18nService.t).toHaveBeenCalledWith(
@@ -202,7 +213,7 @@ describe('CheckoutController', () => {
       mockProcessCheckoutUseCase.execute.mockResolvedValue(errorResult);
 
       await expect(
-        controller.checkout(checkoutDto, mockRequest as any, 'es'),
+        controller.checkout(checkoutDto, mockRequest, 'es'),
       ).rejects.toThrow(BadRequestException);
 
       expect(i18nService.t).toHaveBeenCalledWith(
@@ -222,7 +233,7 @@ describe('CheckoutController', () => {
       mockProcessCheckoutUseCase.execute.mockResolvedValue(errorResult);
 
       await expect(
-        controller.checkout(checkoutDto, mockRequest as any, 'es'),
+        controller.checkout(checkoutDto, mockRequest, 'es'),
       ).rejects.toThrow(BadRequestException);
 
       expect(i18nService.t).toHaveBeenCalledWith(
@@ -242,7 +253,7 @@ describe('CheckoutController', () => {
       mockProcessCheckoutUseCase.execute.mockResolvedValue(errorResult);
 
       await expect(
-        controller.checkout(checkoutDto, mockRequest as any, 'es'),
+        controller.checkout(checkoutDto, mockRequest, 'es'),
       ).rejects.toThrow(BadRequestException);
     });
 
@@ -252,7 +263,7 @@ describe('CheckoutController', () => {
       mockProcessCheckoutUseCase.execute.mockResolvedValue(errorResult);
 
       await expect(
-        controller.checkout(checkoutDto, mockRequest as any, 'es'),
+        controller.checkout(checkoutDto, mockRequest, 'es'),
       ).rejects.toThrow(BadRequestException);
 
       expect(i18nService.t).toHaveBeenCalledWith(
@@ -299,9 +310,10 @@ describe('CheckoutController', () => {
         code: 'TRANSACTION_NOT_FOUND',
         message: 'Transaction not found',
       };
-      const errorResult = Result.fail<TransactionStatusResponse, any>(
-        notFoundError,
-      );
+      const errorResult = Result.fail<
+        TransactionStatusResponse,
+        { code: string; message: string }
+      >(notFoundError);
       mockCheckTransactionStatusUseCase.execute.mockResolvedValue(errorResult);
 
       await expect(
@@ -319,9 +331,10 @@ describe('CheckoutController', () => {
         code: 'UNKNOWN_ERROR',
         message: 'Something went wrong',
       };
-      const errorResult = Result.fail<TransactionStatusResponse, any>(
-        genericError,
-      );
+      const errorResult = Result.fail<
+        TransactionStatusResponse,
+        { code: string; message: string }
+      >(genericError);
       mockCheckTransactionStatusUseCase.execute.mockResolvedValue(errorResult);
 
       await expect(

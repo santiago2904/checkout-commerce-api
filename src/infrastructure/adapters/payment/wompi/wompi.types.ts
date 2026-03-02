@@ -232,7 +232,7 @@ export interface WompiWebhookEvent {
       payment_method_type: string;
       redirect_url: string;
       status: WompiTransactionStatus;
-      shipping_address: any;
+      shipping_address: WompiShippingAddress | null;
       payment_link_id: string | null;
       payment_source_id: number | null;
     };

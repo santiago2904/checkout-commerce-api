@@ -46,7 +46,7 @@ describe('JwtAuthGuard', () => {
     it('should prioritize info over err when both exist', () => {
       const error = new Error('Error');
       const infoError = new Error('Info error');
-      
+
       expect(() => guard.handleRequest(error, null, infoError)).toThrow(
         UnauthorizedException,
       );

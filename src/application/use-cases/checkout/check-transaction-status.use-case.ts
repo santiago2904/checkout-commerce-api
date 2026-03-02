@@ -80,15 +80,14 @@ export class CheckTransactionStatusUseCase {
     // Step 1: Verify and decode the JWT status token
     let tokenPayload: { transactionId: string; email: string };
     try {
-      tokenPayload = await this.statusTokenService.verifyStatusToken(statusToken);
+      tokenPayload =
+        await this.statusTokenService.verifyStatusToken(statusToken);
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Invalid token';
+      const errorMessage =
+        error instanceof Error ? error.message : 'Invalid token';
       this.logger.warn(`Token verification failed: ${errorMessage}`);
       return err(
-        new CheckTransactionStatusError(
-          errorMessage,
-          'TOKEN_INVALID',
-        ),
+        new CheckTransactionStatusError(errorMessage, 'TOKEN_INVALID'),
       );
     }
 

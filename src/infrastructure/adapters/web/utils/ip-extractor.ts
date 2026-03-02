@@ -1,8 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-
 /**
  * Extract real IP address from request
  * Handles proxy/load balancer scenarios using X-Forwarded-For header
@@ -21,7 +16,7 @@
  * @param req Express request object (or any request with similar interface)
  * @returns Client's real IP address
  */
-export function extractRealIp(req: any): string {
+export function extractRealIp(req: Record<string, unknown>): string {
   // X-Forwarded-For: May contain multiple IPs (client, proxy1, proxy2, ...)
   // The first IP is the original client IP
   const forwardedFor = req.headers['x-forwarded-for'];

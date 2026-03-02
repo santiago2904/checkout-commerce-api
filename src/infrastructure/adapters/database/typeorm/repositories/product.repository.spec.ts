@@ -1,8 +1,6 @@
-/* eslint-disable @typescript-eslint/unbound-method */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository, MoreThan } from 'typeorm';
+import { Repository, MoreThan, UpdateResult } from 'typeorm';
 import { TypeOrmProductRepository } from './product.repository';
 import { Product } from '../entities';
 
@@ -114,7 +112,9 @@ describe('TypeOrmProductRepository', () => {
 
   describe('updateStock', () => {
     it('should decrease product stock by specified quantity', async () => {
-      mockRepository.decrement.mockResolvedValue({ affected: 1 } as any);
+      mockRepository.decrement.mockResolvedValue({
+        affected: 1,
+      } as UpdateResult);
 
       await repository.updateStock('product-123', 5);
 
@@ -126,7 +126,9 @@ describe('TypeOrmProductRepository', () => {
     });
 
     it('should handle updating stock with quantity 1', async () => {
-      mockRepository.decrement.mockResolvedValue({ affected: 1 } as any);
+      mockRepository.decrement.mockResolvedValue({
+        affected: 1,
+      } as UpdateResult);
 
       await repository.updateStock('product-123', 1);
 
@@ -138,7 +140,9 @@ describe('TypeOrmProductRepository', () => {
     });
 
     it('should handle updating stock with large quantity', async () => {
-      mockRepository.decrement.mockResolvedValue({ affected: 1 } as any);
+      mockRepository.decrement.mockResolvedValue({
+        affected: 1,
+      } as UpdateResult);
 
       await repository.updateStock('product-123', 100);
 

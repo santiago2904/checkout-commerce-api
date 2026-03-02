@@ -12,10 +12,10 @@ export interface TransactionStatusTokenPayload {
 
 /**
  * Transaction Status Token Service
- * 
+ *
  * Generates and validates JWT tokens for secure public access to transaction status.
  * These tokens are separate from authentication tokens and have shorter expiration (24h).
- * 
+ *
  * Security benefits:
  * - Token cannot be forged (signed with secret)
  * - Contains both transactionId and email (dual verification)

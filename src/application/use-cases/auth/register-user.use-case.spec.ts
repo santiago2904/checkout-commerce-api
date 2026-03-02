@@ -175,19 +175,18 @@ describe('RegisterUserUseCase', () => {
         accessToken: 'jwt-token-123',
       });
 
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       const startTransactionSpy = queryRunner.startTransaction;
-      // eslint-disable-next-line @typescript-eslint/unbound-method
+
       const commitTransactionSpy = queryRunner.commitTransaction;
-      // eslint-disable-next-line @typescript-eslint/unbound-method
+
       const releaseSpy = queryRunner.release;
-      // eslint-disable-next-line @typescript-eslint/unbound-method
+
       const emailExistsSpy = authRepository.emailExists;
-      // eslint-disable-next-line @typescript-eslint/unbound-method
+
       const findOneSpy = queryRunner.manager.findOne;
-      // eslint-disable-next-line @typescript-eslint/unbound-method
+
       const hashPasswordSpy = hashService.hashPassword;
-      // eslint-disable-next-line @typescript-eslint/unbound-method
+
       const createUserSpy = authRepository.create;
       expect(startTransactionSpy).toHaveBeenCalled();
       expect(commitTransactionSpy).toHaveBeenCalled();
@@ -200,7 +199,7 @@ describe('RegisterUserUseCase', () => {
         password: 'hashedPassword123',
         roleId: mockRole.id,
       });
-      // eslint-disable-next-line @typescript-eslint/unbound-method
+
       expect(customerRepository.create).toHaveBeenCalledWith({
         firstName: registerDto.firstName,
         lastName: registerDto.lastName,
@@ -222,11 +221,11 @@ describe('RegisterUserUseCase', () => {
       // Assert
       expect(result.isFailure).toBe(true);
       expect(result.error).toBeInstanceOf(EmailAlreadyExistsError);
-      // eslint-disable-next-line @typescript-eslint/unbound-method
+
       const rollbackSpy = queryRunner.rollbackTransaction;
-      // eslint-disable-next-line @typescript-eslint/unbound-method
+
       const releaseSpy = queryRunner.release;
-      // eslint-disable-next-line @typescript-eslint/unbound-method
+
       const createUserSpy = authRepository.create;
       expect(rollbackSpy).toHaveBeenCalled();
       expect(releaseSpy).toHaveBeenCalled();
@@ -244,11 +243,11 @@ describe('RegisterUserUseCase', () => {
       // Assert
       expect(result.isFailure).toBe(true);
       expect(result.error).toBeInstanceOf(RoleNotFoundError);
-      // eslint-disable-next-line @typescript-eslint/unbound-method
+
       const rollbackSpy = queryRunner.rollbackTransaction;
-      // eslint-disable-next-line @typescript-eslint/unbound-method
+
       const releaseSpy = queryRunner.release;
-      // eslint-disable-next-line @typescript-eslint/unbound-method
+
       const createUserSpy = authRepository.create;
       expect(rollbackSpy).toHaveBeenCalled();
       expect(releaseSpy).toHaveBeenCalled();
@@ -268,11 +267,11 @@ describe('RegisterUserUseCase', () => {
       // Assert
       expect(result.isFailure).toBe(true);
       expect(result.error).toBeInstanceOf(UserCreationError);
-      // eslint-disable-next-line @typescript-eslint/unbound-method
+
       const rollbackSpy = queryRunner.rollbackTransaction;
-      // eslint-disable-next-line @typescript-eslint/unbound-method
+
       const releaseSpy = queryRunner.release;
-      // eslint-disable-next-line @typescript-eslint/unbound-method
+
       const createCustomerSpy = customerRepository.create;
       expect(rollbackSpy).toHaveBeenCalled();
       expect(releaseSpy).toHaveBeenCalled();
@@ -293,9 +292,9 @@ describe('RegisterUserUseCase', () => {
       // Assert
       expect(result.isFailure).toBe(true);
       expect(result.error).toBeInstanceOf(CustomerCreationError);
-      // eslint-disable-next-line @typescript-eslint/unbound-method
+
       const rollbackSpy = queryRunner.rollbackTransaction;
-      // eslint-disable-next-line @typescript-eslint/unbound-method
+
       const releaseSpy = queryRunner.release;
       expect(rollbackSpy).toHaveBeenCalled();
       expect(releaseSpy).toHaveBeenCalled();
@@ -318,7 +317,7 @@ describe('RegisterUserUseCase', () => {
       // Assert
       expect(result.isFailure).toBe(true);
       expect(result.error).toBeInstanceOf(UserCreationError);
-      // eslint-disable-next-line @typescript-eslint/unbound-method
+
       const releaseSpy = queryRunner.release;
       expect(releaseSpy).toHaveBeenCalled();
     });

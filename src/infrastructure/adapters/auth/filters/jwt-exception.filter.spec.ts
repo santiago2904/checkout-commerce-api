@@ -7,13 +7,16 @@ describe('JwtExceptionFilter', () => {
   let filter: JwtExceptionFilter;
   let i18nService: jest.Mocked<I18nService>;
   let mockArgumentsHost: ArgumentsHost;
-  let mockResponse: any;
+  let mockResponse: {
+    status: jest.Mock;
+    json: jest.Mock;
+  };
 
   beforeEach(() => {
     // Mock I18nService
     i18nService = {
       translate: jest.fn((key: string) => `translated.${key}`),
-    } as any;
+    } as jest.Mocked<I18nService>;
 
     // Mock response object
     mockResponse = {
@@ -26,7 +29,7 @@ describe('JwtExceptionFilter', () => {
       switchToHttp: jest.fn().mockReturnValue({
         getResponse: jest.fn().mockReturnValue(mockResponse),
       }),
-    } as any;
+    } as unknown as ArgumentsHost;
 
     filter = new JwtExceptionFilter(i18nService);
   });
@@ -130,8 +133,9 @@ describe('JwtExceptionFilter', () => {
         name: 'TokenExpiredError',
         message: 'jwt expired',
       };
-      
+
       const exception = new UnauthorizedException();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (exception as any).response = {
         message: tokenExpiredError,
       };
