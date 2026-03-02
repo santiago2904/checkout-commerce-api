@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  ExecutionContext,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 
 /**
@@ -13,7 +17,16 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
    * Handle request and capture JWT-specific errors
    * This allows the exception filter to provide translated error messages
    */
-  handleRequest(err: Error | null, user: unknown, info: Error | null) {
+
+  handleRequest<TUser = unknown>(
+    err: Error | null,
+    user: unknown,
+    info: Error | null,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _context: ExecutionContext,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _status?: unknown,
+  ): TUser {
     // If there's an error or info about the error, wrap it in UnauthorizedException
     // The info parameter contains details like TokenExpiredError, JsonWebTokenError, etc.
     if (err || info) {
@@ -24,6 +37,6 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       throw new UnauthorizedException(error);
     }
 
-    return user;
+    return user as TUser;
   }
 }

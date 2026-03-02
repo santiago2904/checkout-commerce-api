@@ -125,8 +125,12 @@ export class PaymentError extends Error {
  * Payment Gateway Connection Error
  */
 export class PaymentGatewayError extends PaymentError {
-  constructor(message: string, details?: Record<string, unknown>) {
-    super(message, 'PAYMENT_GATEWAY_ERROR', details);
+  constructor(message: string, details?: Record<string, unknown> | string) {
+    super(
+      message,
+      'PAYMENT_GATEWAY_ERROR',
+      typeof details === 'string' ? { message: details } : details,
+    );
     this.name = 'PaymentGatewayError';
   }
 }
@@ -135,8 +139,12 @@ export class PaymentGatewayError extends PaymentError {
  * Invalid Payment Data Error
  */
 export class InvalidPaymentDataError extends PaymentError {
-  constructor(message: string, details?: Record<string, unknown>) {
-    super(message, 'INVALID_PAYMENT_DATA', details);
+  constructor(message: string, details?: Record<string, unknown> | string) {
+    super(
+      message,
+      'INVALID_PAYMENT_DATA',
+      typeof details === 'string' ? { message: details } : details,
+    );
     this.name = 'InvalidPaymentDataError';
   }
 }

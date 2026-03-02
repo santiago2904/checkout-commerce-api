@@ -18,6 +18,35 @@ import {
 } from '@infrastructure/adapters/web/constants/audit-actions.constants';
 import { extractRealIp } from '@infrastructure/adapters/web/utils';
 
+interface RequestUser {
+  userId?: string;
+  email?: string;
+  roleId?: string;
+  roleName?: string;
+  customer?: { id: string };
+}
+
+interface AuditRequest {
+  user?: RequestUser;
+  headers?: Record<string, string | string[] | undefined>;
+  method?: string;
+  url?: string;
+  body?: Record<string, unknown>;
+  params?: Record<string, unknown>;
+  ip?: string;
+  connection?: { remoteAddress?: string };
+  socket?: { remoteAddress?: string };
+}
+
+interface AuditResponse {
+  data?: {
+    user?: { id: string; roleName?: string };
+    transactionId?: string;
+    amount?: number;
+    status?: string;
+  };
+}
+
 /**
  * Audit Interceptor
  * Automatically logs actions to the audit_logs table
@@ -61,7 +90,12 @@ export class AuditInterceptor implements NestInterceptor {
         next: (response) => {
           // Fire and forget: audit asynchronously without blocking response
           // Pass response to extract userId for public endpoints (register/login)
-          void this.auditAsync(user, action, request, response);
+          void this.auditAsync(
+            user,
+            action,
+            request,
+            response as AuditResponse,
+          );
         },
         error: (error) => {
           // Log audit even on errors (optional)
@@ -69,7 +103,7 @@ export class AuditInterceptor implements NestInterceptor {
             `Action ${action} failed but will still be audited: ${error.message}`,
           );
 
-          void this.auditAsync(user, action, request, null, error);
+          void this.auditAsync(user, action, request, undefined, error);
         },
       }),
     );
@@ -81,10 +115,10 @@ export class AuditInterceptor implements NestInterceptor {
    */
 
   private async auditAsync(
-    user: Record<string, unknown> | undefined,
+    user: RequestUser | undefined,
     action: string,
-    request: Record<string, unknown>,
-    response?: Record<string, unknown>,
+    request: AuditRequest,
+    response?: AuditResponse,
     error?: Error,
   ): Promise<void> {
     try {
@@ -92,8 +126,8 @@ export class AuditInterceptor implements NestInterceptor {
       // For authenticated endpoints: use request.user (from JWT strategy)
       // JWT strategy returns: { userId, email, roleId, roleName, customer }
       // For public endpoints (register/login): extract from response
-      let userId = user?.userId || 'anonymous';
-      let roleName = user?.roleName || 'UNKNOWN';
+      let userId: string = user?.userId || 'anonymous';
+      let roleName: string = user?.roleName || 'UNKNOWN';
 
       // If no user in request, try to extract from response (for register/login)
       if (!user && response?.data?.user) {
@@ -104,7 +138,7 @@ export class AuditInterceptor implements NestInterceptor {
       // Build metadata
       const metadata: Record<string, unknown> = {
         ip: extractRealIp(request),
-        userAgent: request.headers['user-agent'],
+        userAgent: request.headers?.['user-agent'],
         method: request.method,
         url: request.url,
       };
@@ -137,7 +171,8 @@ export class AuditInterceptor implements NestInterceptor {
 
         // Include target user ID for ADMIN category
         if (categoryConfig.includeTargetUserId) {
-          metadata.targetUserId = request.params?.id || request.body?.userId;
+          metadata.targetUserId =
+            (request.params?.id as string) || (request.body?.userId as string);
         }
       }
 

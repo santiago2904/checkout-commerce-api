@@ -26,23 +26,33 @@ export class JwtExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
 
     // Extract the original error from UnauthorizedException
-    // The error can be in exception.response (when passed to UnauthorizedException constructor)
+    // The error can be in exception.getResponse() (when passed to UnauthorizedException constructor)
     // or in exception itself
-    let originalError: unknown;
+    let originalError: { name?: string; message?: string } = {};
 
-    if (exception?.response) {
+    const exceptionResponse = exception.getResponse();
+    if (exceptionResponse) {
       // If response.message exists and is an object, use that
       if (
-        typeof exception.response === 'object' &&
-        exception.response.message &&
-        typeof exception.response.message === 'object'
+        typeof exceptionResponse === 'object' &&
+        'message' in exceptionResponse &&
+        typeof exceptionResponse.message === 'object'
       ) {
-        originalError = exception.response.message;
-      } else {
-        originalError = exception.response;
+        originalError = exceptionResponse.message as {
+          name?: string;
+          message?: string;
+        };
+      } else if (typeof exceptionResponse === 'object') {
+        originalError = exceptionResponse as {
+          name?: string;
+          message?: string;
+        };
       }
     } else {
-      originalError = exception;
+      originalError = exception as unknown as {
+        name?: string;
+        message?: string;
+      };
     }
 
     // Check if it's a JWT-related error by examining the original error's name
@@ -71,10 +81,17 @@ export class JwtExceptionFilter implements ExceptionFilter {
     }
 
     // Check if message contains 'No auth token' or similar
+    const exceptionResp = exception.getResponse();
+    const responseMessage =
+      typeof exceptionResp === 'object' &&
+      exceptionResp &&
+      'message' in exceptionResp
+        ? exceptionResp.message
+        : '';
     const errorMessage =
       originalError?.message ||
       exception?.message ||
-      exception?.response?.message ||
+      (typeof responseMessage === 'string' ? responseMessage : '') ||
       '';
 
     if (
