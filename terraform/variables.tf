@@ -54,9 +54,9 @@ variable "db_allocated_storage" {
 }
 
 variable "db_backup_retention_days" {
-  description = "Number of days to retain database backups"
+  description = "Number of days to retain database backups (Free Tier: max 1 day)"
   type        = number
-  default     = 7
+  default     = 1
 }
 
 variable "db_multi_az" {
@@ -108,13 +108,130 @@ variable "availability_zones" {
 }
 
 # ================================
+# ECS Configuration
+# ================================
+variable "ecs_task_cpu" {
+  description = "CPU units for ECS task (256 = 0.25 vCPU)"
+  type        = number
+  default     = 256
+}
+
+variable "ecs_task_memory" {
+  description = "Memory for ECS task in MB"
+  type        = number
+  default     = 1024
+}
+
+variable "ecs_desired_count" {
+  description = "Desired number of ECS tasks"
+  type        = number
+  default     = 1
+}
+
+variable "ecs_max_count" {
+  description = "Maximum number of ECS tasks for autoscaling"
+  type        = number
+  default     = 2
+}
+
+variable "ecs_min_count" {
+  description = "Minimum number of ECS tasks for autoscaling"
+  type        = number
+  default     = 1
+}
+
+variable "app_port" {
+  description = "Port on which the application runs"
+  type        = number
+  default     = 3000
+}
+
+variable "health_check_path" {
+  description = "Health check path for ALB target group"
+  type        = string
+  default     = "/api/health"
+}
+
+variable "container_image" {
+  description = "Docker image to deploy (will be built and pushed to ECR)"
+  type        = string
+  default     = "latest"
+}
+
+# ================================
+# Application Load Balancer
+# ================================
+variable "enable_alb" {
+  description = "Enable Application Load Balancer (set to false to use public IP only)"
+  type        = bool
+  default     = true
+}
+
+variable "alb_ssl_certificate_arn" {
+  description = "ARN of SSL certificate for HTTPS (leave empty for HTTP only)"
+  type        = string
+  default     = ""
+}
+
+# ================================
 # Tags
 # ================================
 variable "tags" {
   description = "Common tags to apply to all resources"
   type        = map(string)
   default = {
-    Project     = "checkout-commerce"
-    ManagedBy   = "Terraform"
+    Project   = "checkout-commerce"
+    ManagedBy = "Terraform"
   }
+}
+
+# ================================
+# Application Environment Variables
+# ================================
+variable "jwt_secret" {
+  description = "JWT secret key for token signing"
+  type        = string
+  sensitive   = true
+}
+
+variable "jwt_expires_in" {
+  description = "JWT token expiration time (e.g., 1h, 7d)"
+  type        = string
+  default     = "1h"
+}
+
+variable "wompi_public_key" {
+  description = "Wompi public API key"
+  type        = string
+  sensitive   = true
+}
+
+variable "wompi_private_key" {
+  description = "Wompi private API key"
+  type        = string
+  sensitive   = true
+}
+
+variable "wompi_api_url" {
+  description = "Wompi API URL (sandbox or production)"
+  type        = string
+  default     = "https://sandbox.wompi.co/v1"
+}
+
+variable "wompi_events_secret" {
+  description = "Wompi webhook events secret"
+  type        = string
+  sensitive   = true
+}
+
+variable "wompi_integrity_secret" {
+  description = "Wompi integrity secret for signature calculation"
+  type        = string
+  sensitive   = true
+}
+
+variable "frontend_url" {
+  description = "Frontend application URL for CORS"
+  type        = string
+  default     = "http://localhost:3001"
 }

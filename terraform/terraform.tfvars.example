@@ -15,7 +15,7 @@ db_name              = "checkoutdb"
 db_username          = "dbadmin"
 db_password          = "CHANGE_ME_TO_SECURE_PASSWORD_32_CHARS_MIN"
 db_allocated_storage = 20  # 20 GB is free tier eligible
-db_backup_retention_days = 7
+db_backup_retention_days = 1  # Free Tier only allows 1 day (not 7)
 db_multi_az              = false  # Set to false for cost savings (not free tier)
 db_publicly_accessible   = false  # Keep false for security
 
@@ -27,6 +27,20 @@ ecr_lifecycle_max_images = 10
 # Networking Configuration
 vpc_cidr           = "10.0.0.0/16"
 availability_zones = ["us-east-1a", "us-east-1b"]
+
+# ECS Configuration
+ecs_task_cpu       = 256    # 256 = 0.25 vCPU (Free tier eligible)
+ecs_task_memory    = 512    # 512 MB
+ecs_desired_count  = 1      # Number of tasks to run
+ecs_max_count      = 2      # Max for autoscaling
+ecs_min_count      = 1      # Min for autoscaling
+app_port           = 3000   # NestJS default port
+health_check_path  = "/health"  # Adjust if your health endpoint is different
+container_image    = "latest"   # Docker image tag
+
+# Application Load Balancer
+enable_alb              = true   # Set to false to use public IP only (saves ALB costs)
+alb_ssl_certificate_arn = ""     # Add your ACM certificate ARN for HTTPS
 
 # Tags
 tags = {

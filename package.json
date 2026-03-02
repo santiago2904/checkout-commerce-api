@@ -22,9 +22,11 @@
     "migration:generate": "npm run typeorm -- migration:generate -d src/infrastructure/config/typeorm.config.ts",
     "migration:create": "npm run typeorm -- migration:create",
     "migration:run": "npm run typeorm -- migration:run -d src/infrastructure/config/typeorm.config.ts",
+    "migration:run:prod": "node dist/run-migrations.js",
     "migration:revert": "npm run typeorm -- migration:revert -d src/infrastructure/config/typeorm.config.ts",
     "migration:show": "npm run typeorm -- migration:show -d src/infrastructure/config/typeorm.config.ts",
     "seed:run": "ts-node -r tsconfig-paths/register src/infrastructure/adapters/database/typeorm/seeds/index.ts",
+    "seed:run:prod": "node dist/run-seeders.js",
     "prepare": "husky"
   },
   "dependencies": {
