@@ -15,9 +15,19 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
   // Enable validation globally
 
+  // Enable CORS with explicit configuration for CloudFront
   app.enableCors({
-    origin: true,
+    origin: true, // Allow all origins
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'Accept-Language',
+      'Accept',
+    ],
+    exposedHeaders: ['Content-Length', 'Content-Type'],
+    maxAge: 86400, // 24 hours preflight cache
   });
   app.useGlobalPipes(
     new ValidationPipe({

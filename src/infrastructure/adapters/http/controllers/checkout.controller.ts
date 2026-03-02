@@ -23,6 +23,7 @@ import {
 import {
   CheckoutRequestDto,
   CheckoutResponseDto,
+  TransactionStatusQueryDto,
 } from '@application/dtos/checkout';
 import type { MyTransactionResponse } from '@application/use-cases/checkout/get-my-transactions.use-case';
 import type { Result } from '@application/utils';
@@ -271,19 +272,15 @@ export class CheckoutController {
   @Get('status')
   @HttpCode(HttpStatus.OK)
   async getTransactionStatus(
-    @Query('token') token: string,
+    @Query() query: TransactionStatusQueryDto,
     @Lang() lang: SupportedLanguage,
   ): Promise<{
     statusCode: number;
     message: string;
     data: TransactionStatusResponse;
   }> {
-    // Token is required for secure access
-    if (!token) {
-      throw new BadRequestException(
-        this.i18n.t('checkout.errors.tokenRequired', lang),
-      );
-    }
+    // Token is validated by DTO
+    const token = query.token;
 
     this.logger.log(`Checking status with token`);
 

@@ -122,6 +122,15 @@ resource "aws_security_group" "rds" {
     security_groups = [aws_security_group.ecs_tasks.id]
   }
 
+  # 🔓 TEMPORAL: Permitir acceso desde tu IP local
+  ingress {
+    description = "Temporary local access from 206.62.143.67 - REMOVE WHEN DONE"
+    from_port   = 5432
+    to_port     = 5432
+    protocol    = "tcp"
+    cidr_blocks = ["206.62.143.67/32"]
+  }
+
   egress {
     description = "Allow all outbound traffic"
     from_port   = 0
