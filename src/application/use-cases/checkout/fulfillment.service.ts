@@ -278,9 +278,9 @@ export class FulfillmentService {
     );
 
     try {
-      // Log declined transaction (userId null for system actions)
+      // Log declined transaction for system actions
       await this.auditLogRepository.create({
-        userId: null,
+        userId: 'SYSTEM',
         roleName: 'SYSTEM',
         action: AUDIT_ACTIONS.FULFILLMENT_DECLINED_PROCESSED,
         metadata: {
@@ -340,9 +340,9 @@ export class FulfillmentService {
     );
 
     try {
-      // Log error transaction (userId null for system actions)
+      // Log error transaction for system actions
       await this.auditLogRepository.create({
-        userId: null,
+        userId: 'SYSTEM',
         roleName: 'SYSTEM',
         action: AUDIT_ACTIONS.FULFILLMENT_ERROR_LOGGED,
         metadata: {

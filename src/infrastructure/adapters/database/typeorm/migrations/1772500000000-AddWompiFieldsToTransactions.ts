@@ -1,8 +1,6 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class AddWompiFieldsToTransactions1772500000000
-  implements MigrationInterface
-{
+export class AddWompiFieldsToTransactions1772500000000 implements MigrationInterface {
   name = 'AddWompiFieldsToTransactions1772500000000';
 
   public async up(queryRunner: QueryRunner): Promise<void> {

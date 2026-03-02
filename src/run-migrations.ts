@@ -1,8 +1,8 @@
 // Production migration runner
 // This file is executed in production to run TypeORM migrations
 
-require('dotenv/config');
-const { DataSource } = require('typeorm');
+import 'dotenv/config';
+import { DataSource } from 'typeorm';
 
 const runMigrations = async () => {
   const dataSource = new DataSource({
@@ -49,4 +49,4 @@ const runMigrations = async () => {
   }
 };
 
-runMigrations();
+void runMigrations();

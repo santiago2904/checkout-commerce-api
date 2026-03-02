@@ -1,8 +1,6 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class MakeAuditLogUserIdNullable1772620000000
-  implements MigrationInterface
-{
+export class MakeAuditLogUserIdNullable1772620000000 implements MigrationInterface {
   name = 'MakeAuditLogUserIdNullable1772620000000';
 
   public async up(queryRunner: QueryRunner): Promise<void> {

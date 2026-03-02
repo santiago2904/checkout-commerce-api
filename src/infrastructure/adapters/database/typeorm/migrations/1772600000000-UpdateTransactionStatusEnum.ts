@@ -1,8 +1,6 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class UpdateTransactionStatusEnum1772600000000
-  implements MigrationInterface
-{
+export class UpdateTransactionStatusEnum1772600000000 implements MigrationInterface {
   name = 'UpdateTransactionStatusEnum1772600000000';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -10,7 +8,7 @@ export class UpdateTransactionStatusEnum1772600000000
     // Note: ALTER TYPE must be outside a transaction block, but TypeORM
     // handles this automatically. The UPDATE has been removed to avoid
     // "unsafe use of new value" error within the same transaction.
-    
+
     // Add DECLINED status
     await queryRunner.query(
       `ALTER TYPE "transaction_status_enum" ADD VALUE IF NOT EXISTS 'DECLINED'`,

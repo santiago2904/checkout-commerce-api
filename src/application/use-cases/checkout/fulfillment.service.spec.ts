@@ -401,4 +401,174 @@ describe('FulfillmentService', () => {
       }
     });
   });
+
+  describe('processApprovedTransaction - edge cases', () => {
+    it('should throw error when no shipping address or customer data available', async () => {
+      const transactionWithoutAddress: Partial<Transaction> = {
+        id: 'trans-123',
+        customerId: 'customer-123',
+        amount: 100.0,
+        status: TransactionStatus.APPROVED,
+        shippingAddress: null,
+        customer: null, // No customer data either
+      };
+
+      transactionItemRepository.findByTransactionId.mockResolvedValue([
+        {
+          productId: 'prod-1',
+          quantity: 2,
+        },
+      ] as any);
+
+      const result = await service.processApprovedTransaction(
+        transactionWithoutAddress as Transaction,
+      );
+
+      expect(result.isSuccess).toBe(false);
+      if (!result.isSuccess) {
+        expect(result.error.message).toContain(
+          'no shipping address or customer data available',
+        );
+      }
+    });
+  });
+
+  describe('processFulfillmentByWompiId', () => {
+    it('should process fulfillment for APPROVED transaction', async () => {
+      const pendingTransaction = {
+        ...mockTransaction,
+        status: TransactionStatus.PENDING, // Must be PENDING to process
+      };
+
+      transactionRepository.findByWompiTransactionId.mockResolvedValue(
+        pendingTransaction as Transaction,
+      );
+      transactionRepository.update.mockResolvedValue(undefined);
+      transactionItemRepository.findByTransactionId.mockResolvedValue([
+        {
+          productId: 'prod-1',
+          quantity: 2,
+        },
+      ] as any);
+      deliveryRepository.create.mockResolvedValue({ id: 'delivery-123' } as any);
+      productRepository.updateStock.mockResolvedValue(undefined);
+      auditLogRepository.create.mockResolvedValue(undefined);
+
+      await service.processFulfillmentByWompiId('wompi-123', 'APPROVED');
+
+      expect(transactionRepository.findByWompiTransactionId).toHaveBeenCalledWith(
+        'wompi-123',
+      );
+      expect(transactionRepository.update).toHaveBeenCalledWith(
+        'trans-123',
+        expect.objectContaining({
+          status: TransactionStatus.APPROVED,
+        }),
+      );
+    });
+
+    it('should process fulfillment for DECLINED transaction', async () => {
+      const pendingTransaction = {
+        ...mockTransaction,
+        status: TransactionStatus.PENDING,
+      };
+
+      transactionRepository.findByWompiTransactionId.mockResolvedValue(
+        pendingTransaction as Transaction,
+      );
+      transactionRepository.update.mockResolvedValue(undefined);
+      auditLogRepository.create.mockResolvedValue(undefined);
+
+      await service.processFulfillmentByWompiId('wompi-123', 'DECLINED');
+
+      expect(transactionRepository.update).toHaveBeenCalledWith(
+        'trans-123',
+        expect.objectContaining({
+          status: TransactionStatus.DECLINED,
+        }),
+      );
+    });
+
+    it('should process fulfillment for ERROR transaction', async () => {
+      const pendingTransaction = {
+        ...mockTransaction,
+        status: TransactionStatus.PENDING,
+      };
+
+      transactionRepository.findByWompiTransactionId.mockResolvedValue(
+        pendingTransaction as Transaction,
+      );
+      transactionRepository.update.mockResolvedValue(undefined);
+      auditLogRepository.create.mockResolvedValue(undefined);
+
+      await service.processFulfillmentByWompiId('wompi-123', 'ERROR');
+
+      expect(transactionRepository.update).toHaveBeenCalledWith(
+        'trans-123',
+        expect.objectContaining({
+          status: TransactionStatus.ERROR,
+        }),
+      );
+    });
+
+    it('should ignore unknown status', async () => {
+      const pendingTransaction = {
+        ...mockTransaction,
+        status: TransactionStatus.PENDING,
+      };
+
+      transactionRepository.findByWompiTransactionId.mockResolvedValue(
+        pendingTransaction as Transaction,
+      );
+      transactionRepository.update.mockResolvedValue(undefined);
+
+      await service.processFulfillmentByWompiId('wompi-123', 'UNKNOWN');
+
+      expect(transactionRepository.update).toHaveBeenCalled();
+      // Should not process any fulfillment
+    });
+
+    it('should return early if transaction not found', async () => {
+      transactionRepository.findByWompiTransactionId.mockResolvedValue(null);
+
+      await service.processFulfillmentByWompiId('wompi-123', 'APPROVED');
+
+      expect(transactionRepository.update).not.toHaveBeenCalled();
+    });
+
+    it('should skip if transaction already processed', async () => {
+      const processedTransaction = {
+        ...mockTransaction,
+        status: TransactionStatus.APPROVED, // Already processed
+      };
+      transactionRepository.findByWompiTransactionId.mockResolvedValue(
+        processedTransaction as Transaction,
+      );
+
+      await service.processFulfillmentByWompiId('wompi-123', 'APPROVED');
+
+      expect(transactionRepository.update).not.toHaveBeenCalled();
+    });
+
+    it('should process PENDING status', async () => {
+      const pendingTransaction = {
+        ...mockTransaction,
+        status: TransactionStatus.PENDING,
+      };
+
+      transactionRepository.findByWompiTransactionId.mockResolvedValue(
+        pendingTransaction as Transaction,
+      );
+      transactionRepository.update.mockResolvedValue(undefined);
+
+      await service.processFulfillmentByWompiId('wompi-123', 'PENDING');
+
+      expect(transactionRepository.update).toHaveBeenCalledWith(
+        'trans-123',
+        expect.objectContaining({
+          status: TransactionStatus.PENDING,
+        }),
+      );
+    });
+  });
 });

@@ -2,8 +2,10 @@
 // This file is executed in production to run database seeders
 // It imports the compiled seeders from the dist directory
 
-require('dotenv/config');
-const { DataSource } = require('typeorm');
+import 'dotenv/config';
+import { DataSource } from 'typeorm';
+import { RoleSeeder } from './infrastructure/adapters/database/typeorm/seeds/role.seeder';
+import { ProductSeeder } from './infrastructure/adapters/database/typeorm/seeds/product.seeder';
 
 const runSeeders = async () => {
   const dataSource = new DataSource({
@@ -22,20 +24,12 @@ const runSeeders = async () => {
     ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
   });
 
-  let connection: any = null;
+  let connection: DataSource | null = null;
 
   try {
     console.log('🌱 Starting database seeding...');
     connection = await dataSource.initialize();
     console.log('✓ Database connection established\n');
-
-    // Import compiled seeders from dist directory
-    const {
-      RoleSeeder,
-    } = require('./infrastructure/adapters/database/typeorm/seeds/role.seeder');
-    const {
-      ProductSeeder,
-    } = require('./infrastructure/adapters/database/typeorm/seeds/product.seeder');
 
     const seeders = [new RoleSeeder(), new ProductSeeder()];
 
@@ -57,4 +51,4 @@ const runSeeders = async () => {
   }
 };
 
-runSeeders();
+void runSeeders();
