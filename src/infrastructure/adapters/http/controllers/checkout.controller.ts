@@ -2,7 +2,6 @@ import {
   Controller,
   Post,
   Get,
-  Param,
   Query,
   Body,
   HttpCode,
@@ -19,12 +18,14 @@ import {
   ProcessCheckoutUseCase,
   CheckTransactionStatusUseCase,
   GetMyTransactionsUseCase,
+  GetMyTransactionsError,
 } from '@application/use-cases/checkout';
 import {
   CheckoutRequestDto,
   CheckoutResponseDto,
 } from '@application/dtos/checkout';
 import type { MyTransactionResponse } from '@application/use-cases/checkout/get-my-transactions.use-case';
+import type { Result } from '@application/utils';
 import {
   CheckoutError,
   InsufficientStockError,
@@ -349,7 +350,8 @@ export class CheckoutController {
 
     this.logger.log(`Fetching transactions for customer ${customerId}`);
 
-    const result = await this.getMyTransactionsUseCase.execute(customerId);
+    const result: Result<MyTransactionResponse[], GetMyTransactionsError> =
+      await this.getMyTransactionsUseCase.execute(customerId);
 
     return result.fold(
       // Success case

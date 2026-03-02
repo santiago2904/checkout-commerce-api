@@ -10,6 +10,8 @@ export interface IProductRepository {
    */
   findAllWithStock(): Promise<Product[]>;
 
+  findAll(): Promise<Product[]>;
+
   /**
    * Find product by id
    */

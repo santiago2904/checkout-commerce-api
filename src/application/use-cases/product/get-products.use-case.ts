@@ -12,6 +12,7 @@ export interface ProductResponse {
   description: string;
   price: number;
   stock: number;
+  imageUrl?: string;
 }
 
 /**
@@ -33,7 +34,7 @@ export class GetProductsUseCase {
   async execute(): Promise<Result<ProductResponse[], ProductsFetchError>> {
     try {
       // Fetch all products with stock
-      const products = await this.productRepository.findAllWithStock();
+      const products = await this.productRepository.findAll();
 
       // Map to response DTOs
       const productResponses: ProductResponse[] = products.map((product) => ({
@@ -42,6 +43,7 @@ export class GetProductsUseCase {
         description: product.description,
         price: Number(product.price),
         stock: product.stock,
+        imageUrl: product.imageUrl,
       }));
 
       return Result.ok(productResponses);

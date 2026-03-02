@@ -29,6 +29,14 @@ export class TypeOrmProductRepository implements IProductRepository {
     });
   }
 
+  async findAll(): Promise<Product[]> {
+    return this.productRepository.find({
+      order: {
+        name: 'ASC',
+      },
+    });
+  }
+
   /**
    * Find product by id
    */
