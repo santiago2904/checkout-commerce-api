@@ -1,7 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-
-/* eslint-disable @typescript-eslint/unbound-method */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { ExecutionContext, CallHandler } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { of, throwError } from 'rxjs';
@@ -45,7 +41,7 @@ describe('AuditInterceptor', () => {
     // Mock Reflector
     reflector = {
       get: jest.fn(),
-    } as any;
+    } as jest.Mocked<Reflector>;
 
     // Mock IAuditLogRepository
     auditLogRepository = {
@@ -70,7 +66,7 @@ describe('AuditInterceptor', () => {
       switchToRpc: jest.fn(),
       switchToWs: jest.fn(),
       getType: jest.fn(),
-    } as any;
+    } as jest.Mocked<ExecutionContext>;
 
     // Mock CallHandler
     mockCallHandler = {
@@ -81,7 +77,7 @@ describe('AuditInterceptor', () => {
           data: { user: mockUser },
         }),
       ),
-    } as any;
+    } as jest.Mocked<CallHandler>;
   });
 
   afterEach(() => {
@@ -209,10 +205,7 @@ describe('AuditInterceptor', () => {
       mockCallHandler.handle.mockReturnValue(of(responseWithUser));
 
       // Act
-      const result$ = interceptor.intercept(
-        mockContextNoUser as any,
-        mockCallHandler,
-      );
+      const result$ = interceptor.intercept(mockContextNoUser, mockCallHandler);
 
       // Assert
       result$.subscribe({
@@ -256,10 +249,7 @@ describe('AuditInterceptor', () => {
       mockCallHandler.handle.mockReturnValue(of(responseWithoutUser));
 
       // Act
-      const result$ = interceptor.intercept(
-        mockContextNoUser as any,
-        mockCallHandler,
-      );
+      const result$ = interceptor.intercept(mockContextNoUser, mockCallHandler);
 
       // Assert
       result$.subscribe({

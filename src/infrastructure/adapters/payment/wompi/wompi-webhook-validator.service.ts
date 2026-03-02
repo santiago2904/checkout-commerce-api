@@ -75,10 +75,9 @@ export class WompiWebhookValidatorService {
    * Example: ['transaction.id', 'transaction.status'] => '1234-123APPROVED'
    */
 
-  private extractPropertyValues(data: any, properties: string[]): string {
+  private extractPropertyValues(data: unknown, properties: string[]): string {
     return properties
       .map((propertyPath) => {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const value = this.getNestedValue(data, propertyPath);
         return value !== undefined && value !== null ? String(value) : '';
       })
@@ -90,8 +89,7 @@ export class WompiWebhookValidatorService {
    * Example: getNestedValue({transaction: {id: '123'}}, 'transaction.id') => '123'
    */
 
-  private getNestedValue(obj: any, path: string): any {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return
+  private getNestedValue(obj: unknown, path: string): unknown {
     return path.split('.').reduce((current, key) => current?.[key], obj);
   }
 }

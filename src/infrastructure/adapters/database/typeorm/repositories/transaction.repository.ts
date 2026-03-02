@@ -98,6 +98,21 @@ export class TypeOrmTransactionRepository implements ITransactionRepository {
   }
 
   /**
+   * Find all transactions by customer email
+   * Searches through customer's user email
+   * Useful for showing guest checkout transactions after user registers
+   */
+  async findByCustomerEmail(email: string): Promise<Transaction[]> {
+    return this.transactionRepository
+      .createQueryBuilder('transaction')
+      .leftJoinAndSelect('transaction.customer', 'customer')
+      .leftJoinAndSelect('customer.user', 'user')
+      .where('user.email = :email', { email })
+      .orderBy('transaction.createdAt', 'DESC')
+      .getMany();
+  }
+
+  /**
    * Find all pending transactions
    */
   async findPending(): Promise<Transaction[]> {

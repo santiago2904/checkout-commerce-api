@@ -54,12 +54,22 @@ export class Transaction extends BaseEntity {
   @Column({ type: 'text', nullable: true })
   errorMessage: string | null;
 
-  @ManyToOne(() => Customer, { eager: true })
-  @JoinColumn({ name: 'customerId' })
-  customer: Customer;
+  // Guest checkout support: customer email for transactions without login
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  customerEmail: string | null;
 
-  @Column({ type: 'uuid' })
-  customerId: string;
+  // JWT token for secure public status checking (includes transactionId + email)
+  // Expires in 24h, prevents unauthorized access even if transactionId is leaked
+  @Column({ type: 'text', nullable: true })
+  statusToken: string | null;
+
+  // Optional customer relation (null for guest checkout)
+  @ManyToOne(() => Customer, { eager: true, nullable: true })
+  @JoinColumn({ name: 'customerId' })
+  customer: Customer | null;
+
+  @Column({ type: 'uuid', nullable: true })
+  customerId: string | null;
 
   // Transaction items (products purchased in this transaction)
   @OneToMany('TransactionItem', 'transaction', { cascade: true })

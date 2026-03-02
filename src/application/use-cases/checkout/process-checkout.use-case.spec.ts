@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/unbound-method */
 import { Test, TestingModule } from '@nestjs/testing';
 import { Logger } from '@nestjs/common';
 import {
@@ -7,6 +6,7 @@ import {
   InsufficientStockError,
   ProductNotFoundError,
 } from './process-checkout.use-case';
+import { TransactionStatusTokenService } from './transaction-status-token.service';
 import {
   IProductRepository,
   ITransactionRepository,
@@ -84,6 +84,7 @@ describe('ProcessCheckoutUseCase', () => {
       findById: jest.fn(),
       findByReference: jest.fn(),
       updateStatus: jest.fn(),
+      update: jest.fn().mockResolvedValue(undefined),
       findByCustomerId: jest.fn(),
       findPending: jest.fn(),
     };
@@ -105,6 +106,11 @@ describe('ProcessCheckoutUseCase', () => {
       processPayment: jest.fn(),
       getTransactionStatus: jest.fn(),
       getName: jest.fn().mockReturnValue('Wompi'),
+    };
+
+    const mockStatusTokenService = {
+      generateStatusToken: jest.fn().mockResolvedValue('mock.jwt.token'),
+      verifyStatusToken: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -129,6 +135,10 @@ describe('ProcessCheckoutUseCase', () => {
         {
           provide: 'IPaymentGateway',
           useValue: mockPaymentGateway,
+        },
+        {
+          provide: TransactionStatusTokenService,
+          useValue: mockStatusTokenService,
         },
       ],
     }).compile();
@@ -264,7 +274,7 @@ describe('ProcessCheckoutUseCase', () => {
         err({
           code: 'PAYMENT_DECLINED',
           message: 'Card was declined',
-        } as any),
+        }),
       );
 
       // Act
@@ -301,7 +311,7 @@ describe('ProcessCheckoutUseCase', () => {
         err({
           code: 'GATEWAY_ERROR',
           message: 'Gateway connection failed',
-        } as any),
+        }),
       );
 
       // Act
@@ -381,8 +391,10 @@ describe('ProcessCheckoutUseCase', () => {
       });
       transactionRepository.updateStatus.mockResolvedValue(undefined);
       productRepository.updateStock.mockResolvedValue(undefined);
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      deliveryRepository.create.mockResolvedValue({ id: 'delivery-id' } as any);
+
+      deliveryRepository.create.mockResolvedValue({
+        id: 'delivery-id',
+      } as Partial<{ id: string }>);
 
       paymentGateway.processPayment.mockResolvedValue(
         ok({

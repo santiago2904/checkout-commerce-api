@@ -17,93 +17,93 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/coverage-81.48%25-brightgreen?style=flat-square" alt="Coverage" />
-  <img src="https://img.shields.io/badge/tests-327%20passing-success?style=flat-square" alt="Tests" />
+  <img src="https://img.shields.io/badge/coverage-81.97%25-brightgreen?style=flat-square" alt="Coverage" />
+  <img src="https://img.shields.io/badge/tests-367%20passing-success?style=flat-square" alt="Tests" />
   <img src="https://img.shields.io/badge/lint-0%20errors-success?style=flat-square" alt="Lint" />
   <img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square" alt="License" />
 </p>
 
 ---
 
-## 📋 Tabla de Contenidos
+## 📋 Table of Contents
 
-- [Descripción](#-descripción)
-- [Características Principales](#-características-principales)
-- [Stack Tecnológico](#️-stack-tecnológico)
-- [Arquitectura](#️-arquitectura)
-- [Patrones de Diseño](#-patrones-de-diseño)
-- [Sistema de Auditoría](#-sistema-de-auditoría)
+- [Description](#-description)
+- [Key Features](#-key-features)
+- [Technology Stack](#️-technology-stack)
+- [Architecture](#️-architecture)
+- [Design Patterns](#-design-patterns)
+- [Audit System](#-audit-system)
 - [Quick Start](#-quick-start)
-- [Estructura del Proyecto](#-estructura-del-proyecto)
+- [Project Structure](#-project-structure)
 - [API Endpoints](#-api-endpoints)
 - [Testing](#-testing)
-- [Integración con Wompi](#-integración-con-wompi)
-- [Base de Datos](#-base-de-datos)
-- [Seguridad y Autenticación](#-seguridad-y-autenticación)
-- [Scripts Disponibles](#-scripts-disponibles)
-- [Documentación Adicional](#-documentación-adicional)
+- [Wompi Integration](#-wompi-integration)
+- [Database](#-database)
+- [Security and Authentication](#-security-and-authentication)
+- [Available Scripts](#-available-scripts)
+- [Additional Documentation](#-additional-documentation)
 
 ---
 
-## 🎯 Descripción
+## 🎯 Description
 
-**Checkout Commerce API** es un backend robusto y escalable para flujos de checkout y pagos electrónicos, integrado con la pasarela de pagos **Wompi** (modo Sandbox). El proyecto está construido con **NestJS**, **TypeScript** y **TypeORM**, siguiendo las mejores prácticas de arquitectura de software y patrones de diseño modernos.
+**Checkout Commerce API** is a robust and scalable backend for checkout flows and electronic payments, integrated with the **Wompi** payment gateway (Sandbox mode). The project is built with **NestJS**, **TypeScript**, and **TypeORM**, following modern software architecture best practices and design patterns.
 
-Este sistema maneja el ciclo completo de una transacción de comercio electrónico:
-- ✅ Registro y autenticación de usuarios con JWT
-- ✅ Gestión de productos y stock en tiempo real
-- ✅ Procesamiento asíncrono de pagos con múltiples métodos (Tarjeta, Nequi, PSE, Bancolombia)
-- ✅ Sistema de fulfillment automático (reducción de stock, creación de deliveries)
-- ✅ Auditoría completa de operaciones críticas
-- ✅ Sistema de webhooks para notificaciones de Wompi
-- ✅ Control de acceso basado en roles (RBAC) dinámico
+This system handles the complete lifecycle of an e-commerce transaction:
+- ✅ User registration and authentication with JWT
+- ✅ Product and stock management in real-time
+- ✅ Asynchronous payment processing with multiple methods (Card, Nequi, PSE, Bancolombia)
+- ✅ Automatic fulfillment system (stock reduction, delivery creation)
+- ✅ Complete audit trail of critical operations
+- ✅ Webhook system for Wompi notifications
+- ✅ Dynamic Role-Based Access Control (RBAC)
 
 ---
 
-## ✨ Características Principales
+## ✨ Key Features
 
-### 🏗️ Arquitectura Empresarial
-- **Hexagonal Architecture (Ports & Adapters)**: Separación clara entre lógica de negocio e infraestructura
-- **Railway Oriented Programming (ROP)**: Manejo de errores elegante con `Result<T>` monads
-- **Dependency Inversion**: Interfaces en lugar de implementaciones concretas
-- **Test-Driven Development (TDD)**: 327 tests con 81.48% de cobertura
+### 🏗️ Enterprise Architecture
+- **Hexagonal Architecture (Ports & Adapters)**: Clear separation between business logic and infrastructure
+- **Railway Oriented Programming (ROP)**: Elegant error handling with `Result<T>` monads
+- **Dependency Inversion**: Interfaces instead of concrete implementations
+- **Test-Driven Development (TDD)**: 367 tests with 81.97% coverage
 
-### 🔐 Seguridad y Control de Acceso
-- **JWT Authentication** con Passport.js
-- **Role-Based Access Control (RBAC)** dinámico desde base de datos
-- **Sistema de Auditoría** completo con decorador `@Audit`
-- **Validación de firmas SHA256** para webhooks de Wompi
-- **PCI DSS Compliant**: Sin almacenamiento de datos de tarjetas
+### 🔐 Security and Access Control
+- **JWT Authentication** with Passport.js
+- **Role-Based Access Control (RBAC)** dynamically loaded from database
+- **Complete Audit System** with `@Audit` decorator
+- **SHA256 signature validation** for Wompi webhooks
+- **PCI DSS Compliant**: No card data storage
 
-### 💳 Procesamiento de Pagos
-- **Integración con Wompi** (Sandbox)
-- **Pagos asíncronos** con polling desde el cliente
-- **Múltiples métodos de pago**:
-  - 💳 Tarjetas (tokenización)
-  - 🏦 Transferencias Bancolombia
+### 💳 Payment Processing
+- **Wompi Integration** (Sandbox)
+- **Asynchronous payments** with client-side polling
+- **Multiple payment methods**:
+  - 💳 Cards (tokenization)
+  - 🏦 Bancolombia Transfers
   - 📱 Nequi
-  - 🏛️ PSE (Pagos Seguros en Línea)
-  - 📲 QR Bancolombia
-- **Webhooks** para notificaciones en tiempo real
-- **Sistema de fulfillment** automático post-pago
+  - 🏛️ PSE (Secure Online Payments)
+  - 📲 Bancolombia QR
+- **Webhooks** for real-time notifications
+- **Automatic fulfillment system** post-payment
 
-### 📊 Base de Datos y Persistencia
-- **PostgreSQL 15+** con TypeORM
-- **Migraciones versionadas** (synchronize: false)
-- **Soft Deletes** en todas las entidades
-- **Sistema de Seeders** para datos iniciales
-- **Transacciones ACID** garantizadas
+### 📊 Database and Persistence
+- **PostgreSQL 15+** with TypeORM
+- **Versioned migrations** (synchronize: false)
+- **Soft Deletes** on all entities
+- **Seeder system** for initial data
+- **ACID transactions** guaranteed
 
-### 🧪 Testing y Calidad de Código
-- **327 tests passing** (36 suites)
-- **81.48% statement coverage**
+### 🧪 Testing and Code Quality
+- **367 tests passing** (39 suites)
+- **81.97% statement coverage**
 - **0 ESLint errors**
-- Tests unitarios, de integración y E2E
-- Mocks y stubs para dependencias externas
+- Unit, integration, and E2E tests
+- Mocks and stubs for external dependencies
 
 ---
 
-## 🛠️ Stack Tecnológico
+## 🛠️ Technology Stack
 
 ### Core Framework
 - **[NestJS](https://nestjs.com/) 11.0.1**: Progressive Node.js framework
@@ -142,11 +142,11 @@ Este sistema maneja el ciclo completo de una transacción de comercio electróni
 
 ---
 
-## 🏛️ Arquitectura
+## 🏛️ Architecture
 
 ### Hexagonal Architecture (Ports & Adapters)
 
-Este proyecto implementa **Arquitectura Hexagonal** para mantener la lógica de negocio completamente independiente de frameworks y detalles de infraestructura.
+This project implements **Hexagonal Architecture** to keep the business logic completely independent of frameworks and infrastructure details.
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -184,20 +184,20 @@ Este proyecto implementa **Arquitectura Hexagonal** para mantener la lógica de 
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### Regla de Dependencias
+### Dependency Rule
 
-**Las dependencias siempre apuntan hacia adentro** (hacia el dominio):
+**Dependencies always point inward** (towards the domain):
 
 ```
 Infrastructure Layer → Application Layer → Domain Layer
     (Adapters)              (Ports)          (Entities)
 ```
 
-- **Domain Layer**: Entidades puras de negocio, sin dependencias externas
-- **Application Layer**: Casos de uso, interfaces (ports), DTOs
-- **Infrastructure Layer**: Implementaciones concretas (adapters): TypeORM, NestJS controllers, Wompi API
+- **Domain Layer**: Pure business entities, no external dependencies
+- **Application Layer**: Use cases, interfaces (ports), DTOs
+- **Infrastructure Layer**: Concrete implementations (adapters): TypeORM, NestJS controllers, Wompi API
 
-### Flujo de una Petición
+### Request Flow
 
 ```
 1. HTTP Request → Controller (Infrastructure)
@@ -210,11 +210,11 @@ Infrastructure Layer → Application Layer → Domain Layer
 
 ---
 
-## 🎨 Patrones de Diseño
+## 🎨 Design Patterns
 
 ### 1. Railway Oriented Programming (ROP)
 
-Manejo de errores funcional sin excepciones usando `Result<T>`:
+Functional error handling without exceptions using `Result<T>`:
 
 ```typescript
 // application/utils/result.ts
@@ -242,7 +242,7 @@ export class Result<T> {
 }
 ```
 
-**Uso en Use Cases:**
+**Usage in Use Cases:**
 
 ```typescript
 async execute(dto: LoginDto): Promise<Result<TokenResponse>> {
@@ -268,7 +268,7 @@ async execute(dto: LoginDto): Promise<Result<TokenResponse>> {
 
 ### 2. Strategy Pattern
 
-Abstracción de pasarelas de pago para soportar múltiples proveedores:
+Abstraction of payment gateways to support multiple providers:
 
 ```typescript
 // application/ports/out/payment-gateway.interface.ts
@@ -318,7 +318,7 @@ export class WompiStrategy implements IPaymentGateway {
 
 ### 3. Repository Pattern
 
-Abstracción de persistencia de datos:
+Data persistence abstraction:
 
 ```typescript
 // domain/repositories/user.repository.interface.ts
@@ -342,13 +342,13 @@ export class UserTypeOrmRepository implements UserRepository {
     return entity ? this.toDomain(entity) : null;
   }
   
-  // ... más métodos
+  // ... more methods
 }
 ```
 
 ### 4. Use Case Pattern
 
-Cada operación de negocio es un caso de uso independiente:
+Each business operation is an independent use case:
 
 ```typescript
 // application/use-cases/checkout/process-checkout.use-case.ts
@@ -365,28 +365,28 @@ export class ProcessCheckoutUseCase {
 
   @Audit('CHECKOUT_PROCESSED')
   async execute(dto: CheckoutDto): Promise<Result<TransactionResponse>> {
-    // 1. Validar usuario
-    // 2. Validar productos y stock
-    // 3. Calcular total
-    // 4. Procesar pago con Wompi
-    // 5. Crear transacción
-    // 6. Retornar resultado
+    // 1. Validate user
+    // 2. Validate products and stock
+    // 3. Calculate total
+    // 4. Process payment with Wompi
+    // 5. Create transaction
+    // 6. Return result
   }
 }
 ```
 
 ### 5. Dependency Inversion Principle (DIP)
 
-Las capas superiores dependen de abstracciones (interfaces), no de implementaciones concretas:
+Upper layers depend on abstractions (interfaces), not concrete implementations:
 
 ```typescript
-// ✅ CORRECTO: Dependencia de interfaz (Puerto)
+// ✅ CORRECT: Dependency on interface (Port)
 constructor(
   @Inject(TOKENS.USER_REPOSITORY)
   private readonly userRepository: UserRepository // Interface
 ) {}
 
-// ❌ INCORRECTO: Dependencia de implementación concreta
+// ❌ INCORRECT: Dependency on concrete implementation
 constructor(
   private readonly userRepository: UserTypeOrmRepository // Concrete class
 ) {}
@@ -394,7 +394,7 @@ constructor(
 
 ### 6. Decorator Pattern
 
-Sistema de auditoría mediante decoradores:
+Audit system through decorators:
 
 ```typescript
 // infrastructure/adapters/audit/audit.decorator.ts
@@ -425,13 +425,13 @@ export function Audit(action: string) {
 
 ---
 
-## 🔍 Sistema de Auditoría
+## 🔍 Audit System
 
-El sistema de auditoría registra automáticamente todas las operaciones críticas del sistema en la tabla `audit_logs`.
+The audit system automatically records all critical system operations in the `audit_logs` table.
 
-### Implementación
+### Implementation
 
-1. **Decorador `@Audit`**:
+1. **`@Audit` Decorator**:
 
 ```typescript
 import { Audit } from '@/infrastructure/adapters/audit/audit.decorator';
@@ -440,12 +440,12 @@ import { Audit } from '@/infrastructure/adapters/audit/audit.decorator';
 export class ProcessCheckoutUseCase {
   @Audit('CHECKOUT_PROCESSED')
   async execute(dto: CheckoutDto): Promise<Result<TransactionResponse>> {
-    // Operación crítica
+    // Critical operation
   }
 }
 ```
 
-2. **Interceptor de Auditoría**:
+2. **Audit Interceptor**:
 
 ```typescript
 @Injectable()
@@ -461,7 +461,7 @@ export class AuditInterceptor implements NestInterceptor {
     
     const result = await next.handle().toPromise();
     
-    // Guardar log de auditoría
+    // Save audit log
     await this.auditLogRepository.save({
       userId: user?.id,
       action: Reflect.getMetadata('audit:action', context.getHandler()),
@@ -499,27 +499,27 @@ export class AuditLog extends BaseEntity {
 }
 ```
 
-### Operaciones Auditadas
+### Audited Operations
 
-- ✅ `USER_REGISTERED`: Registro de nuevos usuarios
-- ✅ `USER_LOGIN`: Inicio de sesión
-- ✅ `CHECKOUT_PROCESSED`: Procesamiento de checkout
-- ✅ `TRANSACTION_APPROVED`: Transacción aprobada
-- ✅ `TRANSACTION_DECLINED`: Transacción rechazada
-- ✅ `STOCK_REDUCED`: Reducción de inventario
-- ✅ `DELIVERY_CREATED`: Creación de delivery
-- ✅ `ROLE_ASSIGNED`: Asignación de roles
+- ✅ `USER_REGISTERED`: New user registration
+- ✅ `USER_LOGIN`: Login
+- ✅ `CHECKOUT_PROCESSED`: Checkout processing
+- ✅ `TRANSACTION_APPROVED`: Transaction approved
+- ✅ `TRANSACTION_DECLINED`: Transaction declined
+- ✅ `STOCK_REDUCED`: Inventory reduction
+- ✅ `DELIVERY_CREATED`: Delivery creation
+- ✅ `ROLE_ASSIGNED`: Role assignment
 
-### Consultar Logs de Auditoría
+### Query Audit Logs
 
 ```bash
-# Ver últimos 100 logs
+# View last 100 logs
 curl http://localhost:3000/api/audit-logs?limit=100
 
-# Filtrar por usuario
+# Filter by user
 curl http://localhost:3000/api/audit-logs?userId=<uuid>
 
-# Filtrar por acción
+# Filter by action
 curl http://localhost:3000/api/audit-logs?action=CHECKOUT_PROCESSED
 ```
 
@@ -527,42 +527,42 @@ curl http://localhost:3000/api/audit-logs?action=CHECKOUT_PROCESSED
 
 ## ⚡ Quick Start
 
-### Prerequisitos
+### Prerequisites
 
 - **Node.js** 20+
 - **PostgreSQL** 15+
-- **npm** o **yarn**
+- **npm** or **yarn**
 
-### Instalación en 5 Minutos
+### Installation in 5 Minutes
 
 ```bash
-# 1. Clonar repositorio
+# 1. Clone repository
 git clone <repository-url>
 cd checkout-commerce-api
 
-# 2. Instalar dependencias
+# 2. Install dependencies
 npm install
 
-# 3. Configurar variables de entorno
+# 3. Configure environment variables
 cp .env.example .env
-# Editar .env con tus credenciales
+# Edit .env with your credentials
 
-# 4. Levantar PostgreSQL con Docker (opcional)
+# 4. Start PostgreSQL with Docker (optional)
 docker-compose up -d
 
-# 5. Ejecutar migraciones
+# 5. Run migrations
 npm run migration:run
 
-# 6. Ejecutar seeders (roles y productos)
+# 6. Run seeders (roles and products)
 npm run seed:run
 
-# 7. Iniciar servidor
+# 7. Start server
 npm run start:dev
 ```
 
-### Variables de Entorno
+### Environment Variables
 
-Crear archivo `.env` en la raíz del proyecto:
+Create `.env` file in the project root:
 
 ```bash
 # Database
@@ -590,20 +590,20 @@ NODE_ENV=development
 FRONTEND_URL=http://localhost:4200
 ```
 
-### Verificar Instalación
+### Verify Installation
 
 ```bash
 # Health check
 curl http://localhost:3000/api/health
 
-# Respuesta esperada:
+# Expected response:
 # {"status":"ok","database":"connected","timestamp":"2024-01-15T10:30:00.000Z"}
 ```
 
-### Primer Test: Flujo Completo
+### First Test: Complete Flow
 
 ```bash
-# 1. Registrar usuario
+# 1. Register user
 curl -X POST http://localhost:3000/api/auth/register \
   -H "Content-Type: application/json" \
   -d '{
@@ -612,34 +612,34 @@ curl -X POST http://localhost:3000/api/auth/register \
     "firstName": "John",
     "lastName": "Doe"
   }'
-# Respuesta: { user: {...}, customer: {...}, accessToken: "..." }
+# Response: { user: {...}, customer: {...}, accessToken: "..." }
 
-# 2. Login (copiar el accessToken de la respuesta)
+# 2. Login (copy the accessToken from the response)
 curl -X POST http://localhost:3000/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "email": "test@example.com",
     "password": "Test1234"
   }'
-# Respuesta: { user: {...}, accessToken: "..." }
+# Response: { user: {...}, accessToken: "..." }
 
-# 3. Ver productos disponibles (sin autenticación - endpoint público)
+# 3. View available products (no authentication - public endpoint)
 curl -X GET http://localhost:3000/api/products
-# Respuesta: { statusCode: 200, data: [...] }
+# Response: { statusCode: 200, data: [...] }
 
-# 4. Obtener acceptance token de Wompi (requerido antes de checkout)
-# Obtén tu PUBLIC_KEY de .env y reemplaza abajo
-curl -X GET "https://api-sandbox.co.uat.wompi.dev/v1/merchants/pub_test_tu_public_key_aqui"
-# Respuesta: { presigned_acceptance: { acceptance_token: "..." } }
+# 4. Get Wompi acceptance token (required before checkout)
+# Get your PUBLIC_KEY from .env and replace below
+curl -X GET "https://api-sandbox.co.uat.wompi.dev/v1/merchants/pub_test_your_public_key_here"
+# Response: { presigned_acceptance: { acceptance_token: "..." } }
 
-# 5. Procesar checkout (copiar acceptance_token de paso anterior)
+# 5. Process checkout (copy acceptance_token from previous step)
 curl -X POST http://localhost:3000/api/checkout \
-  -H "Authorization: Bearer <tu-access-token>" \
+  -H "Authorization: Bearer <your-access-token>" \
   -H "Content-Type: application/json" \
   -d '{
     "items": [
       {
-        "productId": "<product-uuid-del-paso-3>",
+        "productId": "<product-uuid-from-step-3>",
         "quantity": 2
       }
     ],
@@ -659,40 +659,46 @@ curl -X POST http://localhost:3000/api/checkout \
       "recipientPhone": "+573001234567"
     },
     "customerEmail": "test@example.com",
-    "acceptanceToken": "<acceptance-token-del-paso-4>"
+    "acceptanceToken": "<acceptance-token-from-step-4>"
   }'
-# Respuesta: { statusCode: 201, data: { transactionId: "...", status: "PENDING", ... } }
+# Response: { statusCode: 201, data: { transactionId: "...", status: "PENDING", ... } }
 
-# 6. Polling: Consultar estado de transacción cada 5 segundos
-curl -X GET http://localhost:3000/api/checkout/status/<transaction-id-del-paso-5> \
-  -H "Authorization: Bearer <tu-access-token>"
-# Respuesta: { statusCode: 200, data: { status: "PENDING | APPROVED | DECLINED | ERROR", ... } }
+# 6. Polling: Check transaction status every 5 seconds
+curl -X GET http://localhost:3000/api/checkout/status/<transaction-id-from-step-5> \
+  -H "Authorization: Bearer <your-access-token>"
+# Response: { statusCode: 200, data: { status: "PENDING | APPROVED | DECLINED | ERROR", ... } }
 
-# Repetir paso 6 hasta que status cambie a APPROVED, DECLINED o ERROR
+# Repeat step 6 until status changes to APPROVED, DECLINED or ERROR
+
+# 7. (Optional) Retrieve all your transactions - useful after a refresh
+curl -X GET http://localhost:3000/api/checkout/my-transactions \
+  -H "Authorization: Bearer <your-access-token>"
+# Response: { statusCode: 200, data: [{ transactionId, status, items, delivery, ... }, ...] }
+# Useful for: recovering progress after refresh, viewing purchase history, finding PENDING transactions
 ```
 
 ---
 
-## 📁 Estructura del Proyecto
+## 📁 Project Structure
 
 ```
 checkout-commerce-api/
 ├── src/
 │   ├── domain/                           # 🟦 Domain Layer (Core Business Logic)
-│   │   ├── entities/                     # Entidades de negocio
+│   │   ├── entities/                     # Business entities
 │   │   │   ├── user.entity.ts
 │   │   │   ├── product.entity.ts
 │   │   │   ├── transaction.entity.ts
 │   │   │   ├── customer.entity.ts
 │   │   │   └── delivery.entity.ts
-│   │   ├── enums/                        # Enumeraciones del dominio
+│   │   ├── enums/                        # Domain enumerations
 │   │   │   ├── role-name.enum.ts         # ADMIN, CUSTOMER
 │   │   │   └── transaction-status.enum.ts # PENDING, APPROVED, DECLINED
-│   │   ├── repositories/                 # Interfaces de repositorios (Ports OUT)
+│   │   ├── repositories/                 # Repository interfaces (Ports OUT)
 │   │   │   ├── user.repository.ts
 │   │   │   ├── product.repository.ts
 │   │   │   └── transaction.repository.ts
-│   │   └── value-objects/                # Objetos de valor
+│   │   └── value-objects/                # Value objects
 │   │       ├── money.vo.ts
 │   │       └── email.vo.ts
 │   │
@@ -711,7 +717,7 @@ checkout-commerce-api/
 │   │   │       ├── payment-gateway.port.ts
 │   │   │       ├── hash.service.port.ts
 │   │   │       └── token.service.port.ts
-│   │   ├── use-cases/                    # Casos de uso
+│   │   ├── use-cases/                    # Use cases
 │   │   │   ├── auth/
 │   │   │   │   ├── login.use-case.ts
 │   │   │   │   ├── login.use-case.spec.ts
@@ -726,7 +732,7 @@ checkout-commerce-api/
 │   │   │   │   └── get-products.use-case.spec.ts
 │   │   │   └── admin/
 │   │   │       └── ...
-│   │   ├── utils/                        # Utilidades de aplicación
+│   │   ├── utils/                        # Application utilities
 │   │   │   └── result.ts                 # Railway Oriented Programming
 │   │   └── tokens.ts                     # Dependency Injection tokens
 │   │
@@ -741,10 +747,10 @@ checkout-commerce-api/
 │   │   │   │       │   ├── user.typeorm-entity.ts
 │   │   │   │       │   ├── product.typeorm-entity.ts
 │   │   │   │       │   └── ...
-│   │   │   │       ├── repositories/     # Implementaciones de repositorios
+│   │   │   │       ├── repositories/     # Repository implementations
 │   │   │   │       │   ├── user.typeorm.repository.ts
 │   │   │   │       │   └── ...
-│   │   │   │       ├── migrations/       # Migraciones de base de datos
+│   │   │   │       ├── migrations/       # Database migrations
 │   │   │   │       │   ├── 1701234567890-CreateUsersTable.ts
 │   │   │   │       │   └── ...
 │   │   │   │       └── seeds/            # Seeders
@@ -761,44 +767,44 @@ checkout-commerce-api/
 │   │   │   │       └── wompi.webhook.controller.ts
 │   │   │   └── web/
 │   │   │       └── ...
-│   │   ├── config/                       # Configuración
+│   │   ├── config/                       # Configuration
 │   │   │   ├── database.config.ts
 │   │   │   ├── typeorm.config.ts
 │   │   │   └── i18n/
-│   │   └── modules/                      # Módulos de NestJS
+│   │   └── modules/                      # NestJS modules
 │   │       ├── auth.module.ts
 │   │       ├── checkout.module.ts
 │   │       ├── database.module.ts
 │   │       └── product.module.ts
 │   │
-│   ├── app.module.ts                     # Módulo raíz
+│   ├── app.module.ts                     # Root module
 │   ├── app.controller.ts
 │   ├── app.service.ts
 │   ├── main.ts                           # Entry point
-│   └── ARCHITECTURE.md                   # Documentación de arquitectura
+│   └── ARCHITECTURE.md                   # Architecture documentation
 │
 ├── test/                                 # Tests E2E
 │   ├── app.e2e-spec.ts
 │   └── jest-e2e.json
 │
-├── coverage/                             # Reportes de cobertura
+├── coverage/                             # Coverage reports
 │   ├── lcov-report/
 │   └── coverage-final.json
 │
-├── docker-compose.yml                    # Docker Compose para PostgreSQL
-├── .env.example                          # Ejemplo de variables de entorno
+├── docker-compose.yml                    # Docker Compose for PostgreSQL
+├── .env.example                          # Environment variables example
 ├── package.json
 ├── tsconfig.json
 ├── nest-cli.json
 ├── eslint.config.mjs                     # ESLint configuration
-└── README.md                             # Este archivo
+└── README.md                             # This file
 ```
 
-### Nomenclatura de Capas
+### Layer Nomenclature
 
-- **🟦 Domain Layer**: Azul - Lógica de negocio pura, sin dependencias externas
-- **🟨 Application Layer**: Amarillo - Casos de uso, orquestación
-- **🟩 Infrastructure Layer**: Verde - Detalles técnicos, frameworks, bases de datos
+- **🟦 Domain Layer**: Blue - Pure business logic, no external dependencies
+- **🟨 Application Layer**: Yellow - Use cases, orchestration
+- **🟩 Infrastructure Layer**: Green - Technical details, frameworks, databases
 
 ---
 
@@ -808,7 +814,7 @@ checkout-commerce-api/
 
 #### POST `/api/auth/register`
 
-Registrar nuevo usuario y crear perfil de cliente automáticamente.
+Register new user and automatically create customer profile.
 
 **Request Body:**
 ```json
@@ -820,17 +826,17 @@ Registrar nuevo usuario y crear perfil de cliente automáticamente.
 }
 ```
 
-**Validaciones:**
-- Email: Formato válido
-- Password: Mínimo 8 caracteres, debe contener mayúscula, minúscula y número
-- firstName: 2-50 caracteres
-- lastName: 2-50 caracteres
+**Validations:**
+- Email: Valid format
+- Password: Minimum 8 characters, must contain uppercase, lowercase and number
+- firstName: 2-50 characters
+- lastName: 2-50 characters
 
 **Response:** `201 Created`
 ```json
 {
   "statusCode": 201,
-  "message": "Usuario registrado exitosamente",
+  "message": "User registered successfully",
   "data": {
     "user": {
       "id": "550e8400-e29b-41d4-a716-446655440000",
@@ -848,15 +854,15 @@ Registrar nuevo usuario y crear perfil de cliente automáticamente.
 }
 ```
 
-**Errores Posibles:**
-- `409 Conflict`: Email ya existe
-- `400 Bad Request`: Validación fallida o rol de cliente no encontrado
+**Possible Errors:**
+- `409 Conflict`: Email already exists
+- `400 Bad Request`: Validation failed or customer role not found
 
 ---
 
 #### POST `/api/auth/login`
 
-Iniciar sesión y obtener JWT token.
+Login and obtain JWT token.
 
 **Request Body:**
 ```json
@@ -870,7 +876,7 @@ Iniciar sesión y obtener JWT token.
 ```json
 {
   "statusCode": 200,
-  "message": "Inicio de sesión exitoso",
+  "message": "Login successful",
   "data": {
     "user": {
       "id": "550e8400-e29b-41d4-a716-446655440000",
@@ -883,13 +889,13 @@ Iniciar sesión y obtener JWT token.
 }
 ```
 
-**Errores Posibles:**
-- `401 Unauthorized`: Credenciales inválidas o usuario no encontrado
+**Possible Errors:**
+- `401 Unauthorized`: Invalid credentials or user not found
 
 **JWT Token:**
 - Payload: `{ sub: userId, email, roleId, roleName }`
-- Expiración: Configurable (default: 1d)
-- Header requerido: `Authorization: Bearer <token>`
+- Expiration: Configurable (default: 1d)
+- Required header: `Authorization: Bearer <token>`
 
 ---
 
@@ -897,7 +903,7 @@ Iniciar sesión y obtener JWT token.
 
 #### GET `/api/products`
 
-Listar todos los productos disponibles con stock mayor a 0. **Endpoint público** (no requiere autenticación).
+List all available products with stock greater than 0. **Public endpoint** (no authentication required).
 
 **Response:** `200 OK`
 ```json
@@ -914,7 +920,7 @@ Listar todos los productos disponibles con stock mayor a 0. **Endpoint público*
     {
       "id": "b1ffcd00-ad1c-5fg9-cc7e-7cc0ce491b22",
       "name": "Mouse Logitech MX Master 3",
-      "description": "Mouse inalámbrico ergonómico para productividad",
+      "description": "Wireless ergonomic mouse for productivity",
       "price": 349000,
       "stock": 42
     }
@@ -922,11 +928,11 @@ Listar todos los productos disponibles con stock mayor a 0. **Endpoint público*
 }
 ```
 
-**Notas:**
-- No requiere autenticación (endpoint público)
-- Solo devuelve productos con stock > 0
-- Devuelve array vacío si hay error o no hay productos
-- Precios en pesos colombianos (COP)
+**Notes:**
+- Does not require authentication (public endpoint)
+- Only returns products with stock > 0
+- Returns empty array if there's an error or no products
+- Prices in Colombian pesos (COP)
 
 ---
 
@@ -934,7 +940,7 @@ Listar todos los productos disponibles con stock mayor a 0. **Endpoint público*
 
 #### POST `/api/checkout`
 
-Procesar checkout y crear transacción de pago con Wompi. **Requiere autenticación** y rol **CUSTOMER**.
+Process checkout and create payment transaction with Wompi. **Requires authentication** and **CUSTOMER** role.
 
 **Headers:**
 ```
@@ -975,16 +981,16 @@ Content-Type: application/json
 }
 ```
 
-**Campos Requeridos:**
-- `items[]`: Array con productId y quantity (mínimo 1 item)
-- `paymentMethod`: Tipo y datos según método de pago
-- `shippingAddress`: Dirección completa de entrega
-- `customerEmail`: Email del cliente (debe coincidir con usuario autenticado)
-- `acceptanceToken`: Token de aceptación de términos de Wompi (obtenido de GET `https://api-sandbox.co.uat.wompi.dev/v1/merchants/{public_key}`)
+**Required Fields:**
+- `items[]`: Array with productId and quantity (minimum 1 item)
+- `paymentMethod`: Type and data according to payment method
+- `shippingAddress`: Complete delivery address
+- `customerEmail`: Customer email (must match authenticated user)
+- `acceptanceToken`: Wompi terms acceptance token (obtained from GET `https://api-sandbox.co.uat.wompi.dev/v1/merchants/{public_key}`)
 
-**Tipos de Payment Method:**
+**Payment Method Types:**
 
-**1. CARD (Tarjeta - Opción A: Token pre-generado)**
+**1. CARD (Card - Option A: Pre-generated token)**
 ```json
 {
   "type": "CARD",
@@ -993,7 +999,7 @@ Content-Type: application/json
 }
 ```
 
-**2. CARD (Tarjeta - Opción B: Datos de tarjeta para tokenizar en backend)**
+**2. CARD (Card - Option B: Card data to tokenize in backend)**
 ```json
 {
   "type": "CARD",
@@ -1023,7 +1029,7 @@ Content-Type: application/json
 }
 ```
 
-**5. PSE (Débito bancario)**
+**5. PSE (Bank debit)**
 ```json
 {
   "type": "PSE",
@@ -1036,7 +1042,7 @@ Content-Type: application/json
 ```json
 {
   "statusCode": 201,
-  "message": "Checkout procesado exitosamente",
+  "message": "Checkout processed successfully",
   "data": {
     "transactionId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
     "wompiTransactionId": "52341-1648075828-38648",
@@ -1049,48 +1055,111 @@ Content-Type: application/json
 }
 ```
 
-⚠️ **IMPORTANTE - Flujo Asíncrono de Wompi**: 
+⚠️ **IMPORTANT - Wompi Asynchronous Flow**: 
 
-**Todos los pagos con Wompi retornan `status: "PENDING"` inicialmente.** El cliente debe:
+**All Wompi payments return `status: "PENDING"` initially.** The client must:
 
-1. **Recibir la respuesta** con `transactionId` y `status: "PENDING"`
-2. **Iniciar polling**: Hacer peticiones GET `/api/checkout/status/:transactionId` cada **5 segundos**
-3. **Esperar estado final**: `APPROVED`, `DECLINED` o `ERROR`
-4. **Actualizar UI** cuando el estado cambie
+1. **Receive the response** with `transactionId`, `statusToken` and `status: "PENDING"`
+2. **Start polling**: Make GET requests `/api/checkout/status?token=<statusToken>` every **5 seconds**
+3. **Wait for final status**: `APPROVED`, `DECLINED` or `ERROR`
+4. **Update UI** when status changes
 
-**Posibles estados finales:**
-- ✅ `APPROVED`: Pago exitoso - Stock reducido, delivery creado
-- ❌ `DECLINED`: Pago rechazado - Revisar `errorCode` y `errorMessage`
-- ⚠️ `ERROR`: Error en procesamiento - Contactar soporte
+**Possible final statuses:**
+- ✅ `APPROVED`: Successful payment - Stock reduced, delivery created
+- ❌ `DECLINED`: Payment rejected - Check `errorCode` and `errorMessage`
+- ⚠️ `ERROR`: Processing error - Contact support
 
-**Errores Posibles:**
-- `400 Bad Request`: Validación fallida (campos faltantes/inválidos)
-- `400 Insufficient Stock`: Producto sin stock suficiente
-- `400 Product Not Found`: Producto no existe o está eliminado
-- `401 Unauthorized`: Token inválido o expirado
-- `403 Forbidden`: Usuario no tiene rol CUSTOMER
+**Possible Errors:**
+- `400 Bad Request`: Validation failed (missing/invalid fields)
+- `400 Insufficient Stock`: Product without sufficient stock
+- `400 Product Not Found`: Product doesn't exist or is deleted
+- `401 Unauthorized`: Invalid or expired token
+- `403 Forbidden`: User doesn't have CUSTOMER role
 
 ---
 
-#### GET `/api/checkout/status/:transactionId`
+#### POST `/api/checkout/guest`
 
-Consultar estado de una transacción (para polling). **Requiere autenticación** y rol **CUSTOMER**.
+Process checkout as guest (without account). **No authentication required** - Public endpoint.
 
-**Headers:**
+Allows users to make purchases without registering. Transactions are tracked by email and can be automatically linked if the user registers later with the same email.
+
+**Request Body:**
+```json
+{
+  "items": [
+    {
+      "productId": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+      "quantity": 1
+    }
+  ],
+  "paymentMethod": {
+    "type": "CARD",
+    "token": "tok_test_12345_1234567890",
+    "installments": 1
+  },
+  "shippingAddress": {
+    "addressLine1": "Calle 123 #45-67",
+    "city": "Bogotá",
+    "region": "Cundinamarca",
+    "country": "CO",
+    "postalCode": "110111",
+    "recipientName": "John Doe",
+    "recipientPhone": "+573001234567"
+  },
+  "customerEmail": "guest@example.com",
+  "acceptanceToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
 ```
-Authorization: Bearer <jwt-token>
+
+**Response:** `201 Created`
+```json
+{
+  "statusCode": 201,
+  "message": "Checkout processed successfully",
+  "data": {
+    "transactionId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+    "wompiTransactionId": "52341-1648075828-38648",
+    "status": "PENDING",
+    "amount": 2499000,
+    "currency": "COP",
+    "reference": "REF-1648075828-38648",
+    "paymentMethod": "CARD",
+    "statusToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  }
+}
 ```
 
-**URL Parameters:**
-- `transactionId`: UUID de la transacción interna (retornado en POST /checkout)
+**Notes:**
+- The `statusToken` is used to query transaction status (GET `/api/checkout/status?token=<statusToken>`)
+- Token expires in 24 hours
+- If user registers later with same email, they can view these transactions in `/api/checkout/me/transactions`
+
+**Possible Errors:**
+- `400 Bad Request`: Validation failed, insufficient stock or product not found
+- `500 Internal Server Error`: Error in payment processing
+
+---
+
+#### GET `/api/checkout/status?token=<statusToken>`
+
+Query transaction status (for polling). **Public endpoint** - Accessible for both authenticated users and guests.
+
+**Query Parameters:**
+- `token`: JWT statusToken received in checkout response (valid for 24h)
+
+**Security:**
+- Token contains `transactionId` and customer `email`
+- Only allows access to the specific transaction associated with the token
+- Expires in 24 hours from creation
 
 **Response:** `200 OK`
 
-**Caso 1: Transacción PENDING (aún procesando)**
+**Case 1: PENDING transaction (still processing)**
 ```json
 {
   "statusCode": 200,
-  "message": "Estado de transacción consultado",
+  "message": "Transaction status queried",
   "data": {
     "transactionId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
     "wompiTransactionId": "52341-1648075828-38648",
@@ -1103,11 +1172,11 @@ Authorization: Bearer <jwt-token>
 }
 ```
 
-**Caso 2: Transacción APPROVED (pago exitoso)**
+**Case 2: APPROVED transaction (successful payment)**
 ```json
 {
   "statusCode": 200,
-  "message": "Estado de transacción consultado",
+  "message": "Transaction status queried",
   "data": {
     "transactionId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
     "wompiTransactionId": "52341-1648075828-38648",
@@ -1137,11 +1206,11 @@ Authorization: Bearer <jwt-token>
 }
 ```
 
-**Caso 3: Transacción DECLINED (pago rechazado)**
+**Case 3: DECLINED transaction (payment rejected)**
 ```json
 {
   "statusCode": 200,
-  "message": "Estado de transacción consultado",
+  "message": "Transaction status queried",
   "data": {
     "transactionId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
     "wompiTransactionId": "52341-1648075828-38648",
@@ -1151,21 +1220,117 @@ Authorization: Bearer <jwt-token>
     "reference": "REF-1648075828-38648",
     "paymentMethod": "CARD",
     "errorCode": "DECLINED",
-    "errorMessage": "Fondos insuficientes en la tarjeta"
+    "errorMessage": "Insufficient funds on card"
   }
 }
 ```
 
-**Errores Posibles:**
-- `404 Not Found`: Transacción no encontrada
-- `400 Bad Request`: Error al consultar estado
-- `401 Unauthorized`: Token inválido o expirado
+**Possible Errors:**
+- `404 Not Found`: Transaction not found
+- `400 Bad Request`: Error querying status
+- `401 Unauthorized`: Invalid or expired token
+
+---
+
+#### GET `/api/checkout/me/transactions`
+
+Get all transactions for the authenticated customer. **Requires authentication** and **CUSTOMER** role.
+
+This endpoint allows recovering transaction progress after a refresh, improving application resilience.
+
+**Note:** This endpoint now searches for transactions by both `customerId` and customer `email`. This allows:
+- Showing guest checkout transactions if user registers later with same email
+- Preparing system for future guest checkout flows
+- Automatically combining and deduplicating all user transactions
+
+**Headers:**
+```
+Authorization: Bearer <jwt-token>
+```
+
+**Response:** `200 OK`
+
+```json
+{
+  "statusCode": 200,
+  "message": "Transactions retrieved",
+  "data": [
+    {
+      "transactionId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+      "reference": "REF-1648075828-38648",
+      "status": "APPROVED",
+      "amount": 1299.99,
+      "currency": "COP",
+      "paymentMethod": "CARD",
+      "wompiTransactionId": "12345-1648075828-38648",
+      "errorCode": null,
+      "errorMessage": null,
+      "createdAt": "2024-01-15T10:30:28.000Z",
+      "updatedAt": "2024-01-15T10:31:15.000Z",
+      "items": [
+        {
+          "productId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+          "productName": "Laptop Dell XPS 13",
+          "quantity": 1,
+          "unitPrice": 1299.99,
+          "subtotal": 1299.99
+        }
+      ],
+      "delivery": {
+        "deliveryId": "d1e2f3g4-h5i6-7890-jklm-no1234567890",
+        "status": "PENDING",
+        "trackingNumber": "TRK-1234567890",
+        "recipientName": "Juan Pérez",
+        "address": "Calle 123 #45-67, Apto 101",
+        "city": "Bogotá",
+        "estimatedDelivery": "2024-01-18T00:00:00.000Z",
+        "actualDelivery": null
+      }
+    },
+    {
+      "transactionId": "a2b3c4d5-e6f7-8901-bcde-f12345678901",
+      "reference": "REF-1648000000-12345",
+      "status": "PENDING",
+      "amount": 799.99,
+      "currency": "COP",
+      "paymentMethod": "NEQUI",
+      "wompiTransactionId": "98765-1648000000-12345",
+      "errorCode": null,
+      "errorMessage": null,
+      "createdAt": "2024-01-15T09:00:00.000Z",
+      "updatedAt": "2024-01-15T09:00:00.000Z",
+      "items": [
+        {
+          "productId": "b2c3d4e5-f6g7-8901-cdef-g23456789012",
+          "productName": "Samsung Galaxy S24",
+          "quantity": 1,
+          "unitPrice": 799.99,
+          "subtotal": 799.99
+        }
+      ]
+    }
+  ]
+}
+```
+
+**Notes:**
+- Transactions are returned ordered by creation date (most recent first)
+- `delivery` field is only present if transaction was APPROVED and delivery was created
+- PENDING transactions might not have `delivery` yet
+- Useful for recovering transaction status after page refresh
+
+**Possible Errors:**
+- `400 Bad Request`: Error getting transactions
+- `401 Unauthorized`: Invalid or expired token
+- `403 Forbidden`: User doesn't have CUSTOMER role
+
+---
 
 ### Webhooks (Wompi)
 
 #### POST `/api/webhooks/wompi`
 
-Endpoint para recibir notificaciones de Wompi. **No requiere autenticación** (validación por firma SHA256).
+Endpoint to receive Wompi notifications. **No authentication required** (validation via SHA256 signature).
 
 **Headers:**
 ```
@@ -1202,47 +1367,47 @@ const signature = crypto
 
 ## 🧪 Testing
 
-### Estadísticas de Cobertura
+### Coverage Statistics
 
 ```
 =============================== Coverage summary ===============================
-Statements   : 81.48%
-Branches     : 61.96%
-Functions    : 80.87%
-Lines        : 80.82%
+Statements   : 81.97%
+Branches     : 64.83%
+Functions    : 79.51%
+Lines        : 81.21%
 ================================================================================
-Test Suites: 36 passed, 36 total
-Tests:       327 passed, 327 total
+Test Suites: 39 passed, 39 total
+Tests:       367 passed, 367 total
 Snapshots:   0 total
-Time:        3.416 s
+Time:        4.582 s
 ```
 
-### Ejecutar Tests
+### Run Tests
 
 ```bash
-# Todos los tests (unitarios + integración + E2E)
+# All tests (unit + integration + E2E)
 npm test
 
-# Solo tests unitarios
+# Unit tests only
 npm run test:unit
 
-# Tests de integración
+# Integration tests
 npm run test:integration
 
-# Tests E2E
+# E2E tests
 npm run test:e2e
 
-# Watch mode (desarrollo)
+# Watch mode (development)
 npm run test:watch
 
 # Coverage report
 npm run test:cov
 
-# Ver reporte HTML de cobertura
+# View HTML coverage report
 open coverage/lcov-report/index.html
 ```
 
-### Ejemplo de Test Unitario (Use Case)
+### Unit Test Example (Use Case)
 
 ```typescript
 // login.use-case.spec.ts
@@ -1299,13 +1464,13 @@ describe('LoginUseCase', () => {
 
 ---
 
-## 💳 Integración con Wompi
+## 💳 Wompi Integration
 
-### Descripción
+### Description
 
-**Wompi** es la pasarela de pagos integrada para procesar transacciones electrónicas. El proyecto utiliza el modo **Sandbox** para pruebas.
+**Wompi** is the integrated payment gateway for processing electronic transactions. The project uses **Sandbox** mode for testing.
 
-### Flujo de Pago Asíncrono
+### Asynchronous Payment Flow
 
 ```
 ┌──────────┐           ┌──────────┐           ┌──────────┐
@@ -1340,19 +1505,19 @@ describe('LoginUseCase', () => {
      │                      │                      │
 ```
 
-### Métodos de Pago Soportados
+### Supported Payment Methods
 
-| Método | Código | Descripción |
+| Method | Code | Description |
 |--------|--------|-------------|
-| Tarjeta de Crédito/Débito | `CARD` | Tokenización segura, sin almacenar datos de tarjeta |
-| Nequi | `NEQUI` | Pago móvil con número de celular |
-| PSE | `PSE` | Pagos Seguros en Línea (débito a cuenta bancaria) |
-| Transferencia Bancolombia | `BANCOLOMBIA_TRANSFER` | Transferencia desde cuenta Bancolombia |
-| QR Bancolombia | `BANCOLOMBIA_QR` | Pago por código QR |
+| Credit/Debit Card | `CARD` | Secure tokenization, no card data storage |
+| Nequi | `NEQUI` | Mobile payment with phone number |
+| PSE | `PSE` | Secure Online Payments (bank account debit) |
+| Bancolombia Transfer | `BANCOLOMBIA_TRANSFER` | Transfer from Bancolombia account |
+| Bancolombia QR | `BANCOLOMBIA_QR` | QR code payment |
 
-### Configuración
+### Configuration
 
-Variables de entorno necesarias:
+Required environment variables:
 
 ```bash
 WOMPI_PUBLIC_KEY=pub_test_xxxxx
@@ -1361,13 +1526,13 @@ WOMPI_API_URL=https://sandbox.wompi.co/v1
 WOMPI_EVENTS_SECRET=test_events_xxxxx
 ```
 
-### Sistema de Webhooks
+### Webhook System
 
-Wompi envía notificaciones cuando cambia el estado de una transacción:
+Wompi sends notifications when a transaction status changes:
 
 **Endpoint:** `POST /api/webhooks/wompi`
 
-**Validación de Firma:**
+**Signature Validation:**
 
 ```typescript
 // Calcular checksum esperado
@@ -1376,33 +1541,33 @@ const checksum = crypto
   .update(`${timestamp}${JSON.stringify(event.data)}${process.env.WOMPI_EVENTS_SECRET}`)
   .digest('hex');
 
-// Comparar con firma recibida
+// Compare with received signature
 if (checksum !== event.signature.checksum) {
   throw new UnauthorizedException('Invalid signature');
 }
 ```
 
-**Eventos Soportados:**
-- `transaction.updated`: Cambio de estado de transacción
+**Supported Events:**
+- `transaction.updated`: Transaction status change
 
-### Sistema de Fulfillment
+### Fulfillment System
 
-Cuando una transacción es **APPROVED**, se ejecuta automáticamente:
+When a transaction is **APPROVED**, it automatically executes:
 
-1. ✅ **Reducción de Stock**: Decrementa inventario de productos
-2. ✅ **Creación de Delivery**: Genera registro de entrega con tracking number
-3. ✅ **Audit Log**: Registra operación en `audit_logs`
-4. ✅ **Notificación** (futuro): Envía email al cliente
+1. ✅ **Stock Reduction**: Decreases product inventory
+2. ✅ **Delivery Creation**: Generates delivery record with tracking number
+3. ✅ **Audit Log**: Records operation in `audit_logs`
+4. ✅ **Notification** (future): Sends email to customer
 
 ```typescript
 // infrastructure/adapters/payment/wompi/fulfillment.service.ts
 async processFulfillment(transaction: Transaction) {
-  // 1. Reducir stock
+  // 1. Reduce stock
   for (const item of transaction.items) {
     await this.productRepository.reduceStock(item.productId, item.quantity);
   }
 
-  // 2. Crear delivery
+  // 2. Create delivery
   const delivery = await this.deliveryRepository.create({
     transactionId: transaction.id,
     status: 'PREPARING',
@@ -1421,9 +1586,9 @@ async processFulfillment(transaction: Transaction) {
 
 ---
 
-## 🗄️ Base de Datos
+## 🗄️ Database
 
-### Diagrama de Entidades
+### Entity Diagram
 
 ```
 ┌──────────────────┐        
@@ -1487,46 +1652,46 @@ async processFulfillment(transaction: Transaction) {
                     └───────────────┘  └───────────────┘
 ```
 
-**Entidades Principales:**
+**Main Entities:**
 
-1. **BaseEntity**: Clase abstracta con timestamps y soft delete (createdAt, updatedAt, deletedAt)
-2. **User**: Autenticación (email, password, roleId) - Relación ManyToOne con Role
-3. **Role**: Roles del sistema (ADMIN, CUSTOMER) - Enum RoleName
-4. **Customer**: Perfil de cliente (OneToOne con User) - firstName, lastName, phone, address, city, country
-5. **Product**: Productos disponibles (name, description, price, stock)
-6. **Transaction**: Transacciones de pago (Wompi integration) - reference, status, amount, paymentMethod, ipAddress, wompiTransactionId, errorCode, errorMessage
-7. **TransactionItem**: Items de una transacción (productName snapshot, quantity, unitPrice, subtotal)
-8. **Delivery**: Entregas (address, recipientName, recipientPhone, trackingNumber, status, estimatedDelivery, actualDelivery)
-9. **AuditLog**: Logs de auditoría (userId, roleName, action, timestamp, metadata JSONB)
+1. **BaseEntity**: Abstract class with timestamps and soft delete (createdAt, updatedAt, deletedAt)
+2. **User**: Authentication (email, password, roleId) - ManyToOne relationship with Role
+3. **Role**: System roles (ADMIN, CUSTOMER) - RoleName Enum
+4. **Customer**: Customer profile (OneToOne with User) - firstName, lastName, phone, address, city, country
+5. **Product**: Available products (name, description, price, stock)
+6. **Transaction**: Payment transactions (Wompi integration) - reference, status, amount, paymentMethod, ipAddress, wompiTransactionId, errorCode, errorMessage
+7. **TransactionItem**: Transaction items (productName snapshot, quantity, unitPrice, subtotal)
+8. **Delivery**: Deliveries (address, recipientName, recipientPhone, trackingNumber, status, estimatedDelivery, actualDelivery)
+9. **AuditLog**: Audit logs (userId, roleName, action, timestamp, metadata JSONB)
 
-### Migraciones
+### Migrations
 
-El proyecto usa **TypeORM migrations** con `synchronize: false` para control total de cambios en la base de datos.
+The project uses **TypeORM migrations** with `synchronize: false` for full control of database changes.
 
-#### Crear Nueva Migración
+#### Create New Migration
 
 ```bash
-# Generar migración automática (basada en cambios en entidades)
+# Generate automatic migration (based on entity changes)
 npm run migration:generate -- -n CreateUsersTable
 
-# Crear migración vacía
+# Create empty migration
 npm run migration:create -- -n AddIndexToUsers
 ```
 
-#### Ejecutar Migraciones
+#### Run Migrations
 
 ```bash
-# Ejecutar migraciones pendientes
+# Run pending migrations
 npm run migration:run
 
-# Revertir última migración
+# Revert last migration
 npm run migration:revert
 
-# Ver estado de migraciones
+# Show migration status
 npm run migration:show
 ```
 
-#### Ejemplo de Migración
+#### Migration Example
 
 ```typescript
 // migrations/1701234567890-CreateUsersTable.ts
@@ -1576,7 +1741,7 @@ export class CreateUsersTable1701234567890 implements MigrationInterface {
       true
     );
 
-    // Crear índice
+    // Create index
     await queryRunner.createIndex('users', {
       name: 'IDX_users_email',
       columnNames: ['email']
@@ -1591,18 +1756,18 @@ export class CreateUsersTable1701234567890 implements MigrationInterface {
 
 ### Seeders
 
-Los seeders pueblan la base de datos con datos iniciales:
+Seeders populate the database with initial data:
 
 ```bash
-# Ejecutar todos los seeders
+# Run all seeders
 npm run seed:run
 
-# Seeders disponibles:
-# - RoleSeeder: Roles ADMIN y CUSTOMER
-# - ProductSeeder: 10 productos de ejemplo
+# Available seeders:
+# - RoleSeeder: ADMIN and CUSTOMER roles
+# - ProductSeeder: 10 example products
 ```
 
-#### Ejemplo de Seeder
+#### Seeder Example
 
 ```typescript
 // seeds/role.seeder.ts
@@ -1628,7 +1793,7 @@ export class RoleSeeder {
 
 ### Soft Deletes
 
-Todas las entidades heredan de `BaseEntity` que incluye soft delete:
+All entities inherit from `BaseEntity` which includes soft delete:
 
 ```typescript
 @Entity()
@@ -1647,31 +1812,31 @@ export class BaseEntity {
 }
 ```
 
-**Uso:**
+**Usage:**
 
 ```typescript
-// Soft delete (no elimina físicamente)
+// Soft delete (doesn't physically delete)
 await userRepository.softDelete(userId);
 
-// Restaurar
+// Restore
 await userRepository.restore(userId);
 
-// Excluir soft-deleted por defecto
-await userRepository.find(); // Solo usuarios activos
+// Exclude soft-deleted by default
+await userRepository.find(); // Only active users
 
-// Incluir soft-deleted
+// Include soft-deleted
 await userRepository.find({ withDeleted: true });
 ```
 
 ---
 
-## 🔐 Seguridad y Autenticación
+## 🔐 Security and Authentication
 
 ### JWT Authentication
 
-El sistema usa **JSON Web Tokens (JWT)** para autenticación stateless.
+The system uses **JSON Web Tokens (JWT)** for stateless authentication.
 
-#### Flujo de Autenticación
+#### Authentication Flow
 
 ```
 ┌──────────┐                ┌─────────┐                ┌──────────┐
@@ -1708,9 +1873,9 @@ El sistema usa **JSON Web Tokens (JWT)** para autenticación stateless.
      │<──────────────────────────┤                          │
 ```
 
-#### Implementación
+#### Implementation
 
-**1. Generar Token**
+**1. Generate Token**
 
 ```typescript
 // infrastructure/adapters/auth/jwt-token.service.ts
@@ -1732,22 +1897,22 @@ export class JwtTokenService implements TokenServicePort {
 }
 ```
 
-**2. Proteger Rutas**
+**2. Protect Routes**
 
 ```typescript
 // infrastructure/adapters/http/controllers/product.controller.ts
 @Controller('products')
-@UseGuards(JwtAuthGuard) // 👈 Proteger todo el controlador
+@UseGuards(JwtAuthGuard) // 👈 Protect entire controller
 export class ProductController {
   @Get()
   async getProducts(@Request() req) {
-    const userId = req.user.id; // Usuario autenticado
+    const userId = req.user.id; // Authenticated user
     return this.getProductsUseCase.execute();
   }
 }
 ```
 
-**3. Guards Personalizados**
+**3. Custom Guards**
 
 ```typescript
 // infrastructure/adapters/auth/guards/jwt-auth.guard.ts
@@ -1768,23 +1933,23 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 
 ### RBAC (Role-Based Access Control)
 
-Sistema de control de acceso basado en roles dinámico desde base de datos.
+Dynamic role-based access control system from database.
 
-#### Roles Disponibles
+#### Available Roles
 
-- **ADMIN**: Acceso completo al sistema
-- **CUSTOMER**: Acceso a operaciones de cliente (checkout, ver productos)
+- **ADMIN**: Full system access
+- **CUSTOMER**: Access to customer operations (checkout, view products)
 
-#### Implementación
+#### Implementation
 
-**1. Decorador de Roles**
+**1. Role Decorator**
 
 ```typescript
 // infrastructure/adapters/auth/decorators/roles.decorator.ts
 export const Roles = (...roles: RoleName[]) => SetMetadata('roles', roles);
 ```
 
-**2. Guards de Roles**
+**2. Role Guards**
 
 ```typescript
 // infrastructure/adapters/auth/guards/roles.guard.ts
@@ -1808,12 +1973,12 @@ export class RolesGuard implements CanActivate {
 }
 ```
 
-**3. Uso en Controladores**
+**3. Usage in Controllers**
 
 ```typescript
 @Controller('admin')
-@UseGuards(JwtAuthGuard, RolesGuard) // 👈 Ambos guards
-@Roles(RoleName.ADMIN) // 👈 Solo administradores
+@UseGuards(JwtAuthGuard, RolesGuard) // 👈 Both guards
+@Roles(RoleName.ADMIN) // 👈 Administrators only
 export class AdminController {
   @Get('users')
   async getAllUsers() {
@@ -1830,7 +1995,7 @@ export class AdminController {
 
 ### Password Hashing
 
-Las contraseñas se hashean con**bcrypt** (10 rounds):
+Passwords are hashed with **bcrypt** (10 rounds):
 
 ```typescript
 // infrastructure/adapters/auth/bcrypt-hash.service.ts
@@ -1862,107 +2027,107 @@ app.enableCors({
 
 ---
 
-## 📜 Scripts Disponibles
+## 📜 Available Scripts
 
 ```bash
-# Desarrollo
-npm run start          # Iniciar en modo desarrollo
-npm run start:dev      # Iniciar con auto-reload (watch mode)
-npm run start:debug    # Iniciar con debugger
-npm run start:prod     # Iniciar en modo producción
+# Development
+npm run start          # Start in development mode
+npm run start:dev      # Start with auto-reload (watch mode)
+npm run start:debug    # Start with debugger
+npm run start:prod     # Start in production mode
 
 # Build
-npm run build          # Compilar TypeScript
+npm run build          # Compile TypeScript
 
 # Testing
-npm test               # Ejecutar todos los tests
-npm run test:watch     # Tests en watch mode
-npm run test:cov       # Tests con coverage
-npm run test:debug     # Tests con debugger
-npm run test:e2e       # Tests end-to-end
+npm test               # Run all tests
+npm run test:watch     # Tests in watch mode
+npm run test:cov       # Tests with coverage
+npm run test:debug     # Tests with debugger
+npm run test:e2e       # End-to-end tests
 
 # Linting
-npm run lint           # Ejecutar ESLint
-npm run lint:fix       # Ejecutar ESLint y auto-fix
+npm run lint           # Run ESLint
+npm run lint:fix       # Run ESLint and auto-fix
 
-# Base de Datos
-npm run migration:generate -- -n MigrationName    # Generar migración
-npm run migration:create -- -n MigrationName      # Crear migración vacía
-npm run migration:run                             # Ejecutar migraciones
-npm run migration:revert                          # Revertir última migración
-npm run migration:show                            # Mostrar estado
-npm run seed:run                                  # Ejecutar seeders
+# Database
+npm run migration:generate -- -n MigrationName    # Generate migration
+npm run migration:create -- -n MigrationName      # Create empty migration
+npm run migration:run                             # Run migrations
+npm run migration:revert                          # Revert last migration
+npm run migration:show                            # Show status
+npm run seed:run                                  # Run seeders
 
-# Otros
-npm run format         # Formatear código con Prettier
+# Other
+npm run format         # Format code with Prettier
 ```
 
 ---
 
-## 📚 Documentación Adicional
+## 📚 Additional Documentation
 
-Para información más detallada sobre componentes específicos, consulta:
+For more detailed information on specific components, see:
 
-- **[ARCHITECTURE.md](./src/ARCHITECTURE.md)** - Documentación detallada de arquitectura hexagonal
-- **[QUICK_START.md](./QUICK_START.md)** - Guía rápida de inicio (5 minutos)
-- **[CHECKOUT_TESTING_GUIDE.md](./CHECKOUT_TESTING_GUIDE.md)** - Guía completa para probar flujo de checkout
-- **[AUTHENTICATION_USAGE.md](./AUTHENTICATION_USAGE.md)** - Implementación de JWT y RBAC
-- **[DATABASE_SETUP.md](./DATABASE_SETUP.md)** - Configuración de PostgreSQL y migraciones
-- **[MIGRATIONS_GUIDE.md](./MIGRATIONS_GUIDE.md)** - Gestión de migraciones con TypeORM
-- **[FULFILLMENT.md](./FULFILLMENT.md)** - Sistema de fulfillment post-pago
-- **[payment_methods.doc.md](./payment_methods.doc.md)** - Referencia de métodos de pago Wompi
-- **[trasnsactions.doc.md](./trasnsactions.doc.md)** - API de transacciones Wompi
-- **[events.doc.md](./events.doc.md)** - Sistema de webhooks Wompi
+- **[ARCHITECTURE.md](./src/ARCHITECTURE.md)** - Detailed hexagonal architecture documentation
+- **[QUICK_START.md](./QUICK_START.md)** - Quick start guide (5 minutes)
+- **[CHECKOUT_TESTING_GUIDE.md](./CHECKOUT_TESTING_GUIDE.md)** - Complete guide for testing checkout flow
+- **[AUTHENTICATION_USAGE.md](./AUTHENTICATION_USAGE.md)** - JWT and RBAC implementation
+- **[DATABASE_SETUP.md](./DATABASE_SETUP.md)** - PostgreSQL configuration and migrations
+- **[MIGRATIONS_GUIDE.md](./MIGRATIONS_GUIDE.md)** - Migration management with TypeORM
+- **[FULFILLMENT.md](./FULFILLMENT.md)** - Post-payment fulfillment system
+- **[payment_methods.doc.md](./payment_methods.doc.md)** - Wompi payment methods reference
+- **[trasnsactions.doc.md](./trasnsactions.doc.md)** - Wompi transactions API
+- **[events.doc.md](./events.doc.md)** - Wompi webhook system
 
 ---
 
-## 🤝 Contribución
+## 🤝 Contribution
 
-### Flujo de Trabajo
+### Workflow
 
-1. Fork el repositorio
-2. Crear rama feature: `git checkout -b feature/nueva-funcionalidad`
-3. Commit cambios: `git commit -m 'Add nueva funcionalidad'`
-4. Push a la rama: `git push origin feature/nueva-funcionalidad`
-5. Crear Pull Request
+1. Fork the repository
+2. Create feature branch: `git checkout -b feature/new-functionality`
+3. Commit changes: `git commit -m 'Add new functionality'`
+4. Push to branch: `git push origin feature/new-functionality`
+5. Create Pull Request
 
-### Estándares de Código
+### Code Standards
 
-- ✅ **ESLint**: 0 errores requeridos
+- ✅ **ESLint**: 0 errors required
 - ✅ **Tests**: Coverage >= 80%
 - ✅ **Commits**: Conventional Commits format
-- ✅ **TypeScript**: Strict mode habilitado
-- ✅ **Arquitectura**: Respetar capas hexagonales
+- ✅ **TypeScript**: Strict mode enabled
+- ✅ **Architecture**: Respect hexagonal layers
 
 ### Conventional Commits
 
 ```
-feat: Add nueva funcionalidad
-fix: Corregir bug en checkout
-docs: Actualizar README
-test: Agregar tests para login
-refactor: Refactorizar repositorio de usuarios
-perf: Optimizar query de productos
+feat: Add new functionality
+fix: Fix bug in checkout
+docs: Update README
+test: Add tests for login
+refactor: Refactor user repository
+perf: Optimize products query
 ```
 
 ---
 
 ## 📄 License
 
-Este proyecto está bajo la licencia MIT. Ver el archivo [LICENSE](./LICENSE) para más detalles.
+This project is under the MIT license. See the [LICENSE](./LICENSE) file for more details.
 
 ---
 
 ## 👤 Author
 
-**Tu Nombre** - [@tu-usuario](https://github.com/tu-usuario)
+**Your Name** - [@your-username](https://github.com/your-username)
 
 ---
 
 ## 🙏 Acknowledgments
 
-- [NestJS](https://nestjs.com/) - Framework base
-- [Wompi](https://wompi.co/) - Pasarela de pagos
+- [NestJS](https://nestjs.com/) - Base framework
+- [Wompi](https://wompi.co/) - Payment gateway
 - [TypeORM](https://typeorm.io/) - ORM
 - [Alexandro Hdez](https://github.com/CodePawsDev) - Original architecture inspiration
 
@@ -1973,7 +2138,7 @@ Este proyecto está bajo la licencia MIT. Ver el archivo [LICENSE](./LICENSE) pa
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/coverage-81.48%25-brightgreen?style=flat-square" alt="Coverage" />
-  <img src="https://img.shields.io/badge/tests-327%20passing-success?style=flat-square" alt="Tests" />
+  <img src="https://img.shields.io/badge/coverage-81.97%25-brightgreen?style=flat-square" alt="Coverage" />
+  <img src="https://img.shields.io/badge/tests-367%20passing-success?style=flat-square" alt="Tests" />
   <img src="https://img.shields.io/badge/lint-0%20errors-success?style=flat-square" alt="Lint" />
 </p>

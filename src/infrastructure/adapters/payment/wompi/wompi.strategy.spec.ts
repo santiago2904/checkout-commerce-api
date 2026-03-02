@@ -1,9 +1,8 @@
-/* eslint-disable @typescript-eslint/unbound-method */
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
 import { of, throwError } from 'rxjs';
-import { AxiosResponse, AxiosError } from 'axios';
+import { AxiosResponse, AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { WompiStrategy } from './wompi.strategy';
 import {
   TransactionData,
@@ -137,8 +136,8 @@ describe('WompiStrategy', () => {
         status: 200,
         statusText: 'OK',
         headers: {},
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        config: {} as any,
+
+        config: {} as InternalAxiosRequestConfig,
       };
 
       jest.spyOn(httpService, 'post').mockReturnValue(of(axiosResponse));
@@ -162,7 +161,6 @@ describe('WompiStrategy', () => {
           customer_email: 'test@example.com',
         }),
         expect.objectContaining({
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           headers: expect.objectContaining({
             Authorization: `Bearer ${mockWompiConfig.privateKey}`,
           }),
@@ -192,8 +190,8 @@ describe('WompiStrategy', () => {
         status: 200,
         statusText: 'OK',
         headers: {},
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        config: {} as any,
+
+        config: {} as InternalAxiosRequestConfig,
       };
 
       jest.spyOn(httpService, 'post').mockReturnValue(of(axiosResponse));
@@ -238,8 +236,8 @@ describe('WompiStrategy', () => {
         status: 200,
         statusText: 'OK',
         headers: {},
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        config: {} as any,
+
+        config: {} as InternalAxiosRequestConfig,
       };
 
       jest.spyOn(httpService, 'post').mockReturnValue(of(axiosResponse));
@@ -431,8 +429,8 @@ describe('WompiStrategy', () => {
         status: 200,
         statusText: 'OK',
         headers: {},
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        config: {} as any,
+
+        config: {} as InternalAxiosRequestConfig,
       };
 
       jest.spyOn(httpService, 'get').mockReturnValue(of(axiosResponse));
@@ -448,7 +446,6 @@ describe('WompiStrategy', () => {
       expect(httpService.get).toHaveBeenCalledWith(
         `${mockWompiConfig.apiUrl}/transactions/txn_123`,
         expect.objectContaining({
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           headers: expect.objectContaining({
             Authorization: `Bearer ${mockWompiConfig.publicKey}`,
           }),

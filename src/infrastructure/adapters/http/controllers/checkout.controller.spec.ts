@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/unbound-method */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { Test, TestingModule } from '@nestjs/testing';
 import {
   BadRequestException,
@@ -11,18 +9,33 @@ import { CheckoutController } from './checkout.controller';
 import {
   ProcessCheckoutUseCase,
   CheckTransactionStatusUseCase,
+  GetMyTransactionsUseCase,
 } from '@application/use-cases/checkout';
 import {
   CheckoutError,
   InsufficientStockError,
   ProductNotFoundError,
 } from '@application/use-cases/checkout/process-checkout.use-case';
+import { PaymentMethodType } from '@application/dtos/checkout/checkout.dto';
 import { I18nService } from '@infrastructure/config/i18n';
 import { Result } from '@application/utils';
 import type { CheckoutResponseDto } from '@application/dtos/checkout';
 import type { TransactionStatusResponse } from '@application/use-cases/checkout/check-transaction-status.use-case';
 import { TransactionStatus } from '@domain/enums';
 import { AuditInterceptor } from '@infrastructure/adapters/web/interceptors/audit.interceptor';
+import type { Express } from 'express';
+
+type RequestWithUser = Express.Request & {
+  user: {
+    userId: string;
+    email: string;
+    roleId: string;
+    roleName: string;
+    customer?: {
+      id: string;
+    };
+  };
+};
 
 describe('CheckoutController', () => {
   let controller: CheckoutController;
@@ -35,6 +48,10 @@ describe('CheckoutController', () => {
   };
 
   const mockCheckTransactionStatusUseCase = {
+    execute: jest.fn(),
+  };
+
+  const mockGetMyTransactionsUseCase = {
     execute: jest.fn(),
   };
 
@@ -54,7 +71,7 @@ describe('CheckoutController', () => {
     },
     ip: '192.168.1.1',
     headers: {},
-  };
+  } as unknown as RequestWithUser;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -67,6 +84,10 @@ describe('CheckoutController', () => {
         {
           provide: CheckTransactionStatusUseCase,
           useValue: mockCheckTransactionStatusUseCase,
+        },
+        {
+          provide: GetMyTransactionsUseCase,
+          useValue: mockGetMyTransactionsUseCase,
         },
         {
           provide: I18nService,
@@ -97,28 +118,32 @@ describe('CheckoutController', () => {
         {
           productId: 'product-1',
           quantity: 2,
-          priceAtPurchase: 50000,
         },
       ],
-      paymentMethodType: 'CARD' as const,
-      cardToken: 'card-token-123',
+      paymentMethod: {
+        type: PaymentMethodType.CARD,
+        token: 'card-token-123',
+      },
+      shippingAddress: {
+        addressLine1: '123 Main St',
+        city: 'Bogotá',
+        region: 'Cundinamarca',
+        country: 'CO',
+        recipientName: 'John Doe',
+        recipientPhone: '+573001234567',
+      },
       customerEmail: 'test@example.com',
+      acceptanceToken: 'acceptance-token-123',
     };
 
     const mockCheckoutResponse: CheckoutResponseDto = {
       transactionId: 'transaction-123',
+      wompiTransactionId: 'wompi-123',
       status: TransactionStatus.PENDING,
-      paymentUrl: 'https://checkout.wompi.co/l/test',
-      totalAmount: 100000,
-      items: [
-        {
-          productId: 'product-1',
-          quantity: 2,
-          priceAtPurchase: 50000,
-          productName: 'Test Product',
-          total: 100000,
-        },
-      ],
+      amount: 100000,
+      currency: 'COP',
+      reference: 'REF-123',
+      paymentMethod: 'CARD',
     };
 
     it('should process checkout successfully', async () => {
@@ -127,11 +152,7 @@ describe('CheckoutController', () => {
       );
       mockProcessCheckoutUseCase.execute.mockResolvedValue(successResult);
 
-      const result = await controller.checkout(
-        checkoutDto,
-        mockRequest as any,
-        'es',
-      );
+      const result = await controller.checkout(checkoutDto, mockRequest, 'es');
 
       expect(result).toEqual({
         statusCode: 201,
@@ -156,7 +177,11 @@ describe('CheckoutController', () => {
       };
 
       await expect(
-        controller.checkout(checkoutDto, requestWithoutCustomer as any, 'es'),
+        controller.checkout(
+          checkoutDto,
+          requestWithoutCustomer as unknown as RequestWithUser,
+          'es',
+        ),
       ).rejects.toThrow(BadRequestException);
 
       expect(i18nService.t).toHaveBeenCalledWith(
@@ -172,7 +197,7 @@ describe('CheckoutController', () => {
       mockProcessCheckoutUseCase.execute.mockResolvedValue(errorResult);
 
       await expect(
-        controller.checkout(checkoutDto, mockRequest as any, 'es'),
+        controller.checkout(checkoutDto, mockRequest, 'es'),
       ).rejects.toThrow(BadRequestException);
 
       expect(i18nService.t).toHaveBeenCalledWith(
@@ -188,7 +213,7 @@ describe('CheckoutController', () => {
       mockProcessCheckoutUseCase.execute.mockResolvedValue(errorResult);
 
       await expect(
-        controller.checkout(checkoutDto, mockRequest as any, 'es'),
+        controller.checkout(checkoutDto, mockRequest, 'es'),
       ).rejects.toThrow(BadRequestException);
 
       expect(i18nService.t).toHaveBeenCalledWith(
@@ -208,7 +233,7 @@ describe('CheckoutController', () => {
       mockProcessCheckoutUseCase.execute.mockResolvedValue(errorResult);
 
       await expect(
-        controller.checkout(checkoutDto, mockRequest as any, 'es'),
+        controller.checkout(checkoutDto, mockRequest, 'es'),
       ).rejects.toThrow(BadRequestException);
 
       expect(i18nService.t).toHaveBeenCalledWith(
@@ -218,14 +243,17 @@ describe('CheckoutController', () => {
     });
 
     it('should throw BadRequestException for CheckoutError without code', async () => {
-      const checkoutError = new CheckoutError('Payment failed');
+      const checkoutError = new CheckoutError(
+        'Payment failed',
+        'GENERIC_ERROR',
+      );
       const errorResult = Result.fail<CheckoutResponseDto, Error>(
         checkoutError,
       );
       mockProcessCheckoutUseCase.execute.mockResolvedValue(errorResult);
 
       await expect(
-        controller.checkout(checkoutDto, mockRequest as any, 'es'),
+        controller.checkout(checkoutDto, mockRequest, 'es'),
       ).rejects.toThrow(BadRequestException);
     });
 
@@ -235,7 +263,7 @@ describe('CheckoutController', () => {
       mockProcessCheckoutUseCase.execute.mockResolvedValue(errorResult);
 
       await expect(
-        controller.checkout(checkoutDto, mockRequest as any, 'es'),
+        controller.checkout(checkoutDto, mockRequest, 'es'),
       ).rejects.toThrow(BadRequestException);
 
       expect(i18nService.t).toHaveBeenCalledWith(
@@ -250,11 +278,11 @@ describe('CheckoutController', () => {
 
     const mockStatusResponse: TransactionStatusResponse = {
       transactionId: 'transaction-123',
+      wompiTransactionId: 'wompi-123',
       status: TransactionStatus.APPROVED,
-      paymentStatus: 'APPROVED',
-      totalAmount: 100000,
-      paymentReference: 'wompi-ref-123',
-      isFinalStatus: true,
+      amount: 100000,
+      reference: 'REF-123',
+      paymentMethod: 'CARD',
     };
 
     it('should return transaction status successfully', async () => {
@@ -282,9 +310,10 @@ describe('CheckoutController', () => {
         code: 'TRANSACTION_NOT_FOUND',
         message: 'Transaction not found',
       };
-      const errorResult = Result.fail<TransactionStatusResponse, any>(
-        notFoundError,
-      );
+      const errorResult = Result.fail<
+        TransactionStatusResponse,
+        { code: string; message: string }
+      >(notFoundError);
       mockCheckTransactionStatusUseCase.execute.mockResolvedValue(errorResult);
 
       await expect(
@@ -302,9 +331,10 @@ describe('CheckoutController', () => {
         code: 'UNKNOWN_ERROR',
         message: 'Something went wrong',
       };
-      const errorResult = Result.fail<TransactionStatusResponse, any>(
-        genericError,
-      );
+      const errorResult = Result.fail<
+        TransactionStatusResponse,
+        { code: string; message: string }
+      >(genericError);
       mockCheckTransactionStatusUseCase.execute.mockResolvedValue(errorResult);
 
       await expect(
@@ -321,8 +351,6 @@ describe('CheckoutController', () => {
       const pendingResponse: TransactionStatusResponse = {
         ...mockStatusResponse,
         status: TransactionStatus.PENDING,
-        paymentStatus: 'PENDING',
-        isFinalStatus: false,
       };
       const successResult = Result.ok<TransactionStatusResponse, Error>(
         pendingResponse,
@@ -334,15 +362,12 @@ describe('CheckoutController', () => {
       const result = await controller.getTransactionStatus(transactionId, 'es');
 
       expect(result.data.status).toBe(TransactionStatus.PENDING);
-      expect(result.data.isFinalStatus).toBe(false);
     });
 
     it('should handle DECLINED status', async () => {
       const declinedResponse: TransactionStatusResponse = {
         ...mockStatusResponse,
         status: TransactionStatus.DECLINED,
-        paymentStatus: 'DECLINED',
-        isFinalStatus: true,
       };
       const successResult = Result.ok<TransactionStatusResponse, Error>(
         declinedResponse,
@@ -354,15 +379,12 @@ describe('CheckoutController', () => {
       const result = await controller.getTransactionStatus(transactionId, 'es');
 
       expect(result.data.status).toBe(TransactionStatus.DECLINED);
-      expect(result.data.isFinalStatus).toBe(true);
     });
 
     it('should handle ERROR status', async () => {
       const errorResponse: TransactionStatusResponse = {
         ...mockStatusResponse,
         status: TransactionStatus.ERROR,
-        paymentStatus: 'ERROR',
-        isFinalStatus: true,
       };
       const successResult = Result.ok<TransactionStatusResponse, Error>(
         errorResponse,
@@ -374,7 +396,6 @@ describe('CheckoutController', () => {
       const result = await controller.getTransactionStatus(transactionId, 'es');
 
       expect(result.data.status).toBe(TransactionStatus.ERROR);
-      expect(result.data.isFinalStatus).toBe(true);
     });
   });
 });

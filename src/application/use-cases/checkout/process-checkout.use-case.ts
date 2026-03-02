@@ -18,6 +18,7 @@ import {
   CheckoutRequestDto,
   CheckoutResponseDto,
 } from '@application/dtos/checkout';
+import { TransactionStatusTokenService } from './transaction-status-token.service';
 import { TransactionStatus } from '@domain/enums';
 import { v4 as uuidv4, validate as isValidUUID } from 'uuid';
 import { Transaction } from '@infrastructure/adapters/database/typeorm/entities';
@@ -81,15 +82,18 @@ export class ProcessCheckoutUseCase {
     private readonly deliveryRepository: IDeliveryRepository,
     @Inject('IPaymentGateway')
     private readonly paymentGateway: IPaymentGateway,
+    private readonly statusTokenService: TransactionStatusTokenService,
   ) {}
 
   async execute(
     request: CheckoutRequestDto,
-    customerId: string,
+    customerId: string | null,
     customerEmail: string,
     ipAddress: string,
   ): Promise<Result<CheckoutResponseDto, CheckoutError>> {
-    this.logger.log(`Processing checkout for customer ${customerId}`);
+    this.logger.log(
+      `Processing checkout for ${customerId ? `customer ${customerId}` : `guest ${customerEmail}`}`,
+    );
 
     // Step 1: Validate products and stock (ROP)
     const validationResult = await this.validateProductsAndStock(request);
@@ -163,7 +167,7 @@ export class ProcessCheckoutUseCase {
     );
 
     // Step 5: Return checkout response with PENDING status
-    // Client will poll GET /checkout/status/:transactionId to check final status
+    // Client will poll GET /checkout/status?token={statusToken} to check final status
     // Stock reduction and delivery creation happen when status becomes APPROVED
     const response: CheckoutResponseDto = {
       transactionId: transaction.id,
@@ -172,6 +176,7 @@ export class ProcessCheckoutUseCase {
       currency: 'COP',
       reference: transaction.reference,
       paymentMethod: paymentData.paymentMethod,
+      statusToken: transaction.statusToken ?? undefined, // JWT token for secure polling
       wompiTransactionId: paymentData.transactionId, // For client polling
       errorCode: paymentData.errorCode,
       errorMessage: paymentData.errorMessage,
@@ -240,7 +245,7 @@ export class ProcessCheckoutUseCase {
    * Step 2: Create transaction in PENDING state
    */
   private async createPendingTransaction(
-    customerId: string,
+    customerId: string | null,
     customerEmail: string,
     totalAmount: number,
     request: CheckoutRequestDto,
@@ -249,13 +254,27 @@ export class ProcessCheckoutUseCase {
     try {
       const reference = `REF-${Date.now()}-${uuidv4().slice(0, 8)}`;
 
+      // Create transaction without statusToken first (need transactionId)
       const transaction = await this.transactionRepository.create({
         amount: totalAmount,
         reference,
         status: TransactionStatus.PENDING,
         customerId,
+        customerEmail,
         paymentMethod: request.paymentMethod.type,
         ipAddress,
+      });
+
+      // Generate secure status token (JWT with transactionId + email)
+      const statusToken = await this.statusTokenService.generateStatusToken(
+        transaction.id,
+        customerEmail,
+      );
+
+      // Update transaction with statusToken
+      transaction.statusToken = statusToken;
+      await this.transactionRepository.update(transaction.id, {
+        statusToken,
       });
 
       return ok(transaction);
@@ -347,8 +366,7 @@ export class ProcessCheckoutUseCase {
     }
 
     const paymentMethod: PaymentMethodData = {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      type: request.paymentMethod.type as any,
+      type: request.paymentMethod.type as PaymentMethodData['type'],
       token,
       installments: request.paymentMethod.installments,
       phoneNumber: request.paymentMethod.phoneNumber,

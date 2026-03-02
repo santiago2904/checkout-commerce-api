@@ -30,13 +30,17 @@
   "checkout": {
     "success": "Checkout initiated successfully",
     "statusChecked": "Transaction status checked",
+    "transactionsRetrieved": "Transactions retrieved successfully",
     "errors": {
       "customerNotFound": "Customer not found",
       "insufficientStock": "Insufficient stock",
       "productNotFound": "Product not found",
       "transactionNotFound": "Transaction not found",
+      "tokenRequired": "Status token is required to check transaction status",
+      "tokenInvalid": "Invalid or expired status token. Tokens expire after 24 hours",
       "failed": "Checkout failed",
-      "failedStatusCheck": "Failed to check status"
+      "failedStatusCheck": "Failed to check status",
+      "failedToGetTransactions": "Failed to get transactions"
     }
   },
   "payment": {

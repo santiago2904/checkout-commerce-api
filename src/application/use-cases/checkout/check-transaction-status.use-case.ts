@@ -10,6 +10,7 @@ import type {
 import { TransactionStatus } from '@domain/enums';
 import { Transaction } from '@infrastructure/adapters/database/typeorm/entities';
 import { FulfillmentService } from './fulfillment.service';
+import { TransactionStatusTokenService } from './transaction-status-token.service';
 
 /**
  * Transaction Status Response
@@ -70,14 +71,30 @@ export class CheckTransactionStatusUseCase {
     @Inject('IPaymentGateway')
     private readonly paymentGateway: IPaymentGateway,
     private readonly fulfillmentService: FulfillmentService,
+    private readonly statusTokenService: TransactionStatusTokenService,
   ) {}
 
   async execute(
-    transactionId: string,
+    statusToken: string,
   ): Promise<Result<TransactionStatusResponse, CheckTransactionStatusError>> {
+    // Step 1: Verify and decode the JWT status token
+    let tokenPayload: { transactionId: string; email: string };
+    try {
+      tokenPayload =
+        await this.statusTokenService.verifyStatusToken(statusToken);
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Invalid token';
+      this.logger.warn(`Token verification failed: ${errorMessage}`);
+      return err(
+        new CheckTransactionStatusError(errorMessage, 'TOKEN_INVALID'),
+      );
+    }
+
+    const { transactionId, email } = tokenPayload;
     this.logger.log(`Checking status for transaction ${transactionId}`);
 
-    // Step 1: Find transaction in database
+    // Step 2: Find transaction in database
     const transaction =
       await this.transactionRepository.findById(transactionId);
     if (!transaction) {
@@ -89,7 +106,21 @@ export class CheckTransactionStatusUseCase {
       );
     }
 
-    // Step 2: Verify transaction has a Wompi transaction ID
+    // Step 3: Validate email from token matches transaction
+    // This provides dual verification: signed token + email match
+    if (transaction.customerEmail !== email) {
+      this.logger.warn(
+        `Email mismatch for transaction ${transactionId}: expected ${transaction.customerEmail}, got ${email}`,
+      );
+      return err(
+        new CheckTransactionStatusError(
+          'Token does not match transaction',
+          'TOKEN_MISMATCH',
+        ),
+      );
+    }
+
+    // Step 4: Verify transaction has a Wompi transaction ID
     if (!transaction.wompiTransactionId) {
       return err(
         new CheckTransactionStatusError(
@@ -99,7 +130,7 @@ export class CheckTransactionStatusUseCase {
       );
     }
 
-    // Step 3: Query Wompi for current status
+    // Step 5: Query Wompi for current status
     const wompiResult = await this.paymentGateway.getTransactionStatus(
       transaction.wompiTransactionId,
     );
@@ -118,7 +149,7 @@ export class CheckTransactionStatusUseCase {
 
     const paymentData: PaymentResult = wompiResult.value;
 
-    // Step 4: Update transaction in database if status changed
+    // Step 6: Update transaction in database if status changed
     const currentStatus = transaction.status;
     const newStatus = this.mapStatusToEnum(paymentData.status);
 
@@ -213,7 +244,7 @@ export class CheckTransactionStatusUseCase {
       }
     }
 
-    // Step 5: Return current transaction status
+    // Step 7: Return current transaction status
     const response: TransactionStatusResponse = {
       transactionId: transaction.id,
       wompiTransactionId: transaction.wompiTransactionId,

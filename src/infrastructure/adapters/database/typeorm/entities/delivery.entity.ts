@@ -47,10 +47,11 @@ export class Delivery extends BaseEntity {
   @Column({ type: 'uuid', nullable: true })
   transactionId: string;
 
-  @ManyToOne(() => Customer, { eager: true })
+  // Guest checkout support: customer may be null for guest transactions
+  @ManyToOne(() => Customer, { eager: true, nullable: true })
   @JoinColumn({ name: 'customerId' })
-  customer: Customer;
+  customer: Customer | null;
 
-  @Column({ type: 'uuid' })
-  customerId: string;
+  @Column({ type: 'uuid', nullable: true })
+  customerId: string | null;
 }

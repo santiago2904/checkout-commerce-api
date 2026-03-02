@@ -57,7 +57,7 @@ export class WompiTransactionDataDto {
   status: string;
 
   @IsOptional()
-  shipping_address?: any;
+  shipping_address?: Record<string, unknown> | null;
 
   @IsOptional()
   payment_link_id?: string;

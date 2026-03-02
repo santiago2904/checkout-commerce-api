@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { JwtModule } from '@nestjs/jwt';
 import {
   Product,
   Transaction,
@@ -18,7 +19,9 @@ import {
 import {
   ProcessCheckoutUseCase,
   CheckTransactionStatusUseCase,
+  GetMyTransactionsUseCase,
   FulfillmentService,
+  TransactionStatusTokenService,
 } from '@application/use-cases/checkout';
 import {
   PRODUCT_REPOSITORY,
@@ -60,6 +63,7 @@ import { ConfigModule } from '@nestjs/config';
     ]),
     HttpModule,
     ConfigModule,
+    JwtModule.register({}), // Use default config from auth module
   ],
   controllers: [CheckoutController, WebhookController],
   providers: [
@@ -96,10 +100,16 @@ import { ConfigModule } from '@nestjs/config';
     // Use Cases & Services
     ProcessCheckoutUseCase,
     CheckTransactionStatusUseCase,
+    GetMyTransactionsUseCase,
     FulfillmentService,
+    TransactionStatusTokenService,
     // Interceptors
     AuditInterceptor,
   ],
-  exports: [ProcessCheckoutUseCase, CheckTransactionStatusUseCase],
+  exports: [
+    ProcessCheckoutUseCase,
+    CheckTransactionStatusUseCase,
+    GetMyTransactionsUseCase,
+  ],
 })
 export class CheckoutModule {}

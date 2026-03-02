@@ -99,9 +99,9 @@ export class FulfillmentService {
       `Starting fulfillment for APPROVED transaction ${transaction.id}`,
     );
 
-    // Log start in audit_logs
+    // Log start in audit_logs (userId null for system actions)
     await this.auditLogRepository.create({
-      userId: 'SYSTEM',
+      userId: null,
       roleName: 'SYSTEM',
       action: AUDIT_ACTIONS.FULFILLMENT_APPROVED_START,
       metadata: {
@@ -130,9 +130,9 @@ export class FulfillmentService {
         );
       }
 
-      // Log stock reduction
+      // Log stock reduction (userId null for system actions)
       await this.auditLogRepository.create({
-        userId: 'SYSTEM',
+        userId: null,
         roleName: 'SYSTEM',
         action: AUDIT_ACTIONS.FULFILLMENT_STOCK_REDUCED,
         metadata: {
@@ -148,17 +148,31 @@ export class FulfillmentService {
       });
 
       // Step 3: Create delivery record
-      const address = shippingAddress || {
-        addressLine1: transaction.customer.address || 'Not provided',
-        city: 'Not provided',
-        postalCode: '',
-        recipientName: `${transaction.customer.firstName} ${transaction.customer.lastName}`,
-        recipientPhone: transaction.customer.phone || '',
-      };
+      // Priority: use provided shippingAddress, fallback to customer data if available
+      let address;
+
+      if (shippingAddress) {
+        // Guest checkout or explicit shipping address provided
+        address = shippingAddress;
+      } else if (transaction.customer) {
+        // Authenticated checkout with customer data
+        address = {
+          addressLine1: transaction.customer.address || 'Not provided',
+          city: 'Not provided',
+          postalCode: '',
+          recipientName: `${transaction.customer.firstName} ${transaction.customer.lastName}`,
+          recipientPhone: transaction.customer.phone || '',
+        };
+      } else {
+        // No shipping address and no customer data - this should not happen
+        throw new Error(
+          'Cannot create delivery: no shipping address or customer data available',
+        );
+      }
 
       const delivery = await this.deliveryRepository.create({
         transactionId: transaction.id,
-        customerId: transaction.customerId,
+        customerId: transaction.customerId, // Can be null for guest checkout
         address: address.addressLine1,
         city: address.city,
         postalCode: address.postalCode || '',
@@ -171,9 +185,9 @@ export class FulfillmentService {
         `Created delivery ${delivery.id} for transaction ${transaction.id}`,
       );
 
-      // Log delivery creation
+      // Log delivery creation (userId null for system actions)
       await this.auditLogRepository.create({
-        userId: 'SYSTEM',
+        userId: null,
         roleName: 'SYSTEM',
         action: AUDIT_ACTIONS.FULFILLMENT_DELIVERY_CREATED,
         metadata: {
@@ -185,9 +199,9 @@ export class FulfillmentService {
         },
       });
 
-      // Step 4: Log overall success
+      // Step 4: Log overall success (userId null for system actions)
       await this.auditLogRepository.create({
-        userId: 'SYSTEM',
+        userId: null,
         roleName: 'SYSTEM',
         action: AUDIT_ACTIONS.FULFILLMENT_APPROVED_SUCCESS,
         metadata: {
@@ -226,9 +240,9 @@ export class FulfillmentService {
         `Fulfillment failed for transaction ${transaction.id}: ${errorMessage}`,
       );
 
-      // Log failure in audit_logs
+      // Log failure in audit_logs (userId null for system actions)
       await this.auditLogRepository.create({
-        userId: 'SYSTEM',
+        userId: null,
         roleName: 'SYSTEM',
         action: AUDIT_ACTIONS.FULFILLMENT_APPROVED_FAILED,
         metadata: {
@@ -264,7 +278,7 @@ export class FulfillmentService {
     );
 
     try {
-      // Log declined transaction
+      // Log declined transaction for system actions
       await this.auditLogRepository.create({
         userId: 'SYSTEM',
         roleName: 'SYSTEM',
@@ -326,7 +340,7 @@ export class FulfillmentService {
     );
 
     try {
-      // Log error transaction
+      // Log error transaction for system actions
       await this.auditLogRepository.create({
         userId: 'SYSTEM',
         roleName: 'SYSTEM',

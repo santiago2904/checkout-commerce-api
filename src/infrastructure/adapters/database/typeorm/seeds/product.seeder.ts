@@ -21,68 +21,49 @@ export class ProductSeeder {
     // Create sample products
     const products = [
       {
-        name: 'Laptop Dell XPS 13',
+        name: 'iPhone 15 Pro 256GB',
         description:
-          'High-performance laptop with Intel Core i7, 16GB RAM, 512GB SSD',
-        price: 2000.99,
-        stock: 10,
+          'Apple iPhone 15 Pro con chip A17 Pro, cámara de 48MP, titanio, pantalla Super Retina XDR de 6.1"',
+        price: 5499000,
+        stock: 0, // Agotado
+        imageUrl:
+          'https://images.unsplash.com/photo-1678652197831-2d180705cd2c?w=500',
       },
       {
-        name: 'iPhone 15 Pro',
-        description: 'Latest Apple iPhone with A17 Pro chip, 256GB storage',
-        price: 6000000.99,
+        name: 'MacBook Air M2 13"',
+        description:
+          'Laptop Apple con chip M2, 8GB RAM, 256GB SSD, pantalla Retina 13.6", diseño ultra delgado',
+        price: 4299000,
+        stock: 1, // Última unidad disponible
+        imageUrl:
+          'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=500',
+      },
+      {
+        name: 'Sony WH-1000XM5',
+        description:
+          'Audífonos premium con cancelación de ruido líder en la industria, 30 horas de batería, sonido Hi-Res',
+        price: 1249900,
         stock: 25,
-      },
-      {
-        name: 'Samsung Galaxy S24',
-        description:
-          'Flagship Android phone with 128GB storage and 5G connectivity',
-        price: 2000.99,
-        stock: 15,
-      },
-      {
-        name: 'Sony WH-1000XM5 Headphones',
-        description: 'Premium noise-canceling wireless headphones',
-        price: 5000000.99,
-        stock: 30,
-      },
-      {
-        name: 'iPad Pro 12.9"',
-        description: 'Powerful tablet with M2 chip, 256GB storage, WiFi',
-        price: 1000000.99,
-        stock: 20,
-      },
-      {
-        name: 'MacBook Pro 14"',
-        description:
-          'Professional laptop with M3 Pro chip, 18GB RAM, 512GB SSD',
-        price: 1000000.99,
-        stock: 8,
-      },
-      {
-        name: 'Apple Watch Series 9',
-        description:
-          'Smartwatch with GPS, health monitoring, and fitness tracking',
-        price: 2000000.99,
-        stock: 40,
-      },
-      {
-        name: 'Samsung 55" 4K Smart TV',
-        description: 'Crystal UHD 4K TV with Tizen OS and HDR support',
-        price: 3000000.99,
-        stock: 12,
-      },
-      {
-        name: 'Nintendo Switch OLED',
-        description: 'Gaming console with vibrant OLED screen and 64GB storage',
-        price: 2000.99,
-        stock: 18,
+        imageUrl:
+          'https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=500',
       },
       {
         name: 'Logitech MX Master 3S',
-        description: 'Ergonomic wireless mouse for professionals',
-        price: 4000000.99,
+        description:
+          'Mouse inalámbrico ergonómico para profesionales, sensor de 8000 DPI, scroll electromagnético MagSpeed',
+        price: 379900,
         stock: 50,
+        imageUrl:
+          'https://images.unsplash.com/photo-1527814050087-3793815479db?w=500',
+      },
+      {
+        name: 'Keychron K2 V2 Mechanical',
+        description:
+          'Teclado mecánico inalámbrico con switches Gateron Brown, retroiluminación RGB, compatible Mac/Windows',
+        price: 459000,
+        stock: 35,
+        imageUrl:
+          'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=500',
       },
     ];
 

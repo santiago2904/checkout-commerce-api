@@ -21,4 +21,7 @@ export class Product extends BaseEntity {
 
   @Column({ type: 'int', default: 0 })
   stock: number;
+
+  @Column({ type: 'varchar', length: 500, nullable: true })
+  imageUrl: string;
 }

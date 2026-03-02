@@ -43,6 +43,10 @@ export const getTypeOrmConfig = (
   ],
   migrationsRun:
     configService.get<string>('AUTO_RUN_MIGRATIONS', 'false') === 'true',
+  ssl:
+    configService.get<string>('DB_SSL') === 'true'
+      ? { rejectUnauthorized: false }
+      : false,
 });
 
 /**
@@ -63,6 +67,7 @@ export const dataSourceOptions: DataSourceOptions = {
   ],
   synchronize: false,
   logging: process.env.NODE_ENV === 'development',
+  ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
 };
 
 const dataSource = new DataSource(dataSourceOptions);

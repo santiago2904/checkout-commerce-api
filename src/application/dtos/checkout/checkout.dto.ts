@@ -201,7 +201,7 @@ export class CheckoutRequestDto {
 /**
  * Checkout Response DTO
  * IMPORTANT: Wompi payments are async - status will be PENDING initially
- * Client should poll GET /checkout/status/:transactionId to get final status
+ * Client should poll GET /checkout/status?token={statusToken} to get final status
  */
 export class CheckoutResponseDto {
   transactionId: string; // Internal transaction ID
@@ -211,6 +211,7 @@ export class CheckoutResponseDto {
   currency: string;
   reference: string; // Unique reference for this transaction (sent to Wompi)
   paymentMethod: string;
+  statusToken?: string; // JWT token for secure status polling (expires in 24h)
   deliveryId?: string; // Only present when status is APPROVED
   errorCode?: string;
   errorMessage?: string;

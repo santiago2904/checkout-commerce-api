@@ -27,13 +27,12 @@ export class I18nService {
   ): string {
     const keys = key.split('.');
 
-    let value: any =
+    let value: unknown =
       this.translations[lang] || this.translations[this.defaultLanguage];
 
     for (const k of keys) {
       if (value && typeof value === 'object' && k in value) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-        value = value[k];
+        value = (value as Record<string, unknown>)[k];
       } else {
         return key; // Return key if translation not found
       }

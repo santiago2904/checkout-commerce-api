@@ -18,6 +18,35 @@ import {
 } from '@infrastructure/adapters/web/constants/audit-actions.constants';
 import { extractRealIp } from '@infrastructure/adapters/web/utils';
 
+interface RequestUser {
+  userId?: string;
+  email?: string;
+  roleId?: string;
+  roleName?: string;
+  customer?: { id: string };
+}
+
+interface AuditRequest {
+  user?: RequestUser;
+  headers?: Record<string, string | string[] | undefined>;
+  method?: string;
+  url?: string;
+  body?: Record<string, unknown>;
+  params?: Record<string, unknown>;
+  ip?: string;
+  connection?: { remoteAddress?: string };
+  socket?: { remoteAddress?: string };
+}
+
+interface AuditResponse {
+  data?: {
+    user?: { id: string; roleName?: string };
+    transactionId?: string;
+    amount?: number;
+    status?: string;
+  };
+}
+
 /**
  * Audit Interceptor
  * Automatically logs actions to the audit_logs table
@@ -42,7 +71,7 @@ export class AuditInterceptor implements NestInterceptor {
     private readonly auditLogRepository: IAuditLogRepository,
   ) {}
 
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     // Get the action from @Audit decorator metadata
     const action = this.reflector.get<string>(AUDIT_KEY, context.getHandler());
 
@@ -51,9 +80,8 @@ export class AuditInterceptor implements NestInterceptor {
       return next.handle();
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const request = context.switchToHttp().getRequest();
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+
     const user = request.user; // Injected by JWT strategy (may be undefined for public endpoints)
 
     // Execute the handler and audit after successful execution
@@ -62,16 +90,20 @@ export class AuditInterceptor implements NestInterceptor {
         next: (response) => {
           // Fire and forget: audit asynchronously without blocking response
           // Pass response to extract userId for public endpoints (register/login)
-          void this.auditAsync(user, action, request, response);
+          void this.auditAsync(
+            user,
+            action,
+            request,
+            response as AuditResponse,
+          );
         },
         error: (error) => {
           // Log audit even on errors (optional)
           this.logger.warn(
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             `Action ${action} failed but will still be audited: ${error.message}`,
           );
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-          void this.auditAsync(user, action, request, null, error);
+
+          void this.auditAsync(user, action, request, undefined, error);
         },
       }),
     );
@@ -81,12 +113,12 @@ export class AuditInterceptor implements NestInterceptor {
    * Audit asynchronously (fire and forget)
    * Does not block the HTTP response
    */
-  /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
+
   private async auditAsync(
-    user: any,
+    user: RequestUser | undefined,
     action: string,
-    request: any,
-    response?: any,
+    request: AuditRequest,
+    response?: AuditResponse,
     error?: Error,
   ): Promise<void> {
     try {
@@ -94,8 +126,8 @@ export class AuditInterceptor implements NestInterceptor {
       // For authenticated endpoints: use request.user (from JWT strategy)
       // JWT strategy returns: { userId, email, roleId, roleName, customer }
       // For public endpoints (register/login): extract from response
-      let userId = user?.userId || 'anonymous';
-      let roleName = user?.roleName || 'UNKNOWN';
+      let userId: string = user?.userId || 'anonymous';
+      let roleName: string = user?.roleName || 'UNKNOWN';
 
       // If no user in request, try to extract from response (for register/login)
       if (!user && response?.data?.user) {
@@ -104,9 +136,9 @@ export class AuditInterceptor implements NestInterceptor {
       }
 
       // Build metadata
-      const metadata: Record<string, any> = {
+      const metadata: Record<string, unknown> = {
         ip: extractRealIp(request),
-        userAgent: request.headers['user-agent'],
+        userAgent: request.headers?.['user-agent'],
         method: request.method,
         url: request.url,
       };
@@ -139,7 +171,8 @@ export class AuditInterceptor implements NestInterceptor {
 
         // Include target user ID for ADMIN category
         if (categoryConfig.includeTargetUserId) {
-          metadata.targetUserId = request.params?.id || request.body?.userId;
+          metadata.targetUserId =
+            (request.params?.id as string) || (request.body?.userId as string);
         }
       }
 

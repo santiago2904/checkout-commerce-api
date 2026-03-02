@@ -1,8 +1,6 @@
-/* eslint-disable @typescript-eslint/unbound-method */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, UpdateResult } from 'typeorm';
 import { TypeOrmTransactionRepository } from './transaction.repository';
 import { Transaction } from '../entities';
 import { TransactionStatus } from '@domain/enums';
@@ -148,7 +146,7 @@ describe('TypeOrmTransactionRepository', () => {
 
   describe('updateStatus', () => {
     it('should update transaction status', async () => {
-      mockRepository.update.mockResolvedValue({ affected: 1 } as any);
+      mockRepository.update.mockResolvedValue({ affected: 1 } as UpdateResult);
 
       await repository.updateStatus(
         'transaction-123',
@@ -168,7 +166,7 @@ describe('TypeOrmTransactionRepository', () => {
     });
 
     it('should update status with error details', async () => {
-      mockRepository.update.mockResolvedValue({ affected: 1 } as any);
+      mockRepository.update.mockResolvedValue({ affected: 1 } as UpdateResult);
 
       await repository.updateStatus(
         'transaction-123',
@@ -197,7 +195,7 @@ describe('TypeOrmTransactionRepository', () => {
         wompiTransactionId: 'wompi-789',
       };
 
-      mockRepository.update.mockResolvedValue({ affected: 1 } as any);
+      mockRepository.update.mockResolvedValue({ affected: 1 } as UpdateResult);
 
       await repository.update('transaction-123', updateData);
 

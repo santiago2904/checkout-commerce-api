@@ -1,8 +1,6 @@
-/* eslint-disable @typescript-eslint/unbound-method */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, UpdateResult } from 'typeorm';
 import { TypeOrmDeliveryRepository } from './delivery.repository';
 import { Delivery } from '../entities';
 
@@ -171,7 +169,7 @@ describe('TypeOrmDeliveryRepository', () => {
 
   describe('updateStatus', () => {
     it('should update delivery status', async () => {
-      mockRepository.update.mockResolvedValue({ affected: 1 } as any);
+      mockRepository.update.mockResolvedValue({ affected: 1 } as UpdateResult);
 
       await repository.updateStatus('delivery-123', 'SHIPPED');
 
@@ -182,7 +180,7 @@ describe('TypeOrmDeliveryRepository', () => {
     });
 
     it('should update to DELIVERED status', async () => {
-      mockRepository.update.mockResolvedValue({ affected: 1 } as any);
+      mockRepository.update.mockResolvedValue({ affected: 1 } as UpdateResult);
 
       await repository.updateStatus('delivery-123', 'DELIVERED');
 
@@ -193,7 +191,7 @@ describe('TypeOrmDeliveryRepository', () => {
     });
 
     it('should update to CANCELLED status', async () => {
-      mockRepository.update.mockResolvedValue({ affected: 1 } as any);
+      mockRepository.update.mockResolvedValue({ affected: 1 } as UpdateResult);
 
       await repository.updateStatus('delivery-123', 'CANCELLED');
 

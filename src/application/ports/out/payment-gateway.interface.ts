@@ -114,7 +114,7 @@ export class PaymentError extends Error {
   constructor(
     message: string,
     public readonly code: string,
-    public readonly details?: any,
+    public readonly details?: Record<string, unknown>,
   ) {
     super(message);
     this.name = 'PaymentError';
@@ -125,8 +125,12 @@ export class PaymentError extends Error {
  * Payment Gateway Connection Error
  */
 export class PaymentGatewayError extends PaymentError {
-  constructor(message: string, details?: any) {
-    super(message, 'PAYMENT_GATEWAY_ERROR', details);
+  constructor(message: string, details?: Record<string, unknown> | string) {
+    super(
+      message,
+      'PAYMENT_GATEWAY_ERROR',
+      typeof details === 'string' ? { message: details } : details,
+    );
     this.name = 'PaymentGatewayError';
   }
 }
@@ -135,8 +139,12 @@ export class PaymentGatewayError extends PaymentError {
  * Invalid Payment Data Error
  */
 export class InvalidPaymentDataError extends PaymentError {
-  constructor(message: string, details?: any) {
-    super(message, 'INVALID_PAYMENT_DATA', details);
+  constructor(message: string, details?: Record<string, unknown> | string) {
+    super(
+      message,
+      'INVALID_PAYMENT_DATA',
+      typeof details === 'string' ? { message: details } : details,
+    );
     this.name = 'InvalidPaymentDataError';
   }
 }
@@ -145,7 +153,11 @@ export class InvalidPaymentDataError extends PaymentError {
  * Transaction Declined Error
  */
 export class TransactionDeclinedError extends PaymentError {
-  constructor(message: string, code: string, details?: any) {
+  constructor(
+    message: string,
+    code: string,
+    details?: Record<string, unknown>,
+  ) {
     super(message, code, details);
     this.name = 'TransactionDeclinedError';
   }

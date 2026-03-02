@@ -12,6 +12,7 @@ export interface ProductResponse {
   description: string;
   price: number;
   stock: number;
+  imageUrl?: string;
 }
 
 /**
@@ -42,6 +43,7 @@ export class GetProductsUseCase {
         description: product.description,
         price: Number(product.price),
         stock: product.stock,
+        imageUrl: product.imageUrl,
       }));
 
       return Result.ok(productResponses);
